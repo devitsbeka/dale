@@ -1,3 +1,3 @@
-import { HomeScreen } from "./home-screen";
+import { Dashboard01 } from "@/components/dashboards/dashboard-01";
 
-export default HomeScreen;
+export default Dashboard01;
