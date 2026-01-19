@@ -58,46 +58,46 @@ const articles: Article[] = [
     {
         id: "1",
         href: "#",
-        thumbnailUrl: "https://images.unsplash.com/photo-1496128858413-b36217c2ce36?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=3603&q=80",
-        title: "How to build a strong design system",
-        summary: "Learn the fundamentals of creating a scalable and maintainable design system for your product.",
+        thumbnailUrl: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?ixlib=rb-4.0.3&auto=format&fit=crop&w=3603&q=80",
+        title: "Senior Product Designer at Stripe",
+        summary: "Remote-first role building the future of payment infrastructure. Competitive salary + equity.",
         category: {
             href: "#",
-            name: "Design",
+            name: "Stripe",
         },
         author: {
             href: "#",
-            name: "Olivia Rhye",
-            avatarUrl: "https://www.untitledui.com/images/avatars/olivia-rhye?fm=webp&q=80",
+            name: "Posted 2h ago",
+            avatarUrl: "https://logo.clearbit.com/stripe.com",
         },
-        publishedAt: "Jan 9, 2024",
-        readingTime: "8 min read",
+        publishedAt: "Posted today",
+        readingTime: "$140k–$180k",
         tags: [
-            { name: "Design", color: "purple", href: "#" },
-            { name: "UX", color: "blue", href: "#" },
+            { name: "Remote", color: "purple", href: "#" },
+            { name: "Design", color: "orange", href: "#" },
         ],
         isFeatured: true,
     },
     {
         id: "2",
         href: "#",
-        thumbnailUrl: "https://images.unsplash.com/photo-1547586696-ea22b4d4235d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=3270&q=80",
-        title: "Getting started with Next.js 14",
-        summary: "A comprehensive guide to building modern web applications with the latest version of Next.js.",
+        thumbnailUrl: "https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&auto=format&fit=crop&w=3270&q=80",
+        title: "Full-Stack Engineer at Vercel",
+        summary: "Build the modern web with Next.js and React. Work with a globally distributed team.",
         category: {
             href: "#",
-            name: "Development",
+            name: "Vercel",
         },
         author: {
             href: "#",
-            name: "Phoenix Baker",
-            avatarUrl: "https://www.untitledui.com/images/avatars/transparent/phoenix-baker?bg=%23E0E0E0",
+            name: "Posted 5h ago",
+            avatarUrl: "https://logo.clearbit.com/vercel.com",
         },
-        publishedAt: "Jan 5, 2024",
-        readingTime: "12 min read",
+        publishedAt: "Posted today",
+        readingTime: "$130k–$170k",
         tags: [
-            { name: "Development", color: "indigo", href: "#" },
-            { name: "React", color: "blue", href: "#" },
+            { name: "Remote", color: "purple", href: "#" },
+            { name: "Engineering", color: "blue", href: "#" },
         ],
     },
 ];
@@ -106,50 +106,50 @@ const feed: FeedItemType[] = [
     {
         id: "1",
         user: {
-            name: "Olivia Rhye",
-            avatarUrl: "https://www.untitledui.com/images/avatars/olivia-rhye?fm=webp&q=80",
+            name: "Stripe",
+            avatarUrl: "https://logo.clearbit.com/stripe.com",
         },
-        action: "Published 3 posts this week",
+        action: "Application submitted",
         timestamp: "2h",
         href: "#",
     },
     {
         id: "2",
         user: {
-            name: "Phoenix Baker",
-            avatarUrl: "https://www.untitledui.com/images/avatars/transparent/phoenix-baker?bg=%23E0E0E0",
+            name: "Vercel",
+            avatarUrl: "https://logo.clearbit.com/vercel.com",
         },
-        action: "Published 2 posts this week",
+        action: "Interview scheduled",
         timestamp: "5h",
         href: "#",
     },
     {
         id: "3",
         user: {
-            name: "Lana Steiner",
-            avatarUrl: "https://www.untitledui.com/images/avatars/transparent/lana-steiner?bg=%23E0E0E0",
+            name: "Linear",
+            avatarUrl: "https://logo.clearbit.com/linear.app",
         },
-        action: "Published 2 posts this week",
+        action: "Application viewed",
         timestamp: "1d",
         href: "#",
     },
     {
         id: "4",
         user: {
-            name: "Demi Wilkinson",
-            avatarUrl: "https://www.untitledui.com/images/avatars/transparent/demi-wilkinson?bg=%23E0E0E0",
+            name: "Notion",
+            avatarUrl: "https://logo.clearbit.com/notion.so",
         },
-        action: "Published 1 post this week",
+        action: "Application submitted",
         timestamp: "2d",
         href: "#",
     },
     {
         id: "5",
         user: {
-            name: "Candice Wu",
-            avatarUrl: "https://www.untitledui.com/images/avatars/transparent/candice-wu?bg=%23E0E0E0",
+            name: "GitHub",
+            avatarUrl: "https://logo.clearbit.com/github.com",
         },
-        action: "Published 1 post this week",
+        action: "Profile viewed",
         timestamp: "3d",
         href: "#",
     },
@@ -211,41 +211,41 @@ export const Dashboard01 = () => {
                 activeUrl="/dashboard"
                 items={[
                     {
-                        label: "Dashboard",
+                        label: "Overview",
                         href: "/dashboard",
                         icon: HomeLine,
                     },
                     {
-                        label: "Analytics",
-                        href: "/analytics",
+                        label: "Opportunities",
+                        href: "/opportunities",
                         icon: BarChartSquare02,
                     },
                     {
-                        label: "Reports",
-                        href: "/reports",
-                        icon: PieChart03,
-                    },
-                    {
-                        label: "Members",
-                        href: "/members",
-                        icon: Users01,
-                    },
-                    {
-                        label: "Posts",
-                        href: "/posts",
+                        label: "Applications",
+                        href: "/applications",
                         icon: Rows01,
                     },
                     {
-                        label: "Tasks",
-                        href: "/tasks",
+                        label: "Career Intel",
+                        href: "/career-intel",
+                        icon: PieChart03,
+                    },
+                    {
+                        label: "Resume Builder",
+                        href: "/resume",
+                        icon: Edit04,
+                    },
+                    {
+                        label: "Action Items",
+                        href: "/actions",
                         icon: CheckDone01,
                     },
                 ]}
                 featureCard={
                     <FeaturedCardImage
-                        title="New features available!"
-                        description="Check out the new dashboard view. Pages now load faster."
-                        confirmLabel="What's new?"
+                        title="Fresh opportunities daily"
+                        description="Dale found 47 new remote roles that match your profile. Apply before they saturate."
+                        confirmLabel="View opportunities"
                         imageSrc="https://www.untitledui.com/application/smiling-girl-2.webp"
                         onConfirm={() => {}}
                         onDismiss={() => {}}
@@ -260,7 +260,8 @@ export const Dashboard01 = () => {
                         <div className="relative flex flex-col gap-4">
                             <div className="flex flex-col gap-4 lg:flex-row lg:justify-between">
                                 <div className="flex flex-col gap-0.5 lg:gap-1">
-                                    <h1 className="text-xl font-semibold text-primary lg:text-display-xs">Dashboard</h1>
+                                    <h1 className="text-xl font-semibold text-primary lg:text-display-xs">Career Overview</h1>
+                                    <p className="text-md text-tertiary">Track your market position and application momentum</p>
                                 </div>
                             </div>
                         </div>
@@ -302,15 +303,14 @@ export const Dashboard01 = () => {
                     <div className="flex flex-col gap-6 px-4 lg:flex-row lg:gap-8 lg:px-8">
                         <div className="flex flex-1 flex-col gap-6 lg:flex-row lg:flex-wrap lg:gap-x-8 lg:gap-y-4">
                             <div className="flex flex-col gap-2">
-                                <p className="text-sm font-medium text-tertiary">MRR</p>
+                                <p className="text-sm font-medium text-tertiary">Applications sent</p>
 
                                 <div className="flex items-start gap-2">
                                     <div className="flex items-start gap-0.5">
-                                        <span className="pt-0.5 text-xl font-medium text-primary">$</span>
-                                        <span className="text-display-md font-semibold text-primary">18,880</span>
+                                        <span className="text-display-md font-semibold text-primary">47</span>
                                     </div>
 
-                                    <MetricChangeIndicator type="trend" trend="positive" value="7.4%" />
+                                    <MetricChangeIndicator type="trend" trend="positive" value="12%" />
                                 </div>
                             </div>
 
@@ -366,24 +366,24 @@ export const Dashboard01 = () => {
 
                         <dl className="flex w-full max-w-60 flex-col gap-5">
                             <div className="flex flex-col gap-2">
-                                <dt className="text-sm font-medium text-tertiary">Total members</dt>
+                                <dt className="text-sm font-medium text-tertiary">Response rate</dt>
                                 <dd className="flex items-start gap-2">
-                                    <span className="text-display-sm font-semibold text-primary">4,862</span>
-                                    <MetricChangeIndicator type="trend" trend="positive" value="9.2%" />
+                                    <span className="text-display-sm font-semibold text-primary">18%</span>
+                                    <MetricChangeIndicator type="trend" trend="positive" value="4.2%" />
                                 </dd>
                             </div>
                             <div className="flex flex-col gap-2">
-                                <dt className="text-sm font-medium text-tertiary">Paid members</dt>
+                                <dt className="text-sm font-medium text-tertiary">Interviews</dt>
                                 <dd className="flex items-start gap-2">
-                                    <span className="text-display-sm font-semibold text-primary">2,671</span>
-                                    <MetricChangeIndicator type="trend" trend="positive" value="6.6%" />
+                                    <span className="text-display-sm font-semibold text-primary">7</span>
+                                    <MetricChangeIndicator type="trend" trend="positive" value="16%" />
                                 </dd>
                             </div>
                             <div className="flex flex-col gap-2">
-                                <dt className="text-sm font-medium text-tertiary">Email open rate</dt>
+                                <dt className="text-sm font-medium text-tertiary">Profile views</dt>
                                 <dd className="flex items-start gap-2">
-                                    <span className="text-display-sm font-semibold text-primary">82%</span>
-                                    <MetricChangeIndicator type="trend" trend="positive" value="8.1%" />
+                                    <span className="text-display-sm font-semibold text-primary">342</span>
+                                    <MetricChangeIndicator type="trend" trend="positive" value="23%" />
                                 </dd>
                             </div>
                         </dl>
@@ -393,7 +393,7 @@ export const Dashboard01 = () => {
                         <SectionHeader.Root>
                             <SectionHeader.Group>
                                 <div className="flex flex-1 flex-col justify-center gap-0.5 self-stretch">
-                                    <SectionHeader.Heading>Start creating content</SectionHeader.Heading>
+                                    <SectionHeader.Heading>Quick actions</SectionHeader.Heading>
                                 </div>
 
                                 <div className="absolute top-0 right-0 md:static">
@@ -406,12 +406,12 @@ export const Dashboard01 = () => {
                             <div className="flex flex-col gap-8">
                                 <div className="flex flex-wrap gap-5 lg:gap-6">
                                     <button className="flex min-w-[320px] flex-1 cursor-pointer gap-3 rounded-xl bg-primary p-4 shadow-xs ring-1 ring-secondary outline-focus-ring ring-inset focus-visible:outline-2 focus-visible:outline-offset-2 lg:p-5">
-                                        <FeaturedIcon icon={UserPlus01} color="gray" theme="modern" size="lg" className="hidden lg:flex" />
-                                        <FeaturedIcon icon={UserPlus01} color="gray" theme="modern" size="md" className="lg:hidden" />
+                                        <FeaturedIcon icon={BarChartSquare02} color="gray" theme="modern" size="lg" className="hidden lg:flex" />
+                                        <FeaturedIcon icon={BarChartSquare02} color="gray" theme="modern" size="md" className="lg:hidden" />
 
                                         <div className="flex min-w-0 flex-1 flex-col items-start gap-0.5 text-left">
-                                            <p className="text-md font-semibold text-secondary">Create your first member</p>
-                                            <p className="max-w-full truncate text-sm text-tertiary">Add yourself or import from CSV</p>
+                                            <p className="text-md font-semibold text-secondary">Browse fresh opportunities</p>
+                                            <p className="max-w-full truncate text-sm text-tertiary">47 new remote roles added today</p>
                                         </div>
                                     </button>
                                     <button className="flex min-w-[320px] flex-1 cursor-pointer gap-3 rounded-xl bg-primary p-4 shadow-xs ring-1 ring-secondary outline-focus-ring ring-inset focus-visible:outline-2 focus-visible:outline-offset-2 lg:p-5">
@@ -419,8 +419,8 @@ export const Dashboard01 = () => {
                                         <FeaturedIcon icon={Edit04} color="gray" theme="modern" size="md" className="lg:hidden" />
 
                                         <div className="flex min-w-0 flex-1 flex-col items-start gap-0.5 text-left">
-                                            <p className="text-md font-semibold text-secondary">Create a new post</p>
-                                            <p className="max-w-full truncate text-sm text-tertiary">Dive into the editor and start creating</p>
+                                            <p className="text-md font-semibold text-secondary">Generate tailored resume</p>
+                                            <p className="max-w-full truncate text-sm text-tertiary">ATS-optimized for specific roles</p>
                                         </div>
                                     </button>
                                 </div>
@@ -428,7 +428,7 @@ export const Dashboard01 = () => {
                                     <SectionHeader.Root>
                                         <SectionHeader.Group>
                                             <div className="flex flex-1 flex-col justify-center gap-0.5 self-stretch">
-                                                <SectionHeader.Heading>Recent posts</SectionHeader.Heading>
+                                                <SectionHeader.Heading>Hot opportunities</SectionHeader.Heading>
                                             </div>
 
                                             <div className="absolute top-0 right-0 md:static">
@@ -445,12 +445,12 @@ export const Dashboard01 = () => {
                             </div>
 
                             <div className="flex w-full shrink-0 flex-col gap-6 lg:w-60">
-                                <p className="hidden text-sm font-medium text-secondary lg:block">Top members</p>
+                                <p className="hidden text-sm font-medium text-secondary lg:block">Recent activity</p>
 
                                 <SectionHeader.Root className="lg:hidden">
                                     <SectionHeader.Group>
                                         <div className="flex flex-1 flex-col justify-center gap-0.5 self-stretch">
-                                            <SectionHeader.Heading>Top members</SectionHeader.Heading>
+                                            <SectionHeader.Heading>Recent activity</SectionHeader.Heading>
                                         </div>
 
                                         <div className="absolute top-0 right-0 md:static">
