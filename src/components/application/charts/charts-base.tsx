@@ -1,7 +1,19 @@
-import type { TooltipProps } from "recharts";
 import { cx } from "@/utils/cx";
 
-export const ChartTooltipContent = ({ active, payload, label, formatter, labelFormatter }: TooltipProps<any, any>) => {
+interface ChartTooltipContentProps {
+    active?: boolean;
+    payload?: Array<{
+        value: any;
+        name: string;
+        color: string;
+        [key: string]: any;
+    }>;
+    label?: any;
+    formatter?: (value: any, name: any, entry: any, index: number, payload: any[]) => any;
+    labelFormatter?: (label: any, payload: any[]) => any;
+}
+
+export const ChartTooltipContent = ({ active, payload, label, formatter, labelFormatter }: ChartTooltipContentProps) => {
     if (!active || !payload || !payload.length) {
         return null;
     }
