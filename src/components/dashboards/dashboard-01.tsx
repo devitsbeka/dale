@@ -1,3 +1,5 @@
+"use client";
+
 import { ArrowUpRight, BarChartSquare02, CheckDone01, Edit04, FilterLines, HomeLine, PieChart03, Rows01, UserPlus01, Users01 } from "@untitledui/icons";
 import { Area, AreaChart, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, XAxis } from "recharts";
 import type { FeedItemType } from "@/components/application/activity-feed/activity-feed";
