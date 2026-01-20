@@ -35,6 +35,7 @@ import { ButtonGroup, ButtonGroupItem } from "@/components/base/button-group/but
 import { Button } from "@/components/base/buttons/button";
 import { FeaturedIcon } from "@/components/foundations/featured-icon/featured-icon";
 import { cx } from "@/utils/cx";
+import { WelcomeHero } from "./welcome-hero";
 
 const lineData = [
     { date: new Date(2024, 0, 1), A: 14500 },
@@ -382,21 +383,17 @@ export const Dashboard01 = () => {
                 showThemeToggle={false}
             />
 
-            <main className="min-w-0 flex-1 bg-primary pt-8 pb-12">
+            <main className="min-w-0 flex-1 bg-primary pb-12">
+                {/* Welcome Hero Section */}
+                <div className="px-4 pt-8 lg:px-8">
+                    <WelcomeHero userName="Beka" />
+                </div>
+
                 <div className="flex flex-col gap-8 lg:flex-row lg:gap-8 lg:px-8">
                     {/* Main content */}
                     <div className="flex min-w-0 flex-1 flex-col gap-8">
                     <div className="flex flex-col gap-5 px-4 lg:px-0">
-                        {/* Page header simple with search */}
-                        <div className="relative flex flex-col gap-4">
-                            <div className="flex flex-col gap-4 lg:flex-row lg:justify-between">
-                                <div className="flex flex-col gap-0.5 lg:gap-1">
-                                    <h1 className="text-xl font-semibold text-primary lg:text-display-xs">Career Overview</h1>
-                                    <p className="text-md text-tertiary">Track your market position and application momentum</p>
-                                </div>
-                            </div>
-                        </div>
-
+                        {/* Time range filters */}
                         <div className="flex gap-3 lg:justify-between">
                             <ButtonGroup defaultSelectedKeys={["12-months"]}>
                                 <ButtonGroupItem id="12-months">
