@@ -558,24 +558,6 @@ export const Dashboard01 = () => {
                                         </div>
                                     </button>
                                 </div>
-                                <div className="flex flex-col gap-6">
-                                    <SectionHeader.Root>
-                                        <SectionHeader.Group>
-                                            <div className="flex flex-1 flex-col justify-center gap-0.5 self-stretch">
-                                                <SectionHeader.Heading>Hot opportunities</SectionHeader.Heading>
-                                            </div>
-
-                                            <div className="absolute top-0 right-0 md:static">
-                                                <TableRowActionsDropdown />
-                                            </div>
-                                        </SectionHeader.Group>
-                                    </SectionHeader.Root>
-
-                                    <div className="flex flex-wrap gap-6">
-                                        <Simple03Vertical article={articles[0]} className="min-w-[320px] flex-1" />
-                                        <Simple03Vertical article={articles[1]} className="min-w-[320px] flex-1" />
-                                    </div>
-                                </div>
                             </div>
 
                             <div className="flex w-full shrink-0 flex-col gap-6 lg:w-60">
