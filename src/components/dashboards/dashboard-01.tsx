@@ -383,15 +383,16 @@ export const Dashboard01 = () => {
                 showThemeToggle={false}
             />
 
-            <main className="min-w-0 flex-1 bg-primary pb-12">
-                {/* Welcome Hero Section */}
-                <div className="px-4 pt-8 lg:px-8">
-                    <WelcomeHero userName="Beka" />
-                </div>
-
+            <main className="min-w-0 flex-1 bg-primary pb-12 pt-8">
                 <div className="flex flex-col gap-8 lg:flex-row lg:gap-8 lg:px-8">
                     {/* Main content */}
                     <div className="flex min-w-0 flex-1 flex-col gap-8">
+                    
+                    {/* Welcome Hero Section */}
+                    <div className="px-4 lg:px-0">
+                        <WelcomeHero userName="Beka" />
+                    </div>
+
                     <div className="flex flex-col gap-5 px-4 lg:px-0">
                         {/* Time range filters */}
                         <div className="flex gap-3 lg:justify-between">
