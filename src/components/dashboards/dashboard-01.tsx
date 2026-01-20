@@ -72,6 +72,10 @@ type Article = {
     isFeatured?: boolean;
 };
 
+// Logo.dev helper for company logos
+const LOGO_DEV_TOKEN = "pk_JsCdE0PFQ2mPn6GETPLiIw";
+const getLogoUrl = (domain: string) => `https://img.logo.dev/${domain}?token=${LOGO_DEV_TOKEN}`;
+
 const articles: Article[] = [
     {
         id: "1",
@@ -86,7 +90,7 @@ const articles: Article[] = [
         author: {
             href: "#",
             name: "Posted 2h ago",
-            avatarUrl: "https://logo.clearbit.com/stripe.com",
+            avatarUrl: getLogoUrl("stripe.com"),
         },
         publishedAt: "Posted today",
         readingTime: "$140k–$180k",
@@ -109,7 +113,7 @@ const articles: Article[] = [
         author: {
             href: "#",
             name: "Posted 5h ago",
-            avatarUrl: "https://logo.clearbit.com/vercel.com",
+            avatarUrl: getLogoUrl("vercel.com"),
         },
         publishedAt: "Posted today",
         readingTime: "$130k–$170k",
@@ -125,7 +129,7 @@ const feed: FeedItemType[] = [
         id: "1",
         user: {
             name: "Stripe",
-            avatarUrl: "https://logo.clearbit.com/stripe.com",
+            avatarUrl: getLogoUrl("stripe.com"),
         },
         action: "Application submitted",
         timestamp: "2h",
@@ -135,7 +139,7 @@ const feed: FeedItemType[] = [
         id: "2",
         user: {
             name: "Vercel",
-            avatarUrl: "https://logo.clearbit.com/vercel.com",
+            avatarUrl: getLogoUrl("vercel.com"),
         },
         action: "Interview scheduled",
         timestamp: "5h",
@@ -145,7 +149,7 @@ const feed: FeedItemType[] = [
         id: "3",
         user: {
             name: "Linear",
-            avatarUrl: "https://logo.clearbit.com/linear.app",
+            avatarUrl: getLogoUrl("linear.app"),
         },
         action: "Application viewed",
         timestamp: "1d",
@@ -155,7 +159,7 @@ const feed: FeedItemType[] = [
         id: "4",
         user: {
             name: "Notion",
-            avatarUrl: "https://logo.clearbit.com/notion.so",
+            avatarUrl: getLogoUrl("notion.so"),
         },
         action: "Application submitted",
         timestamp: "2d",
@@ -165,7 +169,7 @@ const feed: FeedItemType[] = [
         id: "5",
         user: {
             name: "GitHub",
-            avatarUrl: "https://logo.clearbit.com/github.com",
+            avatarUrl: getLogoUrl("github.com"),
         },
         action: "Profile viewed",
         timestamp: "3d",
