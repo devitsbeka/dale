@@ -11,8 +11,8 @@ export const UntitledLogoMinimal = (props: SVGProps<SVGSVGElement>) => {
         <svg viewBox="0 0 32 32" fill="none" {...props} className={cx("size-8", props.className)}>
             <defs>
                 <linearGradient id={`dale-gradient-${id}`} x1="0" y1="32" x2="32" y2="0" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#0F766E" />
-                    <stop offset="1" stopColor="#2DD4BF" />
+                    <stop stopColor="#9E523A" />
+                    <stop offset="1" stopColor="#CC785C" />
                 </linearGradient>
             </defs>
             <rect width="32" height="32" rx="8" fill={`url(#dale-gradient-${id})`} />
@@ -20,10 +20,10 @@ export const UntitledLogoMinimal = (props: SVGProps<SVGSVGElement>) => {
                 x="16"
                 y="23"
                 textAnchor="middle"
-                fill="white"
+                fill="#FAFAF7"
                 fontSize="20"
                 fontWeight="700"
-                fontFamily="system-ui, -apple-system, sans-serif"
+                fontFamily="'Styrene A', system-ui, -apple-system, sans-serif"
             >
                 D
             </text>
