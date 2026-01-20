@@ -375,21 +375,14 @@ export const Dashboard01 = () => {
                 expandedItems={expandedNavItems}
                 collapsedItems={collapsedNavItems}
                 footerItems={footerNavItems}
-                featureCard={
-                    <FeaturedCardImage
-                        title="Fresh opportunities daily"
-                        description="Dale found 47 new remote roles that match your profile. Apply before they saturate."
-                        confirmLabel="View opportunities"
-                        imageSrc="https://www.untitledui.com/application/smiling-girl-2.webp"
-                        onConfirm={() => {}}
-                        onDismiss={() => {}}
-                    />
-                }
+                showThemeToggle={false}
             />
 
             <main className="min-w-0 flex-1 bg-primary pt-8 pb-12">
-                <div className="flex flex-col gap-8">
-                    <div className="flex flex-col gap-5 px-4 lg:px-8">
+                <div className="flex flex-col gap-8 lg:flex-row lg:gap-8 lg:px-8">
+                    {/* Main content */}
+                    <div className="flex min-w-0 flex-1 flex-col gap-8">
+                    <div className="flex flex-col gap-5 px-4 lg:px-0">
                         {/* Page header simple with search */}
                         <div className="relative flex flex-col gap-4">
                             <div className="flex flex-col gap-4 lg:flex-row lg:justify-between">
@@ -434,7 +427,7 @@ export const Dashboard01 = () => {
                         </div>
                     </div>
 
-                    <div className="flex flex-col gap-6 px-4 lg:flex-row lg:gap-8 lg:px-8">
+                    <div className="flex flex-col gap-6 px-4 lg:flex-row lg:gap-8 lg:px-0">
                         <div className="flex flex-1 flex-col gap-6 lg:flex-row lg:flex-wrap lg:gap-x-8 lg:gap-y-4">
                             <div className="flex flex-col gap-2">
                                 <p className="text-sm font-medium text-tertiary">Applications sent</p>
@@ -523,7 +516,7 @@ export const Dashboard01 = () => {
                         </dl>
                     </div>
 
-                    <div className="flex flex-col gap-6 px-4 lg:px-8">
+                    <div className="flex flex-col gap-6 px-4 lg:px-0">
                         <SectionHeader.Root>
                             <SectionHeader.Group>
                                 <div className="flex flex-1 flex-col justify-center gap-0.5 self-stretch">
@@ -536,54 +529,40 @@ export const Dashboard01 = () => {
                             </SectionHeader.Group>
                         </SectionHeader.Root>
 
-                        <div className="flex flex-col gap-8 lg:flex-row">
-                            <div className="flex flex-col gap-8">
-                                <div className="flex flex-wrap gap-5 lg:gap-6">
-                                    <button className="flex min-w-[320px] flex-1 cursor-pointer gap-3 rounded-xl bg-primary p-4 shadow-xs ring-1 ring-secondary outline-focus-ring ring-inset focus-visible:outline-2 focus-visible:outline-offset-2 lg:p-5">
-                                        <FeaturedIcon icon={BarChartSquare02} color="gray" theme="modern" size="lg" className="hidden lg:flex" />
-                                        <FeaturedIcon icon={BarChartSquare02} color="gray" theme="modern" size="md" className="lg:hidden" />
+                        <div className="flex flex-wrap gap-5 lg:gap-6">
+                            <button className="flex min-w-[280px] flex-1 cursor-pointer gap-3 rounded-xl bg-primary p-4 shadow-xs ring-1 ring-secondary outline-focus-ring ring-inset focus-visible:outline-2 focus-visible:outline-offset-2 lg:p-5">
+                                <FeaturedIcon icon={BarChartSquare02} color="gray" theme="modern" size="lg" className="hidden lg:flex" />
+                                <FeaturedIcon icon={BarChartSquare02} color="gray" theme="modern" size="md" className="lg:hidden" />
 
-                                        <div className="flex min-w-0 flex-1 flex-col items-start gap-0.5 text-left">
-                                            <p className="text-md font-semibold text-secondary">Browse fresh opportunities</p>
-                                            <p className="max-w-full truncate text-sm text-tertiary">47 new remote roles added today</p>
-                                        </div>
-                                    </button>
-                                    <button className="flex min-w-[320px] flex-1 cursor-pointer gap-3 rounded-xl bg-primary p-4 shadow-xs ring-1 ring-secondary outline-focus-ring ring-inset focus-visible:outline-2 focus-visible:outline-offset-2 lg:p-5">
-                                        <FeaturedIcon icon={Edit04} color="gray" theme="modern" size="lg" className="hidden lg:flex" />
-                                        <FeaturedIcon icon={Edit04} color="gray" theme="modern" size="md" className="lg:hidden" />
-
-                                        <div className="flex min-w-0 flex-1 flex-col items-start gap-0.5 text-left">
-                                            <p className="text-md font-semibold text-secondary">Generate tailored resume</p>
-                                            <p className="max-w-full truncate text-sm text-tertiary">ATS-optimized for specific roles</p>
-                                        </div>
-                                    </button>
+                                <div className="flex min-w-0 flex-1 flex-col items-start gap-0.5 text-left">
+                                    <p className="text-md font-semibold text-secondary">Browse fresh opportunities</p>
+                                    <p className="max-w-full truncate text-sm text-tertiary">47 new remote roles added today</p>
                                 </div>
-                            </div>
+                            </button>
+                            <button className="flex min-w-[280px] flex-1 cursor-pointer gap-3 rounded-xl bg-primary p-4 shadow-xs ring-1 ring-secondary outline-focus-ring ring-inset focus-visible:outline-2 focus-visible:outline-offset-2 lg:p-5">
+                                <FeaturedIcon icon={Edit04} color="gray" theme="modern" size="lg" className="hidden lg:flex" />
+                                <FeaturedIcon icon={Edit04} color="gray" theme="modern" size="md" className="lg:hidden" />
 
-                            <div className="flex w-full shrink-0 flex-col gap-6 lg:w-60">
-                                <p className="hidden text-sm font-medium text-secondary lg:block">Recent activity</p>
-
-                                <SectionHeader.Root className="lg:hidden">
-                                    <SectionHeader.Group>
-                                        <div className="flex flex-1 flex-col justify-center gap-0.5 self-stretch">
-                                            <SectionHeader.Heading>Recent activity</SectionHeader.Heading>
-                                        </div>
-
-                                        <div className="absolute top-0 right-0 md:static">
-                                            <TableRowActionsDropdown />
-                                        </div>
-                                    </SectionHeader.Group>
-                                </SectionHeader.Root>
-
-                                <ul className="flex flex-col gap-6 lg:gap-5">
-                                    {feed.map((item) => (
-                                        <li key={item.id}>
-                                            <FeedItem {...item} size="sm" connector={false} />
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
+                                <div className="flex min-w-0 flex-1 flex-col items-start gap-0.5 text-left">
+                                    <p className="text-md font-semibold text-secondary">Generate tailored resume</p>
+                                    <p className="max-w-full truncate text-sm text-tertiary">ATS-optimized for specific roles</p>
+                                </div>
+                            </button>
                         </div>
+                    </div>
+                    </div>
+
+                    {/* Right sidebar - Recent activity */}
+                    <div className="hidden w-64 shrink-0 flex-col gap-6 lg:flex">
+                        <p className="text-sm font-medium text-secondary">Recent activity</p>
+
+                        <ul className="flex flex-col gap-5">
+                            {feed.map((item) => (
+                                <li key={item.id}>
+                                    <FeedItem {...item} size="sm" connector={false} />
+                                </li>
+                            ))}
+                        </ul>
                     </div>
                 </div>
             </main>

@@ -45,6 +45,8 @@ interface SidebarCollapsibleProps {
     footerItems?: (NavItemType & { icon: FC<{ className?: string }> })[];
     /** Feature card to display in expanded view. */
     featureCard?: ReactNode;
+    /** Whether to show the theme toggle. */
+    showThemeToggle?: boolean;
 }
 
 export const SidebarCollapsible = ({
@@ -53,6 +55,7 @@ export const SidebarCollapsible = ({
     collapsedItems,
     footerItems = [],
     featureCard,
+    showThemeToggle = true,
 }: SidebarCollapsibleProps) => {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const { resolvedTheme, setTheme } = useTheme();
@@ -97,24 +100,26 @@ export const SidebarCollapsible = ({
 
             <div className="mt-auto flex flex-col gap-5 px-2 py-4">
                 {/* Theme Toggle */}
-                <div className="mx-2 flex items-center justify-between rounded-lg bg-secondary px-3 py-2">
-                    <div className="flex items-center gap-2">
-                        {isDarkMode ? (
-                            <MoonIcon className="size-4 text-fg-tertiary" />
-                        ) : (
-                            <SunIcon className="size-4 text-fg-tertiary" />
-                        )}
-                        <span className="text-sm font-medium text-secondary">
-                            {isDarkMode ? "Dark mode" : "Light mode"}
-                        </span>
+                {showThemeToggle && (
+                    <div className="mx-2 flex items-center justify-between rounded-lg bg-secondary px-3 py-2">
+                        <div className="flex items-center gap-2">
+                            {isDarkMode ? (
+                                <MoonIcon className="size-4 text-fg-tertiary" />
+                            ) : (
+                                <SunIcon className="size-4 text-fg-tertiary" />
+                            )}
+                            <span className="text-sm font-medium text-secondary">
+                                {isDarkMode ? "Dark mode" : "Light mode"}
+                            </span>
+                        </div>
+                        <Toggle
+                            size="sm"
+                            isSelected={isDarkMode}
+                            onChange={handleThemeToggle}
+                            aria-label="Toggle dark mode"
+                        />
                     </div>
-                    <Toggle
-                        size="sm"
-                        isSelected={isDarkMode}
-                        onChange={handleThemeToggle}
-                        aria-label="Toggle dark mode"
-                    />
-                </div>
+                )}
 
                 <div className="flex flex-col gap-2 px-2">
                     <NavItemBase current={activeUrl === "/support"} type="link" href="/support" icon={LifeBuoy01}>
@@ -232,33 +237,35 @@ export const SidebarCollapsible = ({
                         isCollapsed ? "flex flex-col items-center gap-3 px-2" : "flex flex-col gap-4 px-4"
                     )}>
                         {/* Theme Toggle */}
-                        {isCollapsed ? (
-                            <button
-                                onClick={() => setTheme(isDarkMode ? "light" : "dark")}
-                                className="flex size-10 items-center justify-center rounded-lg bg-secondary text-fg-tertiary transition hover:bg-tertiary hover:text-fg-secondary"
-                                aria-label="Toggle dark mode"
-                            >
-                                {isDarkMode ? <MoonIcon className="size-5" /> : <SunIcon className="size-5" />}
-                            </button>
-                        ) : (
-                            <div className="flex items-center justify-between rounded-lg bg-secondary px-3 py-2">
-                                <div className="flex items-center gap-2">
-                                    {isDarkMode ? (
-                                        <MoonIcon className="size-4 text-fg-tertiary" />
-                                    ) : (
-                                        <SunIcon className="size-4 text-fg-tertiary" />
-                                    )}
-                                    <span className="text-sm font-medium text-secondary whitespace-nowrap">
-                                        {isDarkMode ? "Dark mode" : "Light mode"}
-                                    </span>
-                                </div>
-                                <Toggle
-                                    size="sm"
-                                    isSelected={isDarkMode}
-                                    onChange={handleThemeToggle}
+                        {showThemeToggle && (
+                            isCollapsed ? (
+                                <button
+                                    onClick={() => setTheme(isDarkMode ? "light" : "dark")}
+                                    className="flex size-10 items-center justify-center rounded-lg bg-secondary text-fg-tertiary transition hover:bg-tertiary hover:text-fg-secondary"
                                     aria-label="Toggle dark mode"
-                                />
-                            </div>
+                                >
+                                    {isDarkMode ? <MoonIcon className="size-5" /> : <SunIcon className="size-5" />}
+                                </button>
+                            ) : (
+                                <div className="flex items-center justify-between rounded-lg bg-secondary px-3 py-2">
+                                    <div className="flex items-center gap-2">
+                                        {isDarkMode ? (
+                                            <MoonIcon className="size-4 text-fg-tertiary" />
+                                        ) : (
+                                            <SunIcon className="size-4 text-fg-tertiary" />
+                                        )}
+                                        <span className="text-sm font-medium text-secondary whitespace-nowrap">
+                                            {isDarkMode ? "Dark mode" : "Light mode"}
+                                        </span>
+                                    </div>
+                                    <Toggle
+                                        size="sm"
+                                        isSelected={isDarkMode}
+                                        onChange={handleThemeToggle}
+                                        aria-label="Toggle dark mode"
+                                    />
+                                </div>
+                            )
                         )}
 
                         {/* Feature card - only in expanded */}
