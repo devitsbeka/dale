@@ -1,16 +1,34 @@
 "use client";
 
-import { ArrowUpRight, BarChartSquare02, CheckDone01, Edit04, FilterLines, HomeLine, PieChart03, Rows01, UserPlus01, Users01 } from "@untitledui/icons";
+import type { FC } from "react";
+import {
+    ArrowUpRight,
+    BarChartSquare02,
+    Calendar,
+    CheckDone01,
+    ChevronRight,
+    Edit04,
+    File05,
+    FilterLines,
+    HomeLine,
+    LifeBuoy01,
+    PieChart03,
+    Rows01,
+    Settings01,
+    Users01,
+} from "@untitledui/icons";
 import { Area, AreaChart, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, XAxis } from "recharts";
 import type { FeedItemType } from "@/components/application/activity-feed/activity-feed";
 import { FeedItem } from "@/components/application/activity-feed/activity-feed";
 import { FeaturedCardImage } from "@/components/application/app-navigation/base-components/featured-cards";
-import { SidebarNavigationSimple } from "@/components/application/app-navigation/sidebar-navigation/sidebar-simple";
+import type { NavItemType } from "@/components/application/app-navigation/config";
+import { SidebarCollapsible } from "@/components/application/app-navigation/sidebar-navigation/sidebar-collapsible";
 import { ChartTooltipContent } from "@/components/application/charts/charts-base";
 import { DateRangePicker } from "@/components/application/date-picker/date-range-picker";
 import { MetricChangeIndicator } from "@/components/application/metrics/metrics";
 import { SectionHeader } from "@/components/application/section-headers/section-headers";
 import { TableRowActionsDropdown } from "@/components/application/table/table";
+import { Avatar } from "@/components/base/avatar/avatar";
 import { Badge } from "@/components/base/badges/badges";
 import type { BadgeColor } from "@/components/base/badges/badges";
 import { ButtonGroup, ButtonGroupItem } from "@/components/base/button-group/button-group";
@@ -155,6 +173,151 @@ const feed: FeedItemType[] = [
     },
 ];
 
+// Navigation items for expanded view (grouped sections)
+const expandedNavItems: Array<{ label: string; items: NavItemType[] }> = [
+    {
+        label: "General",
+        items: [
+            {
+                label: "Dashboard",
+                href: "/",
+                icon: BarChartSquare02,
+            },
+            {
+                label: "Projects",
+                href: "/projects",
+                icon: Rows01,
+            },
+            {
+                label: "Documents",
+                href: "/documents",
+                icon: File05,
+            },
+            {
+                label: "Calendar",
+                href: "/calendar",
+                icon: Calendar,
+            },
+        ],
+    },
+    {
+        label: "Work",
+        items: [
+            {
+                label: "Reporting",
+                href: "/reporting",
+                icon: PieChart03,
+            },
+            {
+                label: "Tasks",
+                href: "/tasks",
+                icon: CheckDone01,
+                badge: (
+                    <Badge size="sm" type="modern">
+                        8
+                    </Badge>
+                ),
+            },
+            {
+                label: "Users",
+                href: "/users",
+                icon: Users01,
+            },
+        ],
+    },
+    {
+        label: "Your teams",
+        items: [
+            {
+                label: "Catalog",
+                href: "/teams/catalog",
+                icon: () => <Avatar src="https://www.untitledui.com/logos/images/Catalog.jpg" className="mr-2 size-5" />,
+                badge: (
+                    <div className="flex items-center gap-3">
+                        <Badge size="sm" type="modern">
+                            ⌘1
+                        </Badge>
+                        <ChevronRight size={16} className="text-fg-quaternary" />
+                    </div>
+                ),
+            },
+            {
+                label: "Warpspeed",
+                href: "/teams/warpspeed",
+                icon: () => <Avatar src="https://www.untitledui.com/logos/images/Warpspeed.jpg" className="mr-2 size-5" />,
+                badge: (
+                    <div className="flex items-center gap-3">
+                        <Badge size="sm" type="modern">
+                            ⌘2
+                        </Badge>
+                        <ChevronRight size={16} className="text-fg-quaternary" />
+                    </div>
+                ),
+            },
+            {
+                label: "Boltshift",
+                href: "/teams/boltshift",
+                icon: () => <Avatar src="https://www.untitledui.com/logos/images/Boltshift.jpg" className="mr-2 size-5" />,
+                badge: (
+                    <div className="flex items-center gap-3">
+                        <Badge size="sm" type="modern">
+                            ⌘3
+                        </Badge>
+                        <ChevronRight size={16} className="text-fg-quaternary" />
+                    </div>
+                ),
+            },
+        ],
+    },
+];
+
+// Navigation items for collapsed view (icon-only)
+const collapsedNavItems: (NavItemType & { icon: FC<{ className?: string }> })[] = [
+    {
+        label: "Home",
+        href: "/",
+        icon: HomeLine,
+    },
+    {
+        label: "Dashboard",
+        href: "/dashboard",
+        icon: BarChartSquare02,
+    },
+    {
+        label: "Projects",
+        href: "/projects",
+        icon: Rows01,
+    },
+    {
+        label: "Tasks",
+        href: "/tasks",
+        icon: CheckDone01,
+    },
+    {
+        label: "Reporting",
+        href: "/reporting",
+        icon: PieChart03,
+    },
+    {
+        label: "Users",
+        href: "/users",
+        icon: Users01,
+    },
+];
+
+const footerNavItems: (NavItemType & { icon: FC<{ className?: string }> })[] = [
+    {
+        label: "Support",
+        href: "/support",
+        icon: LifeBuoy01,
+    },
+    {
+        label: "Settings",
+        href: "/settings",
+        icon: Settings01,
+    },
+];
+
 const Simple03Vertical = ({
     article,
     imageClassName,
@@ -207,40 +370,11 @@ const Simple03Vertical = ({
 export const Dashboard01 = () => {
     return (
         <div className="flex flex-col bg-primary lg:flex-row">
-            <SidebarNavigationSimple
-                activeUrl="/dashboard"
-                items={[
-                    {
-                        label: "Overview",
-                        href: "/dashboard",
-                        icon: HomeLine,
-                    },
-                    {
-                        label: "Opportunities",
-                        href: "/opportunities",
-                        icon: BarChartSquare02,
-                    },
-                    {
-                        label: "Applications",
-                        href: "/applications",
-                        icon: Rows01,
-                    },
-                    {
-                        label: "Career Intel",
-                        href: "/career-intel",
-                        icon: PieChart03,
-                    },
-                    {
-                        label: "Resume Builder",
-                        href: "/resume",
-                        icon: Edit04,
-                    },
-                    {
-                        label: "Action Items",
-                        href: "/actions",
-                        icon: CheckDone01,
-                    },
-                ]}
+            <SidebarCollapsible
+                activeUrl="/"
+                expandedItems={expandedNavItems}
+                collapsedItems={collapsedNavItems}
+                footerItems={footerNavItems}
                 featureCard={
                     <FeaturedCardImage
                         title="Fresh opportunities daily"
