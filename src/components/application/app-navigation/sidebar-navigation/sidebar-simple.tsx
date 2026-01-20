@@ -73,7 +73,7 @@ export const SidebarNavigationSimple = ({
                         size="sm"
                         color="tertiary"
                         iconLeading={ChevronLeft}
-                        onPress={() => setIsCollapsed(true)}
+                        onClick={() => setIsCollapsed(true)}
                         className="hidden lg:flex"
                     />
                 </div>
@@ -142,7 +142,7 @@ export const SidebarNavigationSimple = ({
                     size="sm"
                     color="tertiary"
                     iconLeading={ChevronRight}
-                    onPress={() => setIsCollapsed(false)}
+                    onClick={() => setIsCollapsed(false)}
                 />
             </div>
 
