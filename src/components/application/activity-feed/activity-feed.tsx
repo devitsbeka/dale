@@ -15,35 +15,25 @@ export type FeedItemType = {
 type FeedItemProps = FeedItemType & {
     size?: "sm" | "md" | "lg";
     connector?: boolean;
-    /** Use company logo style (square with rounded corners) instead of circular avatar */
-    logoMode?: boolean;
 };
 
-export const FeedItem = ({ user, action, timestamp, href, size = "md", connector = true, logoMode = false }: FeedItemProps) => {
+export const FeedItem = ({ user, action, timestamp, href, size = "md", connector = true }: FeedItemProps) => {
     const avatarSize = size === "sm" ? "xs" : size === "md" ? "sm" : "md";
 
     return (
         <div className={cx("flex gap-3", connector && "relative pb-8")}>
             {connector && <div className="absolute top-10 left-5 -ml-px h-full w-0.5 bg-border-secondary" aria-hidden="true" />}
 
-            {logoMode ? (
-                <img
-                    src={user.avatarUrl}
-                    alt={user.name}
-                    className="size-[18px] shrink-0 rounded-[6px] object-contain"
-                />
-            ) : (
-                <Avatar
-                    size={avatarSize}
-                    src={user.avatarUrl}
-                    alt={user.name}
-                    initials={user.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
-                    className="relative"
-                />
-            )}
+            <Avatar
+                size={avatarSize}
+                src={user.avatarUrl}
+                alt={user.name}
+                initials={user.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")}
+                className="relative"
+            />
 
             <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                 <div className="flex items-start justify-between gap-x-3">

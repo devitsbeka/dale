@@ -563,7 +563,7 @@ export const Dashboard01 = () => {
                         <ul className="flex flex-col gap-5">
                             {feed.map((item) => (
                                 <li key={item.id}>
-                                    <FeedItem {...item} size="sm" connector={false} logoMode />
+                                    <FeedItem {...item} size="sm" connector={false} />
                                 </li>
                             ))}
                         </ul>
