@@ -34,13 +34,13 @@ export const WelcomeHero = ({ userName = "Beka" }: WelcomeHeroProps) => {
     }, []);
 
     return (
-        <div className="flex min-h-[400px] items-center justify-between gap-8 px-4 lg:px-0">
+        <div className="flex min-h-[180px] items-center justify-between gap-8 px-4 lg:px-0">
             {/* Left side - Welcome text */}
-            <div className="flex flex-1 flex-col gap-3">
-                <h1 className="text-display-md font-semibold text-primary lg:text-display-lg">
+            <div className="flex flex-1 flex-col gap-2">
+                <h1 className="text-display-sm font-semibold text-primary lg:text-display-md">
                     Welcome back, {userName}
                 </h1>
-                <p className="text-lg text-tertiary lg:text-xl">
+                <p className="text-md text-tertiary lg:text-lg">
                     What are you looking for?
                 </p>
             </div>
@@ -52,7 +52,7 @@ export const WelcomeHero = ({ userName = "Beka" }: WelcomeHeroProps) => {
                         animationData={animationData}
                         loop
                         autoplay
-                        style={{ width: 300, height: 300 }}
+                        style={{ width: 180, height: 180 }}
                     />
                 )}
             </div>
