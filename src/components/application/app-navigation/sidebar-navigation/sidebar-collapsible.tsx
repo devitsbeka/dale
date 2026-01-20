@@ -4,7 +4,7 @@ import type { FC, ReactNode } from "react";
 import { useState } from "react";
 import { useTheme } from "next-themes";
 import { ChevronLeft, ChevronRight, LifeBuoy01, LogOut01, Settings01 } from "@untitledui/icons";
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 import { Button as AriaButton, DialogTrigger as AriaDialogTrigger, Popover as AriaPopover } from "react-aria-components";
 import { Avatar } from "@/components/base/avatar/avatar";
 import { AvatarLabelGroup } from "@/components/base/avatar/avatar-label-group";
@@ -17,7 +17,6 @@ import { MobileNavigationHeader } from "../base-components/mobile-header";
 import { NavAccountCard, NavAccountMenu } from "../base-components/nav-account-card";
 import { NavItemBase } from "../base-components/nav-item";
 import { NavItemButton } from "../base-components/nav-item-button";
-import { NavList } from "../base-components/nav-list";
 import type { NavItemType } from "../config";
 
 // Sun icon component
@@ -60,7 +59,6 @@ export const SidebarCollapsible = ({
     
     const EXPANDED_WIDTH = 292;
     const COLLAPSED_WIDTH = 68;
-    const currentWidth = isCollapsed ? COLLAPSED_WIDTH : EXPANDED_WIDTH;
 
     const isDarkMode = resolvedTheme === "dark";
 
@@ -68,160 +66,12 @@ export const SidebarCollapsible = ({
         setTheme(isSelected ? "dark" : "light");
     };
 
-    // Expanded sidebar content
-    const expandedContent = (
-        <aside
-            style={{ width: EXPANDED_WIDTH }}
-            className="flex h-full w-full max-w-full flex-col justify-between overflow-auto border-secondary bg-primary pt-4 shadow-xs md:border-r lg:rounded-xl lg:border lg:pt-5"
-        >
-            <div className="flex flex-col gap-5 px-4 lg:px-5">
-                <div className="flex items-center justify-between">
-                    <UntitledLogo className="h-8" />
-                    <Button
-                        size="sm"
-                        color="tertiary"
-                        iconLeading={ChevronLeft}
-                        onClick={() => setIsCollapsed(true)}
-                        className="hidden lg:flex"
-                    />
-                </div>
-            </div>
-
-            <ul className="mt-6">
-                {expandedItems.map((group) => (
-                    <li key={group.label}>
-                        <div className="px-5 pb-1">
-                            <p className="text-xs font-bold text-quaternary uppercase">{group.label}</p>
-                        </div>
-                        <ul className="px-4 pb-4">
-                            {group.items.map((item) => (
-                                <li key={item.label} className="py-0.5">
-                                    <NavItemBase icon={item.icon} href={item.href} badge={item.badge} type="link" current={item.href === activeUrl}>
-                                        {item.label}
-                                    </NavItemBase>
-                                </li>
-                            ))}
-                        </ul>
-                    </li>
-                ))}
-            </ul>
-
-            <div className="mt-auto flex flex-col gap-4 px-4 py-4">
-                {/* Theme Toggle */}
-                <div className="flex items-center justify-between rounded-lg bg-secondary px-3 py-2">
-                    <div className="flex items-center gap-2">
-                        {isDarkMode ? (
-                            <MoonIcon className="size-4 text-fg-tertiary" />
-                        ) : (
-                            <SunIcon className="size-4 text-fg-tertiary" />
-                        )}
-                        <span className="text-sm font-medium text-secondary">
-                            {isDarkMode ? "Dark mode" : "Light mode"}
-                        </span>
-                    </div>
-                    <Toggle
-                        size="sm"
-                        isSelected={isDarkMode}
-                        onChange={handleThemeToggle}
-                        aria-label="Toggle dark mode"
-                    />
-                </div>
-
-                {featureCard}
-
-                <NavAccountCard />
-            </div>
-        </aside>
-    );
-
-    // Collapsed sidebar content
-    const collapsedContent = (
-        <aside
-            style={{ width: COLLAPSED_WIDTH }}
-            className="flex h-full flex-col items-center justify-between overflow-auto border-secondary bg-primary py-4 shadow-xs md:border-r lg:rounded-xl lg:border lg:py-5"
-        >
-            <div className="flex flex-col items-center gap-4">
-                <UntitledLogoMinimal className="size-8" />
-                <Button
-                    size="sm"
-                    color="tertiary"
-                    iconLeading={ChevronRight}
-                    onClick={() => setIsCollapsed(false)}
-                />
-            </div>
-
-            <ul className="flex flex-col items-center gap-1 px-2">
-                {collapsedItems.map((item) => (
-                    <li key={item.label}>
-                        <NavItemButton
-                            size="md"
-                            current={activeUrl === item.href}
-                            href={item.href}
-                            label={item.label || ""}
-                            icon={item.icon}
-                        />
-                    </li>
-                ))}
-            </ul>
-
-            <div className="mt-auto flex flex-col items-center gap-3 px-2 py-4">
-                {/* Theme Toggle - Compact */}
-                <button
-                    onClick={() => setTheme(isDarkMode ? "light" : "dark")}
-                    className="flex size-10 items-center justify-center rounded-lg bg-secondary text-fg-tertiary transition hover:bg-tertiary hover:text-fg-secondary"
-                    aria-label="Toggle dark mode"
-                >
-                    {isDarkMode ? <MoonIcon className="size-5" /> : <SunIcon className="size-5" />}
-                </button>
-
-                {footerItems.length > 0 && (
-                    <ul className="flex flex-col gap-1">
-                        {footerItems.map((item) => (
-                            <li key={item.label}>
-                                <NavItemButton
-                                    size="md"
-                                    current={activeUrl === item.href}
-                                    href={item.href}
-                                    label={item.label || ""}
-                                    icon={item.icon}
-                                />
-                            </li>
-                        ))}
-                    </ul>
-                )}
-
-                <AriaDialogTrigger>
-                    <AriaButton
-                        className={({ isPressed, isFocused }) =>
-                            cx("group relative inline-flex rounded-full", (isPressed || isFocused) && "outline-2 outline-offset-2 outline-focus-ring")
-                        }
-                    >
-                        <Avatar status="online" src="https://www.untitledui.com/images/avatars/olivia-rhye?fm=webp&q=80" size="md" alt="Olivia Rhye" />
-                    </AriaButton>
-                    <AriaPopover
-                        placement="right bottom"
-                        offset={8}
-                        crossOffset={6}
-                        className={({ isEntering, isExiting }) =>
-                            cx(
-                                "will-change-transform",
-                                isEntering &&
-                                    "duration-300 ease-out animate-in fade-in placement-right:slide-in-from-left-2 placement-top:slide-in-from-bottom-2 placement-bottom:slide-in-from-top-2",
-                                isExiting &&
-                                    "duration-150 ease-in animate-out fade-out placement-right:slide-out-to-left-2 placement-top:slide-out-to-bottom-2 placement-bottom:slide-out-to-top-2",
-                            )
-                        }
-                    >
-                        <NavAccountMenu />
-                    </AriaPopover>
-                </AriaDialogTrigger>
-            </div>
-        </aside>
-    );
+    // Shared scrollbar-hidden class
+    const scrollbarHiddenClass = "scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]";
 
     // Mobile expanded content
     const mobileContent = (
-        <aside className="group flex h-full max-h-full w-full max-w-full flex-col justify-between overflow-y-auto bg-primary pt-4">
+        <aside className={cx("group flex h-full max-h-full w-full max-w-full flex-col justify-between overflow-y-auto bg-primary pt-4", scrollbarHiddenClass)}>
             <div className="px-4">
                 <UntitledLogo className="h-8" />
             </div>
@@ -303,23 +153,173 @@ export const SidebarCollapsible = ({
 
             {/* Desktop sidebar navigation */}
             <div className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:flex lg:py-1 lg:pl-1">
-                <AnimatePresence mode="wait" initial={false}>
-                    <motion.div
-                        key={isCollapsed ? "collapsed" : "expanded"}
-                        initial={{ width: isCollapsed ? EXPANDED_WIDTH : COLLAPSED_WIDTH, opacity: 0.8 }}
-                        animate={{ width: currentWidth, opacity: 1 }}
-                        exit={{ opacity: 0.8 }}
-                        transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                    >
-                        {isCollapsed ? collapsedContent : expandedContent}
-                    </motion.div>
-                </AnimatePresence>
+                <motion.aside
+                    initial={false}
+                    animate={{ width: isCollapsed ? COLLAPSED_WIDTH : EXPANDED_WIDTH }}
+                    transition={{ type: "spring", damping: 30, stiffness: 400 }}
+                    className={cx(
+                        "flex h-full flex-col justify-between overflow-hidden border-secondary bg-primary shadow-xs md:border-r lg:rounded-xl lg:border",
+                        scrollbarHiddenClass
+                    )}
+                >
+                    {/* Header with logo and toggle */}
+                    <div className={cx(
+                        "flex shrink-0 items-center pt-4 lg:pt-5",
+                        isCollapsed ? "flex-col gap-4 px-2" : "justify-between px-4 lg:px-5"
+                    )}>
+                        <motion.div
+                            initial={false}
+                            animate={{ opacity: 1 }}
+                            className="flex items-center"
+                        >
+                            {isCollapsed ? (
+                                <UntitledLogoMinimal className="size-8" />
+                            ) : (
+                                <UntitledLogo className="h-8" />
+                            )}
+                        </motion.div>
+                        <Button
+                            size="sm"
+                            color="tertiary"
+                            iconLeading={isCollapsed ? ChevronRight : ChevronLeft}
+                            onClick={() => setIsCollapsed(!isCollapsed)}
+                        />
+                    </div>
+
+                    {/* Navigation content */}
+                    <div className={cx("flex-1 overflow-y-auto overflow-x-hidden", scrollbarHiddenClass)}>
+                        {isCollapsed ? (
+                            // Collapsed navigation - icon only
+                            <ul className="flex flex-col items-center gap-1 px-2 py-4">
+                                {collapsedItems.map((item) => (
+                                    <li key={item.label}>
+                                        <NavItemButton
+                                            size="md"
+                                            current={activeUrl === item.href}
+                                            href={item.href}
+                                            label={item.label || ""}
+                                            icon={item.icon}
+                                        />
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            // Expanded navigation - grouped sections
+                            <ul className="mt-6">
+                                {expandedItems.map((group) => (
+                                    <li key={group.label}>
+                                        <div className="px-5 pb-1">
+                                            <p className="text-xs font-bold text-quaternary uppercase whitespace-nowrap">{group.label}</p>
+                                        </div>
+                                        <ul className="px-4 pb-4">
+                                            {group.items.map((item) => (
+                                                <li key={item.label} className="py-0.5">
+                                                    <NavItemBase icon={item.icon} href={item.href} badge={item.badge} type="link" current={item.href === activeUrl}>
+                                                        {item.label}
+                                                    </NavItemBase>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
+
+                    {/* Footer */}
+                    <div className={cx(
+                        "mt-auto shrink-0 py-4",
+                        isCollapsed ? "flex flex-col items-center gap-3 px-2" : "flex flex-col gap-4 px-4"
+                    )}>
+                        {/* Theme Toggle */}
+                        {isCollapsed ? (
+                            <button
+                                onClick={() => setTheme(isDarkMode ? "light" : "dark")}
+                                className="flex size-10 items-center justify-center rounded-lg bg-secondary text-fg-tertiary transition hover:bg-tertiary hover:text-fg-secondary"
+                                aria-label="Toggle dark mode"
+                            >
+                                {isDarkMode ? <MoonIcon className="size-5" /> : <SunIcon className="size-5" />}
+                            </button>
+                        ) : (
+                            <div className="flex items-center justify-between rounded-lg bg-secondary px-3 py-2">
+                                <div className="flex items-center gap-2">
+                                    {isDarkMode ? (
+                                        <MoonIcon className="size-4 text-fg-tertiary" />
+                                    ) : (
+                                        <SunIcon className="size-4 text-fg-tertiary" />
+                                    )}
+                                    <span className="text-sm font-medium text-secondary whitespace-nowrap">
+                                        {isDarkMode ? "Dark mode" : "Light mode"}
+                                    </span>
+                                </div>
+                                <Toggle
+                                    size="sm"
+                                    isSelected={isDarkMode}
+                                    onChange={handleThemeToggle}
+                                    aria-label="Toggle dark mode"
+                                />
+                            </div>
+                        )}
+
+                        {/* Feature card - only in expanded */}
+                        {!isCollapsed && featureCard}
+
+                        {/* Footer nav items - only in collapsed */}
+                        {isCollapsed && footerItems.length > 0 && (
+                            <ul className="flex flex-col gap-1">
+                                {footerItems.map((item) => (
+                                    <li key={item.label}>
+                                        <NavItemButton
+                                            size="md"
+                                            current={activeUrl === item.href}
+                                            href={item.href}
+                                            label={item.label || ""}
+                                            icon={item.icon}
+                                        />
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+
+                        {/* Account */}
+                        {isCollapsed ? (
+                            <AriaDialogTrigger>
+                                <AriaButton
+                                    className={({ isPressed, isFocused }) =>
+                                        cx("group relative inline-flex rounded-full", (isPressed || isFocused) && "outline-2 outline-offset-2 outline-focus-ring")
+                                    }
+                                >
+                                    <Avatar status="online" src="https://www.untitledui.com/images/avatars/olivia-rhye?fm=webp&q=80" size="md" alt="Olivia Rhye" />
+                                </AriaButton>
+                                <AriaPopover
+                                    placement="right bottom"
+                                    offset={8}
+                                    crossOffset={6}
+                                    className={({ isEntering, isExiting }) =>
+                                        cx(
+                                            "will-change-transform",
+                                            isEntering &&
+                                                "duration-300 ease-out animate-in fade-in placement-right:slide-in-from-left-2 placement-top:slide-in-from-bottom-2 placement-bottom:slide-in-from-top-2",
+                                            isExiting &&
+                                                "duration-150 ease-in animate-out fade-out placement-right:slide-out-to-left-2 placement-top:slide-out-to-bottom-2 placement-bottom:slide-out-to-top-2",
+                                        )
+                                    }
+                                >
+                                    <NavAccountMenu />
+                                </AriaPopover>
+                            </AriaDialogTrigger>
+                        ) : (
+                            <NavAccountCard />
+                        )}
+                    </div>
+                </motion.aside>
             </div>
 
             {/* Placeholder to take up physical space because the real sidebar has `fixed` position. */}
             <motion.div
-                animate={{ paddingLeft: currentWidth + 8 }}
-                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                initial={false}
+                animate={{ paddingLeft: (isCollapsed ? COLLAPSED_WIDTH : EXPANDED_WIDTH) + 8 }}
+                transition={{ type: "spring", damping: 30, stiffness: 400 }}
                 className="invisible hidden lg:sticky lg:top-0 lg:bottom-0 lg:left-0 lg:block"
             />
         </>
