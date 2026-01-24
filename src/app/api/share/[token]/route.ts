@@ -67,6 +67,15 @@ export async function POST(
             data: { viewCount: { increment: 1 } },
         });
 
+        // Track analytics event
+        await prisma.resumeAnalytics.create({
+            data: {
+                resumeId: shareLink.resume.id,
+                eventType: 'view',
+                metadata: JSON.stringify({ token, via: 'share_link' }),
+            },
+        });
+
         // Transform resume data to match ResumeData interface
         const resumeData = {
             id: shareLink.resume.id,

@@ -45,6 +45,7 @@ model Resume {
   customization ResumeCustomization?
   snapshots     ResumeSnapshot[]
   shareLinks    ShareLink[]
+  analytics     ResumeAnalytics[]
   applications  JobApplication[]
 
   @@index([userId])
@@ -180,6 +181,22 @@ model ShareLink {
   @@index([resumeId])
   @@index([token])
   @@map("share_links")
+}
+
+// Resume analytics for tracking events
+model ResumeAnalytics {
+  id         String   @id @default(cuid())
+  resumeId   String
+  eventType  String   // view, export, share, edit, restore
+  metadata   String?  @db.Text // JSON for additional event data
+  timestamp  DateTime @default(now())
+
+  resume     Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@index([resumeId])
+  @@index([eventType])
+  @@index([timestamp])
+  @@map("resume_analytics")
 }
 
 // ============================================

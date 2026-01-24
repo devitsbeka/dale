@@ -65,6 +65,19 @@ export async function POST(
         const baseUrl = request.nextUrl.origin;
         const shareUrl = generateShareUrl(shareLink.token, baseUrl);
 
+        // Track analytics event
+        await prisma.resumeAnalytics.create({
+            data: {
+                resumeId: id,
+                eventType: 'share',
+                metadata: JSON.stringify({
+                    hasPassword: !!password,
+                    expiresInDays: expiresInDays || null,
+                    maxViews: maxViews || null,
+                }),
+            },
+        });
+
         return NextResponse.json({
             shareLink,
             shareUrl,

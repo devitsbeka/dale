@@ -104,6 +104,15 @@ export async function POST(
                     changeType: 'restore',
                 },
             });
+
+            // Track analytics event
+            await tx.resumeAnalytics.create({
+                data: {
+                    resumeId: id,
+                    eventType: 'restore',
+                    metadata: JSON.stringify({ snapshotId }),
+                },
+            });
         });
 
         return NextResponse.json({

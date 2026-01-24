@@ -141,6 +141,15 @@ export async function POST(
             },
         });
 
+        // Track analytics event
+        await prisma.resumeAnalytics.create({
+            data: {
+                resumeId: id,
+                eventType: 'export',
+                metadata: JSON.stringify({ format }),
+            },
+        });
+
         // Return file as downloadable
         return new NextResponse(new Uint8Array(buffer), {
             status: 200,
