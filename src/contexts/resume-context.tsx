@@ -1,7 +1,8 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useCallback } from 'react';
 import type { ResumeData, WizardStep, PersonalInfo, WorkExperience, Education, Skill, ResumeCustomization } from '@/types/resume';
+import { useResume as useResumeHook } from '@/hooks/resume';
 
 interface ResumeContextType {
     resumeData: Partial<ResumeData>;
@@ -26,207 +27,90 @@ interface ResumeContextType {
     saveResume: () => void;
     loadResume: (id: string) => void;
     resetResume: () => void;
+
+    // New properties from refactored hooks
+    isSaving?: boolean;
+    lastSaved?: Date | null;
+    saveError?: string | null;
 }
 
 const ResumeContext = createContext<ResumeContextType | undefined>(undefined);
 
 const STORAGE_KEY = 'dale_resume_data';
-const ONBOARDING_KEY = 'dale_resume_onboarding_disabled';
-
-const defaultResumeData: Partial<ResumeData> = {
-    personalInfo: {
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        location: '',
-        linkedin: '',
-        website: '',
-        summary: '',
-    },
-    experience: [],
-    education: [],
-    skills: [],
-    customization: {
-        template: 'modern',
-        primaryColor: '#E9684B',
-        font: 'inter',
-        sectionOrder: ['experience', 'education', 'skills'],
-    },
-};
 
 export function ResumeProvider({ children }: { children: React.ReactNode }) {
-    const [resumeData, setResumeData] = useState<Partial<ResumeData>>(defaultResumeData);
-    const [currentStep, setCurrentStep] = useState<WizardStep>('personal');
-    const [completedSteps, setCompletedSteps] = useState<WizardStep[]>([]);
-    const [isOnboardingEnabled, setIsOnboardingEnabled] = useState(true);
+    const resume = useResumeHook();
 
-    // Load from localStorage on mount
+    // Load from localStorage on mount (backward compatibility)
     useEffect(() => {
         const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
+        if (saved && !resume.resumeId) {
             try {
                 const parsed = JSON.parse(saved);
-                setResumeData(parsed);
+                resume.setResumeData(parsed);
             } catch (e) {
                 console.error('Failed to parse saved resume data', e);
             }
         }
+    }, [resume]);
 
-        const onboardingDisabled = localStorage.getItem(ONBOARDING_KEY);
-        if (onboardingDisabled === 'true') {
-            setIsOnboardingEnabled(false);
+    const saveResume = useCallback(async () => {
+        try {
+            await resume.saveNow();
+        } catch (error) {
+            console.error('Failed to save resume:', error);
         }
-    }, []);
+    }, [resume]);
 
-    // Auto-save to localStorage
-    useEffect(() => {
-        const timeoutId = setTimeout(() => {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(resumeData));
-        }, 500);
-
-        return () => clearTimeout(timeoutId);
-    }, [resumeData]);
-
-    const updatePersonalInfo = useCallback((info: Partial<PersonalInfo>) => {
-        setResumeData((prev) => ({
-            ...prev,
-            personalInfo: { ...prev.personalInfo, ...info } as PersonalInfo,
-        }));
-    }, []);
-
-    const addExperience = useCallback((exp: WorkExperience) => {
-        setResumeData((prev) => ({
-            ...prev,
-            experience: [...(prev.experience || []), exp],
-        }));
-    }, []);
-
-    const updateExperience = useCallback((id: string, exp: Partial<WorkExperience>) => {
-        setResumeData((prev) => ({
-            ...prev,
-            experience: (prev.experience || []).map((e) =>
-                e.id === id ? { ...e, ...exp } : e
-            ),
-        }));
-    }, []);
-
-    const removeExperience = useCallback((id: string) => {
-        setResumeData((prev) => ({
-            ...prev,
-            experience: (prev.experience || []).filter((e) => e.id !== id),
-        }));
-    }, []);
-
-    const addEducation = useCallback((edu: Education) => {
-        setResumeData((prev) => ({
-            ...prev,
-            education: [...(prev.education || []), edu],
-        }));
-    }, []);
-
-    const updateEducation = useCallback((id: string, edu: Partial<Education>) => {
-        setResumeData((prev) => ({
-            ...prev,
-            education: (prev.education || []).map((e) =>
-                e.id === id ? { ...e, ...edu } : e
-            ),
-        }));
-    }, []);
-
-    const removeEducation = useCallback((id: string) => {
-        setResumeData((prev) => ({
-            ...prev,
-            education: (prev.education || []).filter((e) => e.id !== id),
-        }));
-    }, []);
-
-    const addSkill = useCallback((skill: Skill) => {
-        setResumeData((prev) => ({
-            ...prev,
-            skills: [...(prev.skills || []), skill],
-        }));
-    }, []);
-
-    const removeSkill = useCallback((id: string) => {
-        setResumeData((prev) => ({
-            ...prev,
-            skills: (prev.skills || []).filter((s) => s.id !== id),
-        }));
-    }, []);
-
-    const updateCustomization = useCallback((custom: Partial<ResumeCustomization>) => {
-        setResumeData((prev) => ({
-            ...prev,
-            customization: { ...prev.customization, ...custom } as ResumeCustomization,
-        }));
-    }, []);
-
-    const markStepComplete = useCallback((step: WizardStep) => {
-        setCompletedSteps((prev) => {
-            if (prev.includes(step)) return prev;
-            return [...prev, step];
-        });
-    }, []);
-
-    const toggleOnboarding = useCallback(() => {
-        setIsOnboardingEnabled((prev) => {
-            const newValue = !prev;
-            localStorage.setItem(ONBOARDING_KEY, String(!newValue));
-            return newValue;
-        });
-    }, []);
-
-    const saveResume = useCallback(() => {
-        const updated = {
-            ...resumeData,
-            updatedAt: new Date().toISOString(),
-        };
-        setResumeData(updated);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    }, [resumeData]);
-
-    const loadResume = useCallback((id: string) => {
-        // In a real app, this would load from a database
-        // For now, we'll just load from localStorage
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-            setResumeData(JSON.parse(saved));
+    const loadResume = useCallback(async (id: string) => {
+        try {
+            const data = await resume.fetchResume(id);
+            resume.setResumeData(data);
+            resume.setResumeId(id);
+        } catch (error) {
+            console.error('Failed to load resume:', error);
+            // Fallback to localStorage
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                resume.setResumeData(JSON.parse(saved));
+            }
         }
-    }, []);
+    }, [resume]);
 
     const resetResume = useCallback(() => {
-        setResumeData(defaultResumeData);
-        setCurrentStep('personal');
-        setCompletedSteps([]);
+        resume.resetData();
+        resume.resetWizard();
         localStorage.removeItem(STORAGE_KEY);
-    }, []);
+    }, [resume]);
+
+    const value: ResumeContextType = {
+        resumeData: resume.resumeData,
+        currentStep: resume.currentStep,
+        completedSteps: resume.completedSteps,
+        isOnboardingEnabled: resume.isOnboardingEnabled,
+        updatePersonalInfo: resume.updatePersonalInfo,
+        addExperience: resume.addExperience,
+        updateExperience: resume.updateExperience,
+        removeExperience: resume.removeExperience,
+        addEducation: resume.addEducation,
+        updateEducation: resume.updateEducation,
+        removeEducation: resume.removeEducation,
+        addSkill: resume.addSkill,
+        removeSkill: resume.removeSkill,
+        updateCustomization: resume.updateCustomization,
+        setCurrentStep: resume.setCurrentStep,
+        markStepComplete: resume.markStepComplete,
+        toggleOnboarding: resume.toggleOnboarding,
+        saveResume,
+        loadResume,
+        resetResume,
+        isSaving: resume.isSaving,
+        lastSaved: resume.lastSaved,
+        saveError: resume.saveError,
+    };
 
     return (
-        <ResumeContext.Provider
-            value={{
-                resumeData,
-                currentStep,
-                completedSteps,
-                isOnboardingEnabled,
-                updatePersonalInfo,
-                addExperience,
-                updateExperience,
-                removeExperience,
-                addEducation,
-                updateEducation,
-                removeEducation,
-                addSkill,
-                removeSkill,
-                updateCustomization,
-                setCurrentStep,
-                markStepComplete,
-                toggleOnboarding,
-                saveResume,
-                loadResume,
-                resetResume,
-            }}
-        >
+        <ResumeContext.Provider value={value}>
             {children}
         </ResumeContext.Provider>
     );

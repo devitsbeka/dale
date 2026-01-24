@@ -1,0 +1,158 @@
+// This is your Prisma schema file
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  resumes   Resume[]
+
+  @@map("users")
+}
+
+// Resume model
+model Resume {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  slug      String   @unique
+  status    String   @default("draft") // draft, published, archived
+  version   Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  personalInfo  PersonalInfo?
+  experiences   WorkExperience[]
+  education     Education[]
+  skills        Skill[]
+  customization ResumeCustomization?
+  snapshots     ResumeSnapshot[]
+
+  @@index([userId])
+  @@index([slug])
+  @@map("resumes")
+}
+
+// Personal information
+model PersonalInfo {
+  id        String   @id @default(cuid())
+  resumeId  String   @unique
+  firstName String
+  lastName  String
+  email     String
+  phone     String
+  location  String?
+  linkedin  String?
+  website   String?
+  summary   String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  resume    Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@map("personal_info")
+}
+
+// Work experience
+model WorkExperience {
+  id           String   @id @default(cuid())
+  resumeId     String
+  company      String
+  position     String
+  location     String?
+  startDate    String
+  endDate      String?
+  isCurrent    Boolean  @default(false)
+  achievements String[] // Array of achievement strings
+  order        Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  resume       Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@index([resumeId])
+  @@map("work_experiences")
+}
+
+// Education
+model Education {
+  id        String   @id @default(cuid())
+  resumeId  String
+  school    String
+  degree    String
+  field     String?
+  location  String?
+  startDate String
+  endDate   String
+  gpa       String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  resume    Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@index([resumeId])
+  @@map("education")
+}
+
+// Skills
+model Skill {
+  id        String   @id @default(cuid())
+  resumeId  String
+  name      String
+  category  String   // technical, soft, language, tool
+  level     String?  // beginner, intermediate, advanced, expert
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  resume    Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@index([resumeId])
+  @@map("skills")
+}
+
+// Resume customization (template, colors, fonts)
+model ResumeCustomization {
+  id           String   @id @default(cuid())
+  resumeId     String   @unique
+  templateId   String   @default("modern")
+  primaryColor String   @default("#E9684B")
+  font         String   @default("inter")
+  sectionOrder String[] @default(["experience", "education", "skills"])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  resume       Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@map("resume_customizations")
+}
+
+// Resume snapshots for versioning
+model ResumeSnapshot {
+  id         String   @id @default(cuid())
+  resumeId   String
+  data       String   @db.Text // JSON serialized resume data
+  changeType String   // auto_save, manual_save, export
+  createdAt  DateTime @default(now())
+
+  resume     Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@index([resumeId])
+  @@index([createdAt])
+  @@map("resume_snapshots")
+}
