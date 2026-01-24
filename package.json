@@ -4,9 +4,9 @@
     "private": true,
     "scripts": {
         "dev": "next dev --turbopack",
-        "build": "next build",
+        "build": "prisma generate && next build",
         "start": "next start",
-        "postinstall": "bash scripts/install-hooks.sh"
+        "postinstall": "prisma generate && bash scripts/install-hooks.sh"
     },
     "dependencies": {
         "@dnd-kit/core": "^6.3.1",
