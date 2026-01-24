@@ -16,12 +16,13 @@ export function WelcomeModal({ onStartFromScratch, onImportResume }: WelcomeModa
     const [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => {
+        // Temporarily disabled auto-opening to debug blocking issue
         // Check if user has completed onboarding
         const hasCompletedOnboarding = localStorage.getItem(ONBOARDING_KEY);
 
         if (!hasCompletedOnboarding) {
-            // Show modal after a short delay for better UX
-            setTimeout(() => setIsOpen(true), 500);
+            // DISABLED: Show modal after a short delay for better UX
+            // setTimeout(() => setIsOpen(true), 500);
         }
     }, []);
 
