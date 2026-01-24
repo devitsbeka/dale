@@ -36,6 +36,9 @@ function ResumeBuilderContent() {
 
     // Load imported resume data if present
     useEffect(() => {
+        // Only access localStorage on client side
+        if (typeof window === 'undefined') return;
+
         const isImport = searchParams.get('import');
         if (isImport === 'true') {
             const importedData = localStorage.getItem('dale_imported_resume');

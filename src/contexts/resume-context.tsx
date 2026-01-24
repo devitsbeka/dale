@@ -46,6 +46,9 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
 
     // Load from localStorage on mount (backward compatibility)
     useEffect(() => {
+        // Only access localStorage on client side
+        if (typeof window === 'undefined') return;
+
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved && !resume.resumeId) {
             try {
