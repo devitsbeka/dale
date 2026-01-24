@@ -412,7 +412,7 @@ export function ResumeBuilderContent() {
                 </div>
             </div>
 
-            {/* Modals */}
+            {/* Modals - only render when needed */}
             <WelcomeModal
                 onStartFromScratch={handleStartFromScratch}
                 onImportResume={handleImportResume}
@@ -431,11 +431,13 @@ export function ResumeBuilderContent() {
                 />
             )}
 
-            <ImportModal
-                isOpen={showImportModal}
-                onClose={() => setShowImportModal(false)}
-                onImportComplete={handleImportComplete}
-            />
+            {showImportModal && (
+                <ImportModal
+                    isOpen={showImportModal}
+                    onClose={() => setShowImportModal(false)}
+                    onImportComplete={handleImportComplete}
+                />
+            )}
 
             {resumeId && showShareDialog && (
                 <ShareDialog

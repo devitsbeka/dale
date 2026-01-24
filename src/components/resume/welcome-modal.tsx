@@ -42,6 +42,9 @@ export function WelcomeModal({ onStartFromScratch, onImportResume }: WelcomeModa
         onImportResume();
     };
 
+    // Only render when open to avoid blocking clicks
+    if (!isOpen) return null;
+
     return (
         <ModalOverlay isOpen={isOpen} onOpenChange={() => handleClose(false)}>
             <Modal className="max-w-2xl">
