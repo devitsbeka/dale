@@ -23,24 +23,29 @@ export function RichTextEditor({
     const [isMounted, setIsMounted] = useState(false);
     const [editor, setEditor] = useState<any>(null);
 
-    // Use a ref for value to avoid dependency in handleUpdate
+    // Use refs to avoid dependencies in handleUpdate
     const valueRef = useRef(value);
+    const onChangeRef = useRef(onChange);
+
     useEffect(() => {
         valueRef.current = value;
     }, [value]);
 
-    // Stable callback for Tiptap onUpdate
+    useEffect(() => {
+        onChangeRef.current = onChange;
+    }, [onChange]);
+
+    // Stable callback for Tiptap onUpdate - never recreates
     const handleUpdate = useCallback(({ editor }: any) => {
         const html = editor.getHTML();
         const text = editor.getText();
 
         if (text.length <= maxLength) {
-            onChange(html);
+            onChangeRef.current(html); // Use ref instead of direct onChange
         } else {
-            // Use ref to access current value without dependency
             editor.commands.setContent(valueRef.current);
         }
-    }, [maxLength, onChange]);
+    }, [maxLength]); // onChange removed from dependencies!
 
     useEffect(() => {
         setIsMounted(true);
@@ -96,7 +101,7 @@ export function RichTextEditor({
         return () => {
             editorInstance?.destroy();
         };
-    }, [isMounted, placeholder, maxLength, handleUpdate]);
+    }, [isMounted, placeholder, maxLength]); // handleUpdate is stable, but we still capture it from closure
 
     // Sync editor content when value changes externally
     useEffect(() => {

@@ -135,6 +135,55 @@ interface ExperienceCardProps {
     onUpdate: (updates: Partial<WorkExperience>) => void;
 }
 
+// Separate component to stabilize callbacks for each achievement editor
+interface AchievementEditorProps {
+    index: number;
+    achievement: string;
+    onUpdate: (index: number, value: string) => void;
+    onRemove: (index: number) => void;
+    canRemove: boolean;
+}
+
+const AchievementEditor = React.memo(function AchievementEditor({
+    index,
+    achievement,
+    onUpdate,
+    onRemove,
+    canRemove
+}: AchievementEditorProps) {
+    // Create stable callback for this specific achievement
+    const handleChange = useCallback((value: string) => {
+        onUpdate(index, value);
+    }, [index, onUpdate]);
+
+    const handleRemove = useCallback(() => {
+        onRemove(index);
+    }, [index, onRemove]);
+
+    return (
+        <div className="flex items-start gap-2">
+            <div className="flex-1">
+                <RichTextEditor
+                    value={achievement}
+                    onChange={handleChange}
+                    placeholder="Led a team of 5 developers to ship feature X..."
+                    maxLength={300}
+                />
+            </div>
+            {canRemove && (
+                <Button
+                    color="tertiary-destructive"
+                    size="sm"
+                    onClick={handleRemove}
+                    iconLeading={Trash01}
+                    aria-label="Remove achievement"
+                    className="mt-2"
+                />
+            )}
+        </div>
+    );
+});
+
 function ExperienceCard({ experience, isEditing, onEdit, onSave, onDelete, onUpdate }: ExperienceCardProps) {
     const [localExp, setLocalExp] = useState(experience);
 
@@ -149,17 +198,19 @@ function ExperienceCard({ experience, isEditing, onEdit, onSave, onDelete, onUpd
     };
 
     const handleUpdateAchievement = useCallback((index: number, value: string) => {
-        const newAchievements = [...localExp.achievements];
-        newAchievements[index] = value;
-        setLocalExp({ ...localExp, achievements: newAchievements });
+        setLocalExp(prev => {
+            const newAchievements = [...prev.achievements];
+            newAchievements[index] = value;
 
-        // Update immediately with rich text editor
-        // Filter out empty achievements (just empty HTML tags)
-        const filteredAchievements = newAchievements.filter(a =>
-            a.trim() !== '' && a !== '<p></p>' && a !== '<p><br></p>'
-        );
-        onUpdate({ achievements: filteredAchievements });
-    }, [localExp.achievements, onUpdate]);
+            // Update parent with filtered achievements
+            const filteredAchievements = newAchievements.filter(a =>
+                a.trim() !== '' && a !== '<p></p>' && a !== '<p><br></p>'
+            );
+            onUpdate({ achievements: filteredAchievements });
+
+            return { ...prev, achievements: newAchievements };
+        });
+    }, [onUpdate]); // Removed localExp.achievements dependency!
 
     const handleRemoveAchievement = (index: number) => {
         const newAchievements = localExp.achievements.filter((_, i) => i !== index);
@@ -326,26 +377,14 @@ function ExperienceCard({ experience, isEditing, onEdit, onSave, onDelete, onUpd
                         />
                     ) : (
                         localExp.achievements.map((achievement, index) => (
-                            <div key={index} className="flex items-start gap-2">
-                                <div className="flex-1">
-                                    <RichTextEditor
-                                        value={achievement}
-                                        onChange={(value) => handleUpdateAchievement(index, value)}
-                                        placeholder="Led a team of 5 developers to ship feature X..."
-                                        maxLength={300}
-                                    />
-                                </div>
-                                {localExp.achievements.length > 1 && (
-                                    <Button
-                                        color="tertiary-destructive"
-                                        size="sm"
-                                        onClick={() => handleRemoveAchievement(index)}
-                                        iconLeading={Trash01}
-                                        aria-label="Remove achievement"
-                                        className="mt-2"
-                                    />
-                                )}
-                            </div>
+                            <AchievementEditor
+                                key={index}
+                                index={index}
+                                achievement={achievement}
+                                onUpdate={handleUpdateAchievement}
+                                onRemove={handleRemoveAchievement}
+                                canRemove={localExp.achievements.length > 1}
+                            />
                         ))
                     )}
                 </div>
