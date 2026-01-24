@@ -4,6 +4,7 @@ import { Button } from '@/components/base/buttons/button';
 import { Plus, FilePlus02, FileCheck02, Calendar, Upload01, Share07 } from '@untitledui/icons';
 import { ResumeImportDialog } from '@/components/resume/resume-import-dialog';
 import { ShareDialog } from '@/components/resume/share-dialog';
+import { WelcomeModal } from '@/components/resume/welcome-modal';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import type { ResumeData } from '@/types/resume';
@@ -218,6 +219,12 @@ export default function ResumesPage() {
                     }}
                 />
             )}
+
+            {/* Welcome Modal - shows on first visit */}
+            <WelcomeModal
+                onStartFromScratch={handleCreateNew}
+                onImportResume={() => setShowImportDialog(true)}
+            />
         </div>
     );
 }

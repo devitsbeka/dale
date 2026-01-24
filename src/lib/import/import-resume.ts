@@ -1,9 +1,9 @@
-// import { parsePDF } from './parsers/pdf-parser';
-// import { parseDOCX } from './parsers/docx-parser';
+import { parsePDFFile } from './parsers/pdf-parser';
+import { parseDOCX } from './parsers/docx-parser';
 import { parseJSON } from './parsers/json-parser';
 import type { ResumeData } from '@/types/resume';
 
-export type SupportedFileType = 'json'; // | 'pdf' | 'docx' - Coming soon
+export type SupportedFileType = 'json' | 'pdf' | 'docx';
 
 export async function importResume(
     file: File
@@ -15,14 +15,13 @@ export async function importResume(
     }
 
     switch (fileType) {
-        // TODO: Add PDF and DOCX parsing once ESM compatibility is resolved
-        // case 'pdf':
-        //     const pdfBuffer = Buffer.from(await file.arrayBuffer());
-        //     return await parsePDF(pdfBuffer);
+        case 'pdf':
+            const pdfBuffer = Buffer.from(await file.arrayBuffer());
+            return await parsePDFFile(pdfBuffer);
 
-        // case 'docx':
-        //     const docxBuffer = Buffer.from(await file.arrayBuffer());
-        //     return await parseDOCX(docxBuffer);
+        case 'docx':
+            const docxBuffer = Buffer.from(await file.arrayBuffer());
+            return await parseDOCX(docxBuffer);
 
         case 'json':
             const jsonText = await file.text();
@@ -37,11 +36,11 @@ function detectFileType(file: File): SupportedFileType | null {
     const extension = file.name.split('.').pop()?.toLowerCase();
 
     switch (extension) {
-        // case 'pdf':
-        //     return 'pdf';
-        // case 'docx':
-        // case 'doc':
-        //     return 'docx';
+        case 'pdf':
+            return 'pdf';
+        case 'docx':
+        case 'doc':
+            return 'docx';
         case 'json':
             return 'json';
         default:
@@ -50,7 +49,7 @@ function detectFileType(file: File): SupportedFileType | null {
 }
 
 export function getSupportedFileTypes(): string {
-    return '.json'; // '.pdf,.docx,.doc,.json' - PDF/DOCX coming soon
+    return '.pdf,.docx,.doc,.json';
 }
 
 export function validateFileSize(file: File, maxSizeMB: number = 10): boolean {
