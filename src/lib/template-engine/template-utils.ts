@@ -15,7 +15,9 @@ export function getFontFamily(font?: string) {
         inter: 'Inter, system-ui, sans-serif',
         roboto: 'Roboto, sans-serif',
         lato: 'Lato, sans-serif',
+        opensans: 'Open Sans, sans-serif',
         georgia: 'Georgia, serif',
+        merriweather: 'Merriweather, serif',
     };
 
     return fontMap[font || 'inter'] || fontMap.inter;

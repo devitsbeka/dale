@@ -14,11 +14,21 @@ interface CustomizeStepProps {
 }
 
 const COLORS = [
-    { value: '#E9684B', label: 'Warm Orange', class: 'bg-brand-500' },
-    { value: '#3B82F6', label: 'Professional Blue', class: 'bg-blue-500' },
-    { value: '#059669', label: 'Success Green', class: 'bg-emerald-600' },
-    { value: '#6366F1', label: 'Indigo', class: 'bg-indigo-500' },
-    { value: '#334155', label: 'Slate Gray', class: 'bg-slate-700' },
+    { value: '#E9684B', label: 'Coral' },
+    { value: '#3B82F6', label: 'Azure' },
+    { value: '#059669', label: 'Emerald' },
+    { value: '#6366F1', label: 'Indigo' },
+    { value: '#8B5CF6', label: 'Purple' },
+    { value: '#334155', label: 'Slate' },
+];
+
+const FONTS = [
+    { value: 'inter', label: 'Inter', preview: 'Modern sans-serif', fontFamily: 'Inter, sans-serif' },
+    { value: 'roboto', label: 'Roboto', preview: 'Professional sans-serif', fontFamily: 'Roboto, sans-serif' },
+    { value: 'lato', label: 'Lato', preview: 'Friendly sans-serif', fontFamily: 'Lato, sans-serif' },
+    { value: 'opensans', label: 'Open Sans', preview: 'Clean sans-serif', fontFamily: 'Open Sans, sans-serif' },
+    { value: 'georgia', label: 'Georgia', preview: 'Classic serif', fontFamily: 'Georgia, serif' },
+    { value: 'merriweather', label: 'Merriweather', preview: 'Elegant serif', fontFamily: 'Merriweather, serif' },
 ];
 
 export function CustomizeStep({ onNext, onPrevious }: CustomizeStepProps) {
@@ -145,17 +155,22 @@ export function CustomizeStep({ onNext, onPrevious }: CustomizeStepProps) {
                                 onClick={() =>
                                     updateCustomization({ primaryColor: color.value })
                                 }
-                                className={`flex items-center gap-3 rounded-lg border-2 px-4 py-3 outline-focus-ring transition focus-visible:outline-2 ${
+                                className={`flex items-center justify-between gap-3 rounded-lg border-2 px-4 py-3 text-left outline-focus-ring transition focus-visible:outline-2 ${
                                     isSelected
-                                        ? 'border-gray-300 bg-gray-50 ring-2 ring-gray-200'
-                                        : 'border-secondary bg-primary hover:border-gray-300 hover:bg-gray-50/50'
+                                        ? 'border-brand-200 bg-brand-50/30 ring-2 ring-brand-100'
+                                        : 'border-secondary bg-primary hover:border-brand-100 hover:bg-brand-50/10'
                                 }`}
                             >
-                                <div className={`h-6 w-6 rounded-full ${color.class}`} />
-                                <span className="flex-1 text-sm text-primary">
-                                    {color.label}
-                                </span>
-                                {isSelected && <Check className="h-4 w-4 text-gray-900" />}
+                                <div className="flex items-center gap-3">
+                                    <div
+                                        className="h-6 w-6 rounded-full"
+                                        style={{ backgroundColor: color.value }}
+                                    />
+                                    <span className="text-sm font-semibold text-primary">
+                                        {color.label}
+                                    </span>
+                                </div>
+                                {isSelected && <Check className="h-4 w-4 text-brand-500" />}
                             </button>
                         );
                     })}
@@ -166,12 +181,7 @@ export function CustomizeStep({ onNext, onPrevious }: CustomizeStepProps) {
             <div className="space-y-4">
                 <h4 className="text-sm font-semibold text-secondary">Font</h4>
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                    {[
-                        { value: 'inter', label: 'Inter', preview: 'Modern sans-serif' },
-                        { value: 'roboto', label: 'Roboto', preview: 'Professional sans-serif' },
-                        { value: 'lato', label: 'Lato', preview: 'Friendly sans-serif' },
-                        { value: 'georgia', label: 'Georgia', preview: 'Classic serif' },
-                    ].map((font) => {
+                    {FONTS.map((font) => {
                         const isSelected = customization.font === font.value;
                         return (
                             <button
@@ -184,7 +194,9 @@ export function CustomizeStep({ onNext, onPrevious }: CustomizeStepProps) {
                                 }`}
                             >
                                 <div>
-                                    <p className="font-semibold text-primary">{font.label}</p>
+                                    <p className="font-semibold text-primary" style={{ fontFamily: font.fontFamily }}>
+                                        {font.label}
+                                    </p>
                                     <p className="text-sm text-tertiary">{font.preview}</p>
                                 </div>
                                 {isSelected && (
@@ -206,7 +218,7 @@ export function CustomizeStep({ onNext, onPrevious }: CustomizeStepProps) {
                     onClick={handleNext}
                     iconTrailing={ChevronRight}
                 >
-                    Preview Resume
+                    Next
                 </Button>
             </div>
         </div>
