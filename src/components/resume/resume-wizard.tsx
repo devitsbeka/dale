@@ -126,7 +126,7 @@ export function ResumeWizard({ isOpen, onClose }: ResumeWizardProps) {
                                     <button
                                         onClick={() => isAccessible && handleStepClick(step.id)}
                                         disabled={!isAccessible}
-                                        className={`group flex min-w-0 flex-1 flex-col gap-1 rounded-lg p-3 outline-focus-ring transition focus-visible:outline-2 focus-visible:outline-offset-2 ${
+                                        className={`group flex min-w-0 flex-1 flex-col gap-2 rounded-lg p-3 outline-focus-ring transition focus-visible:outline-2 focus-visible:outline-offset-2 ${
                                             isCurrent
                                                 ? 'bg-brand-50 ring-1 ring-brand-500'
                                                 : isAccessible
@@ -134,7 +134,7 @@ export function ResumeWizard({ isOpen, onClose }: ResumeWizardProps) {
                                                   : 'cursor-not-allowed opacity-40'
                                         }`}
                                     >
-                                        <div>
+                                        <div className="flex items-center gap-2">
                                             <div
                                                 className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
                                                     isCompleted
@@ -145,7 +145,7 @@ export function ResumeWizard({ isOpen, onClose }: ResumeWizardProps) {
                                                 }`}
                                             >
                                                 {isCompleted ? (
-                                                    <Check />
+                                                    <Check className="h-3 w-3" />
                                                 ) : (
                                                     index + 1
                                                 )}

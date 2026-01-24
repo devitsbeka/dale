@@ -60,28 +60,28 @@ export function OnboardingOverlay({ currentStep, onDismiss }: OnboardingOverlayP
     };
 
     return (
-        <div>
-            <div>
+        <div className="absolute inset-0 z-50 flex items-start justify-center bg-black/50 p-6 pt-20 backdrop-blur-sm">
+            <div className="relative w-full max-w-md rounded-xl border border-secondary bg-primary p-6 shadow-xl">
                 <button
                     onClick={onDismiss}
-                   
+                    className="absolute right-4 top-4 rounded-lg p-1 text-tertiary outline-focus-ring transition hover:bg-secondary hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2"
                     aria-label="Close"
                 >
-                    <X />
+                    <X className="h-5 w-5" />
                 </button>
 
-                <div>
-                    <Lightbulb01 />
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-brand-50">
+                    <Lightbulb01 className="h-6 w-6 text-brand-600" />
                 </div>
 
-                <h3>{content.title}</h3>
-                <p>{content.message}</p>
+                <h3 className="mb-2 text-lg font-semibold text-primary">{content.title}</h3>
+                <p className="mb-4 text-sm text-secondary">{content.message}</p>
 
-                <div>
-                    <p>{content.tip}</p>
+                <div className="mb-6 rounded-lg bg-secondary p-3">
+                    <p className="text-sm text-secondary">{content.tip}</p>
                 </div>
 
-                <div>
+                <div className="flex flex-col gap-2">
                     <Button color="primary" size="md" onClick={onDismiss}>
                         Got it, thanks!
                     </Button>
