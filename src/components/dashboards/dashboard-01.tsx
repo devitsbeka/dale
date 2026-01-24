@@ -80,47 +80,47 @@ const getLogoUrl = (domain: string) => `https://img.logo.dev/${domain}?token=${L
 const articles: Article[] = [
     {
         id: "1",
-        href: "#",
+        href: "/projects/1",
         thumbnailUrl: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?ixlib=rb-4.0.3&auto=format&fit=crop&w=3603&q=80",
         title: "Senior Product Designer at Stripe",
         summary: "Remote-first role building the future of payment infrastructure. Competitive salary + equity.",
         category: {
-            href: "#",
+            href: "/projects/1",
             name: "Stripe",
         },
         author: {
-            href: "#",
+            href: "/projects/1",
             name: "Posted 2h ago",
             avatarUrl: getLogoUrl("stripe.com"),
         },
         publishedAt: "Posted today",
         readingTime: "$140k–$180k",
         tags: [
-            { name: "Remote", color: "purple", href: "#" },
-            { name: "Design", color: "orange", href: "#" },
+            { name: "Remote", color: "purple", href: "/projects" },
+            { name: "Design", color: "orange", href: "/projects" },
         ],
         isFeatured: true,
     },
     {
         id: "2",
-        href: "#",
+        href: "/projects/2",
         thumbnailUrl: "https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&auto=format&fit=crop&w=3270&q=80",
         title: "Full-Stack Engineer at Vercel",
         summary: "Build the modern web with Next.js and React. Work with a globally distributed team.",
         category: {
-            href: "#",
+            href: "/projects/2",
             name: "Vercel",
         },
         author: {
-            href: "#",
+            href: "/projects/2",
             name: "Posted 5h ago",
             avatarUrl: getLogoUrl("vercel.com"),
         },
         publishedAt: "Posted today",
         readingTime: "$130k–$170k",
         tags: [
-            { name: "Remote", color: "purple", href: "#" },
-            { name: "Engineering", color: "blue", href: "#" },
+            { name: "Remote", color: "purple", href: "/projects" },
+            { name: "Engineering", color: "blue", href: "/projects" },
         ],
     },
 ];
@@ -134,7 +134,7 @@ const feed: FeedItemType[] = [
         },
         action: "Application submitted",
         timestamp: "2h",
-        href: "#",
+        href: "/projects/1",
     },
     {
         id: "2",
@@ -144,7 +144,7 @@ const feed: FeedItemType[] = [
         },
         action: "Interview scheduled",
         timestamp: "5h",
-        href: "#",
+        href: "/calendar",
     },
     {
         id: "3",
@@ -154,7 +154,7 @@ const feed: FeedItemType[] = [
         },
         action: "Application viewed",
         timestamp: "1d",
-        href: "#",
+        href: "/projects/1",
     },
     {
         id: "4",
@@ -164,7 +164,7 @@ const feed: FeedItemType[] = [
         },
         action: "Application submitted",
         timestamp: "2d",
-        href: "#",
+        href: "/projects/1",
     },
     {
         id: "5",
@@ -174,7 +174,7 @@ const feed: FeedItemType[] = [
         },
         action: "Profile viewed",
         timestamp: "3d",
-        href: "#",
+        href: "/reporting",
     },
 ];
 
@@ -532,7 +532,7 @@ export const Dashboard01 = () => {
                         </SectionHeader.Root>
 
                         <div className="flex flex-wrap gap-5 lg:gap-6">
-                            <button className="flex min-w-[280px] flex-1 cursor-pointer gap-3 rounded-xl bg-primary p-4 shadow-xs ring-1 ring-secondary outline-focus-ring ring-inset focus-visible:outline-2 focus-visible:outline-offset-2 lg:p-5">
+                            <a href="/projects" className="flex min-w-[280px] flex-1 cursor-pointer gap-3 rounded-xl bg-primary p-4 shadow-xs ring-1 ring-secondary outline-focus-ring ring-inset transition hover:ring-brand-solid focus-visible:outline-2 focus-visible:outline-offset-2 lg:p-5">
                                 <FeaturedIcon icon={BarChartSquare02} color="gray" theme="modern" size="lg" className="hidden lg:flex" />
                                 <FeaturedIcon icon={BarChartSquare02} color="gray" theme="modern" size="md" className="lg:hidden" />
 
@@ -540,8 +540,8 @@ export const Dashboard01 = () => {
                                     <p className="text-md font-semibold text-secondary">Browse fresh opportunities</p>
                                     <p className="max-w-full truncate text-sm text-tertiary">47 new remote roles added today</p>
                                 </div>
-                            </button>
-                            <button className="flex min-w-[280px] flex-1 cursor-pointer gap-3 rounded-xl bg-primary p-4 shadow-xs ring-1 ring-secondary outline-focus-ring ring-inset focus-visible:outline-2 focus-visible:outline-offset-2 lg:p-5">
+                            </a>
+                            <a href="/documents" className="flex min-w-[280px] flex-1 cursor-pointer gap-3 rounded-xl bg-primary p-4 shadow-xs ring-1 ring-secondary outline-focus-ring ring-inset transition hover:ring-brand-solid focus-visible:outline-2 focus-visible:outline-offset-2 lg:p-5">
                                 <FeaturedIcon icon={Edit04} color="gray" theme="modern" size="lg" className="hidden lg:flex" />
                                 <FeaturedIcon icon={Edit04} color="gray" theme="modern" size="md" className="lg:hidden" />
 
@@ -549,7 +549,7 @@ export const Dashboard01 = () => {
                                     <p className="text-md font-semibold text-secondary">Generate tailored resume</p>
                                     <p className="max-w-full truncate text-sm text-tertiary">ATS-optimized for specific roles</p>
                                 </div>
-                            </button>
+                            </a>
                         </div>
                     </div>
                     </div>
