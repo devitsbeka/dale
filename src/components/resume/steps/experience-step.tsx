@@ -1,17 +1,33 @@
 'use client';
 
 import React, { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { Button } from '@/components/base/buttons/button';
 import { Input } from '@/components/base/input/input';
 import { InputGroup } from '@/components/base/input/input-group';
 import { Label } from '@/components/base/input/label';
 import { HintText } from '@/components/base/input/hint-text';
 import { Checkbox } from '@/components/base/checkbox/checkbox';
-import { RichTextEditor } from '@/components/resume/rich-text-editor';
 import { DraggableSectionList } from '@/components/resume/draggable-section-list';
 import { useResume } from '@/contexts/resume-context';
 import { ChevronRight, ChevronLeft, Plus, Trash01, Edit05 } from '@untitledui/icons';
 import type { WorkExperience } from '@/types/resume';
+
+// Dynamically import RichTextEditor to avoid SSR
+const RichTextEditor = dynamic(
+    () => import('@/components/resume/rich-text-editor').then((mod) => mod.RichTextEditor),
+    {
+        ssr: false,
+        loading: () => (
+            <div className="min-h-[140px] rounded-lg border border-secondary bg-primary p-3">
+                <div className="animate-pulse space-y-2">
+                    <div className="h-4 w-3/4 rounded bg-secondary"></div>
+                    <div className="h-4 w-1/2 rounded bg-secondary"></div>
+                </div>
+            </div>
+        )
+    }
+);
 
 interface ExperienceStepProps {
     onNext: () => void;
