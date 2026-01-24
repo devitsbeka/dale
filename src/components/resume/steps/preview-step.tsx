@@ -1,10 +1,13 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { Button } from '@/components/base/buttons/button';
 import { useResume } from '@/contexts/resume-context';
 import { ChevronLeft, Download03, FileCheck02 } from '@untitledui/icons';
 import { ResumePreview } from '../resume-preview';
+import { ATSScorePanel } from '../ats-score-panel';
+import { KeywordAnalyzerPanel } from '../keyword-analyzer-panel';
+import { analyzeATSCompatibility } from '@/lib/ats/analyzer';
 
 interface PreviewStepProps {
     onPrevious: () => void;
@@ -14,6 +17,11 @@ interface PreviewStepProps {
 export function PreviewStep({ onPrevious, onClose }: PreviewStepProps) {
     const { resumeData, markStepComplete } = useResume();
     const previewRef = useRef<HTMLDivElement>(null);
+
+    // Calculate ATS score
+    const atsAnalysis = useMemo(() => {
+        return analyzeATSCompatibility(resumeData);
+    }, [resumeData]);
 
     const handleExportPDF = async () => {
         markStepComplete('preview');
@@ -85,19 +93,11 @@ export function PreviewStep({ onPrevious, onClose }: PreviewStepProps) {
                 </div>
             </div>
 
-            {/* ATS Tips */}
-            <div className="rounded-lg border border-secondary bg-secondary/10 p-4">
-                <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold text-secondary">
-                    <FileCheck02 className="h-4 w-4" />
-                    ATS-Optimized Resume
-                </h4>
-                <ul className="space-y-2 text-sm text-tertiary">
-                    <li>✓ Clean formatting with no graphics</li>
-                    <li>✓ Standard section headings</li>
-                    <li>✓ Keyword-rich content</li>
-                    <li>✓ Professional fonts and spacing</li>
-                </ul>
-            </div>
+            {/* ATS Analysis */}
+            <ATSScorePanel analysis={atsAnalysis} />
+
+            {/* Keyword Analyzer */}
+            <KeywordAnalyzerPanel resumeData={resumeData} />
 
             {/* Preview */}
             <div className="rounded-lg border border-secondary bg-primary p-6">
