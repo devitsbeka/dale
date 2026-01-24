@@ -1,3 +1,5 @@
-import { Dashboard01 } from "@/components/dashboards/dashboard-01";
+import { redirect } from 'next/navigation';
 
-export default Dashboard01;
+export default function HomePage() {
+    redirect('/dashboard');
+}

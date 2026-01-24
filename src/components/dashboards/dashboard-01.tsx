@@ -28,8 +28,6 @@ import { DateRangePicker } from "@/components/application/date-picker/date-range
 import { MetricChangeIndicator } from "@/components/application/metrics/metrics";
 import { SectionHeader } from "@/components/application/section-headers/section-headers";
 import { TableRowActionsDropdown } from "@/components/application/table/table";
-import { ResumeWizard } from "@/components/resume/resume-wizard";
-import { ResumeProvider } from "@/contexts/resume-context";
 import { Avatar } from "@/components/base/avatar/avatar";
 import { Badge } from "@/components/base/badges/badges";
 import type { BadgeColor } from "@/components/base/badges/badges";
@@ -375,20 +373,8 @@ const Simple03Vertical = ({
 );
 
 export const Dashboard01 = () => {
-    const [isResumeWizardOpen, setIsResumeWizardOpen] = useState(false);
-
     return (
-        <ResumeProvider>
-            <div className="flex flex-col bg-primary lg:flex-row">
-                <SidebarCollapsible
-                    activeUrl="/"
-                    expandedItems={expandedNavItems}
-                    collapsedItems={collapsedNavItems}
-                    footerItems={footerNavItems}
-                    showThemeToggle={false}
-                />
-
-            <main className="min-w-0 flex-1 bg-primary pb-12 pt-8">
+        <div className="min-w-0 flex-1 bg-primary pb-12 pt-8">
                 <div className="flex flex-col gap-8 lg:flex-row lg:gap-8 lg:px-8">
                     {/* Main content */}
                     <div className="flex min-w-0 flex-1 flex-col gap-8">
@@ -546,8 +532,8 @@ export const Dashboard01 = () => {
                                     <p className="max-w-full truncate text-sm text-tertiary">47 new remote roles added today</p>
                                 </div>
                             </button>
-                            <button
-                                onClick={() => setIsResumeWizardOpen(true)}
+                            <a
+                                href="/resumes/new"
                                 className="flex min-w-[280px] flex-1 cursor-pointer gap-3 rounded-xl bg-primary p-4 shadow-xs ring-1 ring-secondary outline-focus-ring ring-inset focus-visible:outline-2 focus-visible:outline-offset-2 lg:p-5 transition hover:bg-secondary"
                             >
                                 <FeaturedIcon icon={Edit04} color="gray" theme="modern" size="lg" className="hidden lg:flex" />
@@ -557,7 +543,7 @@ export const Dashboard01 = () => {
                                     <p className="text-md font-semibold text-secondary">Generate tailored resume</p>
                                     <p className="max-w-full truncate text-sm text-tertiary">ATS-optimized for specific roles</p>
                                 </div>
-                            </button>
+                            </a>
                         </div>
                     </div>
                     </div>
@@ -575,14 +561,6 @@ export const Dashboard01 = () => {
                         </ul>
                     </div>
                 </div>
-            </main>
-
-            {/* Resume Wizard Modal */}
-            <ResumeWizard
-                isOpen={isResumeWizardOpen}
-                onClose={() => setIsResumeWizardOpen(false)}
-            />
         </div>
-        </ResumeProvider>
     );
 };
