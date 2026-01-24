@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Button } from '@/components/base/buttons/button';
 import { Input } from '@/components/base/input/input';
 import { InputGroup } from '@/components/base/input/input-group';
@@ -170,6 +170,11 @@ const AchievementEditor = React.memo(function AchievementEditor({
 
 function ExperienceCard({ experience, isEditing, onEdit, onSave, onDelete, onUpdate }: ExperienceCardProps) {
     const [localExp, setLocalExp] = useState(experience);
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const handleBlur = (field: keyof WorkExperience, value: any) => {
         onUpdate({ [field]: value });
@@ -211,6 +216,18 @@ function ExperienceCard({ experience, isEditing, onEdit, onSave, onDelete, onUpd
     }, [onUpdate]);
 
     if (!isEditing) {
+        // Don't render achievements until mounted
+        if (!isMounted) {
+            return (
+                <div className="flex items-start justify-between rounded-lg border border-secondary bg-secondary/30 p-4">
+                    <div className="flex-1 animate-pulse">
+                        <div className="h-4 w-3/4 bg-secondary rounded mb-2"></div>
+                        <div className="h-3 w-1/2 bg-secondary rounded"></div>
+                    </div>
+                </div>
+            );
+        }
+
         return (
             <div className="flex items-start justify-between rounded-lg border border-secondary bg-secondary/30 p-4">
                 <div className="flex-1">
@@ -227,9 +244,10 @@ function ExperienceCard({ experience, isEditing, onEdit, onSave, onDelete, onUpd
                             {experience.achievements.map((achievement, idx) => (
                                 <div
                                     key={idx}
-                                    className="prose prose-sm max-w-none"
-                                    dangerouslySetInnerHTML={{ __html: achievement }}
-                                />
+                                    className="text-xs text-secondary"
+                                >
+                                    {achievement}
+                                </div>
                             ))}
                         </div>
                     )}
