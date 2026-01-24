@@ -5,7 +5,6 @@ import { Button } from '@/components/base/buttons/button';
 import { Input } from '@/components/base/input/input';
 import { InputGroup } from '@/components/base/input/input-group';
 import { Label } from '@/components/base/input/label';
-import { HintText } from '@/components/base/input/hint-text';
 import { Select } from '@/components/base/select/select';
 import { useResume } from '@/contexts/resume-context';
 import { ChevronRight, ChevronLeft, Plus, X } from '@untitledui/icons';
@@ -39,10 +38,11 @@ const SUGGESTED_SKILLS = {
 export function SkillsStep({ onNext, onPrevious }: SkillsStepProps) {
     const { resumeData, addSkill, removeSkill, markStepComplete } = useResume();
     const skills = resumeData.skills || [];
+    const [isAddingCustom, setIsAddingCustom] = useState(false);
     const [skillName, setSkillName] = useState('');
     const [skillCategory, setSkillCategory] = useState<Skill['category']>('technical');
 
-    const handleAddSkill = () => {
+    const handleAddCustomSkill = () => {
         if (skillName.trim()) {
             const newSkill: Skill = {
                 id: Date.now().toString(),
@@ -51,6 +51,7 @@ export function SkillsStep({ onNext, onPrevious }: SkillsStepProps) {
             };
             addSkill(newSkill);
             setSkillName('');
+            setIsAddingCustom(false);
         }
     };
 
@@ -117,51 +118,73 @@ export function SkillsStep({ onNext, onPrevious }: SkillsStepProps) {
                 </div>
             )}
 
-            {/* Add skill form */}
-            <div className="space-y-6 rounded-lg border border-secondary bg-secondary/10 p-6">
-                <h4 className="text-sm font-semibold text-secondary">Add Skill</h4>
-
-                <div className="grid grid-cols-2 gap-4">
-                    <InputGroup className="w-full max-w-[300px]">
-                        <Label>Skill Name</Label>
-                        <Input
-                            type="text"
-                            placeholder="e.g., React, Leadership, Spanish"
-                            value={skillName}
-                            onChange={(value) => setSkillName(value)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                    e.preventDefault();
-                                    handleAddSkill();
-                                }
-                            }}
-                        />
-                    </InputGroup>
-
-                    <InputGroup className="w-full max-w-[300px]">
-                        <Label>Category</Label>
-                        <Select
-                            value={skillCategory}
-                            onChange={(value) => setSkillCategory(value as Skill['category'])}
-                        >
-                            {SKILL_CATEGORIES.map((cat) => (
-                                <option key={cat.value} value={cat.value}>
-                                    {cat.label}
-                                </option>
-                            ))}
-                        </Select>
-                    </InputGroup>
-                </div>
-
+            {/* Add custom skill inline */}
+            {!isAddingCustom ? (
                 <Button
                     color="secondary"
-                    onClick={handleAddSkill}
+                    onClick={() => setIsAddingCustom(true)}
                     iconLeading={Plus}
-                    isDisabled={!skillName.trim()}
                 >
-                    Add Skill
+                    Add Custom Skill
                 </Button>
-            </div>
+            ) : (
+                <div className="space-y-4 rounded-lg border border-secondary bg-secondary/10 p-6">
+                    <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-semibold text-secondary">Add Custom Skill</h4>
+                        <Button
+                            color="link-gray"
+                            size="sm"
+                            onClick={() => {
+                                setIsAddingCustom(false);
+                                setSkillName('');
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <InputGroup className="w-full max-w-[300px]">
+                            <Label>Skill Name</Label>
+                            <Input
+                                type="text"
+                                placeholder="e.g., React, Leadership, Spanish"
+                                value={skillName}
+                                onChange={(value) => setSkillName(value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        handleAddCustomSkill();
+                                    }
+                                }}
+                            />
+                        </InputGroup>
+
+                        <InputGroup className="w-full max-w-[300px]">
+                            <Label>Category</Label>
+                            <Select
+                                value={skillCategory}
+                                onChange={(value) => setSkillCategory(value as Skill['category'])}
+                            >
+                                {SKILL_CATEGORIES.map((cat) => (
+                                    <option key={cat.value} value={cat.value}>
+                                        {cat.label}
+                                    </option>
+                                ))}
+                            </Select>
+                        </InputGroup>
+                    </div>
+
+                    <Button
+                        color="secondary"
+                        onClick={handleAddCustomSkill}
+                        iconLeading={Plus}
+                        isDisabled={!skillName.trim()}
+                    >
+                        Add Skill
+                    </Button>
+                </div>
+            )}
 
             {/* Suggested skills */}
             <div className="space-y-6 rounded-lg border border-secondary bg-secondary/10 p-6">

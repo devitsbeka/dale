@@ -6,10 +6,9 @@ import { Input } from '@/components/base/input/input';
 import { InputGroup } from '@/components/base/input/input-group';
 import { Label } from '@/components/base/input/label';
 import { HintText } from '@/components/base/input/hint-text';
-import { TextArea } from '@/components/base/textarea/textarea';
 import { Checkbox } from '@/components/base/checkbox/checkbox';
 import { useResume } from '@/contexts/resume-context';
-import { ChevronRight, ChevronLeft, Plus, Trash01 } from '@untitledui/icons';
+import { ChevronRight, ChevronLeft, Plus, Trash01, Edit05 } from '@untitledui/icons';
 import type { WorkExperience } from '@/types/resume';
 
 interface ExperienceStepProps {
@@ -18,59 +17,23 @@ interface ExperienceStepProps {
 }
 
 export function ExperienceStep({ onNext, onPrevious }: ExperienceStepProps) {
-    const { resumeData, addExperience, removeExperience, markStepComplete } = useResume();
+    const { resumeData, addExperience, updateExperience, removeExperience, markStepComplete } = useResume();
     const experiences = resumeData.experience || [];
-    const [formData, setFormData] = useState<Partial<WorkExperience>>({
-        company: '',
-        position: '',
-        location: '',
-        startDate: '',
-        endDate: '',
-        current: false,
-        achievements: [''],
-    });
+    const [editingId, setEditingId] = useState<string | null>(null);
 
-    const handleAddExperience = () => {
-        if (formData.company && formData.position) {
-            const newExp: WorkExperience = {
-                id: Date.now().toString(),
-                company: formData.company,
-                position: formData.position,
-                location: formData.location || '',
-                startDate: formData.startDate || '',
-                endDate: formData.current ? 'Present' : formData.endDate || '',
-                current: formData.current || false,
-                achievements: formData.achievements?.filter((a) => a.trim() !== '') || [],
-            };
-            addExperience(newExp);
-            setFormData({
-                company: '',
-                position: '',
-                location: '',
-                startDate: '',
-                endDate: '',
-                current: false,
-                achievements: [''],
-            });
-        }
-    };
-
-    const handleAddAchievement = () => {
-        setFormData({
-            ...formData,
-            achievements: [...(formData.achievements || []), ''],
-        });
-    };
-
-    const handleUpdateAchievement = (index: number, value: string) => {
-        const newAchievements = [...(formData.achievements || [])];
-        newAchievements[index] = value;
-        setFormData({ ...formData, achievements: newAchievements });
-    };
-
-    const handleRemoveAchievement = (index: number) => {
-        const newAchievements = (formData.achievements || []).filter((_, i) => i !== index);
-        setFormData({ ...formData, achievements: newAchievements });
+    const handleAddNew = () => {
+        const newExp: WorkExperience = {
+            id: Date.now().toString(),
+            company: '',
+            position: '',
+            location: '',
+            startDate: '',
+            endDate: '',
+            current: false,
+            achievements: [],
+        };
+        addExperience(newExp);
+        setEditingId(newExp.id);
     };
 
     const handleNext = () => {
@@ -92,142 +55,27 @@ export function ExperienceStep({ onNext, onPrevious }: ExperienceStepProps) {
             {experiences.length > 0 && (
                 <div className="space-y-4">
                     {experiences.map((exp) => (
-                        <div
+                        <ExperienceCard
                             key={exp.id}
-                            className="flex items-start justify-between rounded-lg border border-secondary bg-secondary/30 p-4"
-                        >
-                            <div className="flex-1">
-                                <p className="font-semibold text-primary">{exp.position}</p>
-                                <p className="text-sm text-secondary">{exp.company}</p>
-                                <p className="text-xs text-tertiary">
-                                    {exp.startDate} - {exp.current ? 'Present' : exp.endDate}
-                                </p>
-                            </div>
-                            <button
-                                onClick={() => removeExperience(exp.id)}
-                                className="ml-4 rounded-lg p-2 text-tertiary outline-focus-ring transition hover:bg-error-50 hover:text-error-600 focus-visible:outline-2 focus-visible:outline-offset-2"
-                            >
-                                <Trash01 className="h-4 w-4" />
-                            </button>
-                        </div>
+                            experience={exp}
+                            isEditing={editingId === exp.id}
+                            onEdit={() => setEditingId(exp.id)}
+                            onSave={() => setEditingId(null)}
+                            onDelete={() => removeExperience(exp.id)}
+                            onUpdate={(updates) => updateExperience(exp.id, updates)}
+                        />
                     ))}
                 </div>
             )}
 
-            {/* Add new experience form */}
-            <div className="space-y-6 rounded-lg border border-secondary bg-secondary/10 p-6">
-                <h4 className="text-sm font-semibold text-secondary">Add Experience</h4>
-
-                <div className="grid grid-cols-2 gap-4">
-                    <InputGroup className="w-full max-w-[300px]">
-                        <Label>Job Title</Label>
-                        <Input
-                            type="text"
-                            placeholder="Software Engineer"
-                            value={formData.position || ''}
-                            onChange={(value) => setFormData({ ...formData, position: value })}
-                            isRequired
-                        />
-                    </InputGroup>
-
-                    <InputGroup className="w-full max-w-[300px]">
-                        <Label>Company</Label>
-                        <Input
-                            type="text"
-                            placeholder="Acme Corp"
-                            value={formData.company || ''}
-                            onChange={(value) => setFormData({ ...formData, company: value })}
-                            isRequired
-                        />
-                    </InputGroup>
-                </div>
-
-                <InputGroup className="w-full max-w-[300px]">
-                    <Label>Location</Label>
-                    <Input
-                        type="text"
-                        placeholder="San Francisco, CA"
-                        value={formData.location || ''}
-                        onChange={(value) => setFormData({ ...formData, location: value })}
-                    />
-                </InputGroup>
-
-                <div className="grid grid-cols-2 gap-4">
-                    <InputGroup className="w-full max-w-[300px]">
-                        <Label>Start Date</Label>
-                        <Input
-                            type="month"
-                            value={formData.startDate || ''}
-                            onChange={(value) => setFormData({ ...formData, startDate: value })}
-                        />
-                    </InputGroup>
-
-                    <InputGroup className="w-full max-w-[300px]">
-                        <Label>End Date</Label>
-                        <Input
-                            type="month"
-                            value={formData.endDate || ''}
-                            onChange={(value) => setFormData({ ...formData, endDate: value })}
-                            isDisabled={formData.current}
-                        />
-                    </InputGroup>
-                </div>
-
-                <Checkbox
-                    isSelected={formData.current || false}
-                    onChange={(checked) => setFormData({ ...formData, current: checked })}
-                >
-                    I currently work here
-                </Checkbox>
-
-                {/* Achievements */}
-                <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                        <Label>Key Achievements</Label>
-                        <Button
-                            color="link-gray"
-                            size="sm"
-                            iconLeading={Plus}
-                            onClick={handleAddAchievement}
-                        >
-                            Add Achievement
-                        </Button>
-                    </div>
-
-                    <div className="space-y-3">
-                        {(formData.achievements || ['']).map((achievement, index) => (
-                            <div key={index} className="flex items-start gap-2">
-                                <Input
-                                    type="text"
-                                    placeholder="Led a team of 5 developers to ship feature X..."
-                                    value={achievement}
-                                    onChange={(value) => handleUpdateAchievement(index, value)}
-                                    className="flex-1"
-                                />
-                                {formData.achievements && formData.achievements.length > 1 && (
-                                    <button
-                                        onClick={() => handleRemoveAchievement(index)}
-                                        className="mt-1 rounded-lg p-2 text-tertiary outline-focus-ring transition hover:text-error-600 focus-visible:outline-2 focus-visible:outline-offset-2"
-                                    >
-                                        <Trash01 className="h-4 w-4" />
-                                    </button>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                    <HintText>
-                        Start with action verbs. Focus on measurable impact.
-                    </HintText>
-                </div>
-
-                <Button
-                    color="secondary"
-                    onClick={handleAddExperience}
-                    isDisabled={!formData.company || !formData.position}
-                >
-                    Add This Experience
-                </Button>
-            </div>
+            {/* Add new experience button */}
+            <Button
+                color="secondary"
+                onClick={handleAddNew}
+                iconLeading={Plus}
+            >
+                Add Experience
+            </Button>
 
             {/* Navigation */}
             <div className="flex justify-between border-t border-secondary pt-6">
@@ -247,6 +95,231 @@ export function ExperienceStep({ onNext, onPrevious }: ExperienceStepProps) {
                 >
                     Continue to Education
                 </Button>
+            </div>
+        </div>
+    );
+}
+
+interface ExperienceCardProps {
+    experience: WorkExperience;
+    isEditing: boolean;
+    onEdit: () => void;
+    onSave: () => void;
+    onDelete: () => void;
+    onUpdate: (updates: Partial<WorkExperience>) => void;
+}
+
+function ExperienceCard({ experience, isEditing, onEdit, onSave, onDelete, onUpdate }: ExperienceCardProps) {
+    const [localExp, setLocalExp] = useState(experience);
+
+    const handleBlur = (field: keyof WorkExperience, value: any) => {
+        onUpdate({ [field]: value });
+    };
+
+    const handleAddAchievement = () => {
+        const newAchievements = [...localExp.achievements, ''];
+        setLocalExp({ ...localExp, achievements: newAchievements });
+        onUpdate({ achievements: newAchievements });
+    };
+
+    const handleUpdateAchievement = (index: number, value: string) => {
+        const newAchievements = [...localExp.achievements];
+        newAchievements[index] = value;
+        setLocalExp({ ...localExp, achievements: newAchievements });
+    };
+
+    const handleAchievementBlur = (index: number, value: string) => {
+        const newAchievements = [...localExp.achievements];
+        newAchievements[index] = value;
+        onUpdate({ achievements: newAchievements.filter(a => a.trim() !== '') });
+    };
+
+    const handleRemoveAchievement = (index: number) => {
+        const newAchievements = localExp.achievements.filter((_, i) => i !== index);
+        setLocalExp({ ...localExp, achievements: newAchievements });
+        onUpdate({ achievements: newAchievements });
+    };
+
+    if (!isEditing) {
+        return (
+            <div className="flex items-start justify-between rounded-lg border border-secondary bg-secondary/30 p-4">
+                <div className="flex-1">
+                    <p className="font-semibold text-primary">{experience.position || 'Untitled Position'}</p>
+                    <p className="text-sm text-secondary">{experience.company || 'Company'}</p>
+                    {experience.location && (
+                        <p className="text-xs text-tertiary">{experience.location}</p>
+                    )}
+                    <p className="text-xs text-tertiary">
+                        {experience.startDate || 'Start'} - {experience.current ? 'Present' : experience.endDate || 'End'}
+                    </p>
+                    {experience.achievements.length > 0 && (
+                        <ul className="mt-2 list-inside list-disc space-y-1 text-xs text-secondary">
+                            {experience.achievements.map((achievement, idx) => (
+                                <li key={idx}>{achievement}</li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+                <div className="ml-4 flex gap-2">
+                    <button
+                        onClick={onEdit}
+                        className="rounded-lg p-2 text-tertiary outline-focus-ring transition hover:bg-secondary hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2"
+                    >
+                        <Edit05 className="h-4 w-4" />
+                    </button>
+                    <button
+                        onClick={onDelete}
+                        className="rounded-lg p-2 text-tertiary outline-focus-ring transition hover:bg-error-50 hover:text-error-600 focus-visible:outline-2 focus-visible:outline-offset-2"
+                    >
+                        <Trash01 className="h-4 w-4" />
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-6 rounded-lg border border-secondary bg-secondary/10 p-6">
+            <div className="flex items-center justify-between">
+                <h4 className="text-sm font-semibold text-secondary">Edit Experience</h4>
+                <Button
+                    color="link-gray"
+                    size="sm"
+                    onClick={onSave}
+                >
+                    Done
+                </Button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+                <InputGroup className="w-full max-w-[300px]">
+                    <Label>Job Title</Label>
+                    <Input
+                        type="text"
+                        placeholder="Software Engineer"
+                        value={localExp.position}
+                        onChange={(value) => setLocalExp({ ...localExp, position: value })}
+                        onBlur={() => handleBlur('position', localExp.position)}
+                        isRequired
+                    />
+                </InputGroup>
+
+                <InputGroup className="w-full max-w-[300px]">
+                    <Label>Company</Label>
+                    <Input
+                        type="text"
+                        placeholder="Acme Corp"
+                        value={localExp.company}
+                        onChange={(value) => setLocalExp({ ...localExp, company: value })}
+                        onBlur={() => handleBlur('company', localExp.company)}
+                        isRequired
+                    />
+                </InputGroup>
+            </div>
+
+            <InputGroup className="w-full max-w-[300px]">
+                <Label>Location</Label>
+                <Input
+                    type="text"
+                    placeholder="San Francisco, CA"
+                    value={localExp.location}
+                    onChange={(value) => setLocalExp({ ...localExp, location: value })}
+                    onBlur={() => handleBlur('location', localExp.location)}
+                />
+            </InputGroup>
+
+            <div className="grid grid-cols-2 gap-4">
+                <InputGroup className="w-full max-w-[300px]">
+                    <Label>Start Date</Label>
+                    <Input
+                        type="month"
+                        value={localExp.startDate}
+                        onChange={(value) => setLocalExp({ ...localExp, startDate: value })}
+                        onBlur={() => handleBlur('startDate', localExp.startDate)}
+                    />
+                </InputGroup>
+
+                <InputGroup className="w-full max-w-[300px]">
+                    <Label>End Date</Label>
+                    <Input
+                        type="month"
+                        value={localExp.endDate}
+                        onChange={(value) => setLocalExp({ ...localExp, endDate: value })}
+                        onBlur={() => handleBlur('endDate', localExp.endDate)}
+                        isDisabled={localExp.current}
+                    />
+                </InputGroup>
+            </div>
+
+            <Checkbox
+                isSelected={localExp.current}
+                onChange={(checked) => {
+                    setLocalExp({ ...localExp, current: checked });
+                    onUpdate({ current: checked, endDate: checked ? 'Present' : localExp.endDate });
+                }}
+            >
+                I currently work here
+            </Checkbox>
+
+            {/* Achievements */}
+            <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                    <Label>Key Achievements</Label>
+                    <Button
+                        color="link-gray"
+                        size="sm"
+                        iconLeading={Plus}
+                        onClick={handleAddAchievement}
+                    >
+                        Add Achievement
+                    </Button>
+                </div>
+
+                <div className="space-y-3">
+                    {localExp.achievements.length === 0 ? (
+                        <InputGroup>
+                            <Input
+                                type="text"
+                                placeholder="Led a team of 5 developers to ship feature X..."
+                                value=""
+                                onChange={(value) => {
+                                    setLocalExp({ ...localExp, achievements: [value] });
+                                }}
+                                onBlur={(e) => {
+                                    const value = e.target.value;
+                                    if (value.trim()) {
+                                        onUpdate({ achievements: [value] });
+                                    }
+                                }}
+                            />
+                        </InputGroup>
+                    ) : (
+                        localExp.achievements.map((achievement, index) => (
+                            <div key={index} className="flex items-start gap-2">
+                                <InputGroup className="flex-1">
+                                    <Input
+                                        type="text"
+                                        placeholder="Led a team of 5 developers to ship feature X..."
+                                        value={achievement}
+                                        onChange={(value) => handleUpdateAchievement(index, value)}
+                                        onBlur={() => handleAchievementBlur(index, achievement)}
+                                    />
+                                </InputGroup>
+                                {localExp.achievements.length > 1 && (
+                                    <button
+                                        onClick={() => handleRemoveAchievement(index)}
+                                        className="mt-1 rounded-lg p-2 text-tertiary outline-focus-ring transition hover:text-error-600 focus-visible:outline-2 focus-visible:outline-offset-2"
+                                    >
+                                        <Trash01 className="h-4 w-4" />
+                                    </button>
+                                )}
+                            </div>
+                        ))
+                    )}
+                </div>
+                <HintText>
+                    Start with action verbs. Focus on measurable impact.
+                </HintText>
             </div>
         </div>
     );

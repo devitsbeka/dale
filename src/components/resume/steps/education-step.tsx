@@ -5,9 +5,8 @@ import { Button } from '@/components/base/buttons/button';
 import { Input } from '@/components/base/input/input';
 import { InputGroup } from '@/components/base/input/input-group';
 import { Label } from '@/components/base/input/label';
-import { HintText } from '@/components/base/input/hint-text';
 import { useResume } from '@/contexts/resume-context';
-import { ChevronRight, ChevronLeft, Trash01 } from '@untitledui/icons';
+import { ChevronRight, ChevronLeft, Plus, Trash01, Edit05 } from '@untitledui/icons';
 import type { Education } from '@/types/resume';
 
 interface EducationStepProps {
@@ -16,41 +15,23 @@ interface EducationStepProps {
 }
 
 export function EducationStep({ onNext, onPrevious }: EducationStepProps) {
-    const { resumeData, addEducation, removeEducation, markStepComplete } = useResume();
+    const { resumeData, addEducation, updateEducation, removeEducation, markStepComplete } = useResume();
     const educationList = resumeData.education || [];
-    const [formData, setFormData] = useState<Partial<Education>>({
-        school: '',
-        degree: '',
-        field: '',
-        location: '',
-        startDate: '',
-        endDate: '',
-        gpa: '',
-    });
+    const [editingId, setEditingId] = useState<string | null>(null);
 
-    const handleAddEducation = () => {
-        if (formData.school && formData.degree) {
-            const newEdu: Education = {
-                id: Date.now().toString(),
-                school: formData.school,
-                degree: formData.degree,
-                field: formData.field || '',
-                location: formData.location || '',
-                startDate: formData.startDate || '',
-                endDate: formData.endDate || '',
-                gpa: formData.gpa,
-            };
-            addEducation(newEdu);
-            setFormData({
-                school: '',
-                degree: '',
-                field: '',
-                location: '',
-                startDate: '',
-                endDate: '',
-                gpa: '',
-            });
-        }
+    const handleAddNew = () => {
+        const newEdu: Education = {
+            id: Date.now().toString(),
+            school: '',
+            degree: '',
+            field: '',
+            location: '',
+            startDate: '',
+            endDate: '',
+            gpa: '',
+        };
+        addEducation(newEdu);
+        setEditingId(newEdu.id);
     };
 
     const handleNext = () => {
@@ -72,116 +53,27 @@ export function EducationStep({ onNext, onPrevious }: EducationStepProps) {
             {educationList.length > 0 && (
                 <div className="space-y-4">
                     {educationList.map((edu) => (
-                        <div
+                        <EducationCard
                             key={edu.id}
-                            className="flex items-start justify-between rounded-lg border border-secondary bg-secondary/30 p-4"
-                        >
-                            <div className="flex-1">
-                                <p className="font-semibold text-primary">
-                                    {edu.degree} {edu.field && `in ${edu.field}`}
-                                </p>
-                                <p className="text-sm text-secondary">{edu.school}</p>
-                                <p className="text-xs text-tertiary">
-                                    {edu.startDate} - {edu.endDate}
-                                </p>
-                            </div>
-                            <button
-                                onClick={() => removeEducation(edu.id)}
-                                className="ml-4 rounded-lg p-2 text-tertiary outline-focus-ring transition hover:bg-error-50 hover:text-error-600 focus-visible:outline-2 focus-visible:outline-offset-2"
-                            >
-                                <Trash01 className="h-4 w-4" />
-                            </button>
-                        </div>
+                            education={edu}
+                            isEditing={editingId === edu.id}
+                            onEdit={() => setEditingId(edu.id)}
+                            onSave={() => setEditingId(null)}
+                            onDelete={() => removeEducation(edu.id)}
+                            onUpdate={(updates) => updateEducation(edu.id, updates)}
+                        />
                     ))}
                 </div>
             )}
 
-            {/* Add new education form */}
-            <div className="space-y-6 rounded-lg border border-secondary bg-secondary/10 p-6">
-                <h4 className="text-sm font-semibold text-secondary">Add Education</h4>
-
-                <InputGroup className="w-full max-w-[300px]">
-                    <Label>School/University</Label>
-                    <Input
-                        type="text"
-                        placeholder="University of California, Berkeley"
-                        value={formData.school || ''}
-                        onChange={(value) => setFormData({ ...formData, school: value })}
-                        isRequired
-                    />
-                </InputGroup>
-
-                <div className="grid grid-cols-2 gap-4">
-                    <InputGroup className="w-full max-w-[300px]">
-                        <Label>Degree</Label>
-                        <Input
-                            type="text"
-                            placeholder="Bachelor of Science"
-                            value={formData.degree || ''}
-                            onChange={(value) => setFormData({ ...formData, degree: value })}
-                            isRequired
-                        />
-                    </InputGroup>
-
-                    <InputGroup className="w-full max-w-[300px]">
-                        <Label>Field of Study</Label>
-                        <Input
-                            type="text"
-                            placeholder="Computer Science"
-                            value={formData.field || ''}
-                            onChange={(value) => setFormData({ ...formData, field: value })}
-                        />
-                    </InputGroup>
-                </div>
-
-                <InputGroup className="w-full max-w-[300px]">
-                    <Label>Location</Label>
-                    <Input
-                        type="text"
-                        placeholder="Berkeley, CA"
-                        value={formData.location || ''}
-                        onChange={(value) => setFormData({ ...formData, location: value })}
-                    />
-                </InputGroup>
-
-                <div className="grid grid-cols-2 gap-4">
-                    <InputGroup className="w-full max-w-[300px]">
-                        <Label>Start Date</Label>
-                        <Input
-                            type="month"
-                            value={formData.startDate || ''}
-                            onChange={(value) => setFormData({ ...formData, startDate: value })}
-                        />
-                    </InputGroup>
-
-                    <InputGroup className="w-full max-w-[300px]">
-                        <Label>End Date</Label>
-                        <Input
-                            type="month"
-                            value={formData.endDate || ''}
-                            onChange={(value) => setFormData({ ...formData, endDate: value })}
-                        />
-                    </InputGroup>
-
-                    <InputGroup className="w-full max-w-[300px]">
-                        <Label>GPA (Optional)</Label>
-                        <Input
-                            type="text"
-                            placeholder="3.8"
-                            value={formData.gpa || ''}
-                            onChange={(value) => setFormData({ ...formData, gpa: value })}
-                        />
-                    </InputGroup>
-                </div>
-
-                <Button
-                    color="secondary"
-                    onClick={handleAddEducation}
-                    isDisabled={!formData.school || !formData.degree}
-                >
-                    Add This Education
-                </Button>
-            </div>
+            {/* Add new education button */}
+            <Button
+                color="secondary"
+                onClick={handleAddNew}
+                iconLeading={Plus}
+            >
+                Add Education
+            </Button>
 
             {/* Navigation */}
             <div className="flex justify-between border-t border-secondary pt-6">
@@ -201,6 +93,155 @@ export function EducationStep({ onNext, onPrevious }: EducationStepProps) {
                 >
                     Continue to Skills
                 </Button>
+            </div>
+        </div>
+    );
+}
+
+interface EducationCardProps {
+    education: Education;
+    isEditing: boolean;
+    onEdit: () => void;
+    onSave: () => void;
+    onDelete: () => void;
+    onUpdate: (updates: Partial<Education>) => void;
+}
+
+function EducationCard({ education, isEditing, onEdit, onSave, onDelete, onUpdate }: EducationCardProps) {
+    const [localEdu, setLocalEdu] = useState(education);
+
+    const handleBlur = (field: keyof Education, value: any) => {
+        onUpdate({ [field]: value });
+    };
+
+    if (!isEditing) {
+        return (
+            <div className="flex items-start justify-between rounded-lg border border-secondary bg-secondary/30 p-4">
+                <div className="flex-1">
+                    <p className="font-semibold text-primary">
+                        {education.degree || 'Degree'} {education.field && `in ${education.field}`}
+                    </p>
+                    <p className="text-sm text-secondary">{education.school || 'School'}</p>
+                    {education.location && (
+                        <p className="text-xs text-tertiary">{education.location}</p>
+                    )}
+                    <p className="text-xs text-tertiary">
+                        {education.startDate || 'Start'} - {education.endDate || 'End'}
+                    </p>
+                    {education.gpa && (
+                        <p className="text-xs text-tertiary">GPA: {education.gpa}</p>
+                    )}
+                </div>
+                <div className="ml-4 flex gap-2">
+                    <button
+                        onClick={onEdit}
+                        className="rounded-lg p-2 text-tertiary outline-focus-ring transition hover:bg-secondary hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2"
+                    >
+                        <Edit05 className="h-4 w-4" />
+                    </button>
+                    <button
+                        onClick={onDelete}
+                        className="rounded-lg p-2 text-tertiary outline-focus-ring transition hover:bg-error-50 hover:text-error-600 focus-visible:outline-2 focus-visible:outline-offset-2"
+                    >
+                        <Trash01 className="h-4 w-4" />
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-6 rounded-lg border border-secondary bg-secondary/10 p-6">
+            <div className="flex items-center justify-between">
+                <h4 className="text-sm font-semibold text-secondary">Edit Education</h4>
+                <Button
+                    color="link-gray"
+                    size="sm"
+                    onClick={onSave}
+                >
+                    Done
+                </Button>
+            </div>
+
+            <InputGroup className="w-full max-w-[300px]">
+                <Label>School/University</Label>
+                <Input
+                    type="text"
+                    placeholder="University of California, Berkeley"
+                    value={localEdu.school}
+                    onChange={(value) => setLocalEdu({ ...localEdu, school: value })}
+                    onBlur={() => handleBlur('school', localEdu.school)}
+                    isRequired
+                />
+            </InputGroup>
+
+            <div className="grid grid-cols-2 gap-4">
+                <InputGroup className="w-full max-w-[300px]">
+                    <Label>Degree</Label>
+                    <Input
+                        type="text"
+                        placeholder="Bachelor of Science"
+                        value={localEdu.degree}
+                        onChange={(value) => setLocalEdu({ ...localEdu, degree: value })}
+                        onBlur={() => handleBlur('degree', localEdu.degree)}
+                        isRequired
+                    />
+                </InputGroup>
+
+                <InputGroup className="w-full max-w-[300px]">
+                    <Label>Field of Study</Label>
+                    <Input
+                        type="text"
+                        placeholder="Computer Science"
+                        value={localEdu.field}
+                        onChange={(value) => setLocalEdu({ ...localEdu, field: value })}
+                        onBlur={() => handleBlur('field', localEdu.field)}
+                    />
+                </InputGroup>
+            </div>
+
+            <InputGroup className="w-full max-w-[300px]">
+                <Label>Location</Label>
+                <Input
+                    type="text"
+                    placeholder="Berkeley, CA"
+                    value={localEdu.location}
+                    onChange={(value) => setLocalEdu({ ...localEdu, location: value })}
+                    onBlur={() => handleBlur('location', localEdu.location)}
+                />
+            </InputGroup>
+
+            <div className="grid grid-cols-2 gap-4">
+                <InputGroup className="w-full max-w-[300px]">
+                    <Label>Start Date</Label>
+                    <Input
+                        type="month"
+                        value={localEdu.startDate}
+                        onChange={(value) => setLocalEdu({ ...localEdu, startDate: value })}
+                        onBlur={() => handleBlur('startDate', localEdu.startDate)}
+                    />
+                </InputGroup>
+
+                <InputGroup className="w-full max-w-[300px]">
+                    <Label>End Date</Label>
+                    <Input
+                        type="month"
+                        value={localEdu.endDate}
+                        onChange={(value) => setLocalEdu({ ...localEdu, endDate: value })}
+                        onBlur={() => handleBlur('endDate', localEdu.endDate)}
+                    />
+                </InputGroup>
+
+                <InputGroup className="w-full max-w-[300px]">
+                    <Label>GPA (Optional)</Label>
+                    <Input
+                        type="text"
+                        placeholder="3.8"
+                        value={localEdu.gpa || ''}
+                        onChange={(value) => setLocalEdu({ ...localEdu, gpa: value })}
+                        onBlur={() => handleBlur('gpa', localEdu.gpa)}
+                    />
+                </InputGroup>
             </div>
         </div>
     );
