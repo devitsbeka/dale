@@ -11,7 +11,7 @@ import { SkillsStep } from './steps/skills-step';
 import { CustomizeStep } from './steps/customize-step';
 import { PreviewStep } from './steps/preview-step';
 import { OnboardingOverlay } from './onboarding-overlay';
-import { Check, ChevronLeft, ChevronRight } from '@untitledui/icons';
+import { Check, X } from '@untitledui/icons';
 import type { WizardStep } from '@/types/resume';
 
 interface ResumeWizardProps {
@@ -73,25 +73,25 @@ export function ResumeWizard({ isOpen, onClose }: ResumeWizardProps) {
 
     return (
         <ModalOverlay isOpen={isOpen} onOpenChange={onClose} isDismissable={true}>
-            <Modal className="max-w-[1400px]">
-                <Dialog className="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-2xl bg-primary shadow-2xl">
-                    <div className="flex flex-1 flex-col overflow-hidden">
-                {/* Onboarding overlay */}
-                {isOnboardingEnabled && showOnboarding && (
-                    <OnboardingOverlay
-                        currentStep={currentStep}
-                        onDismiss={() => setShowOnboarding(false)}
-                    />
-                )}
+            <Modal className="max-w-7xl">
+                <Dialog>
+                    <div className="relative flex max-h-[90vh] w-full flex-col overflow-hidden rounded-2xl bg-primary shadow-2xl ring-1 ring-secondary">
+                        {/* Onboarding overlay */}
+                        {isOnboardingEnabled && showOnboarding && (
+                            <OnboardingOverlay
+                                currentStep={currentStep}
+                                onDismiss={() => setShowOnboarding(false)}
+                            />
+                        )}
 
                         {/* Header with step indicator */}
-                        <div className="border-b border-secondary bg-primary px-6 py-5">
-                            <div className="mb-6 flex items-center justify-between">
+                        <div className="border-b border-secondary bg-primary px-6 py-6">
+                            <div className="mb-6 flex items-start justify-between gap-4">
                                 <div>
-                                    <h2 className="text-lg font-semibold text-primary">
+                                    <h2 className="text-xl font-semibold text-primary">
                                         Create Your Resume
                                     </h2>
-                                    <p className="text-sm text-tertiary">
+                                    <p className="mt-1 text-sm text-tertiary">
                                         Build an ATS-optimized resume in minutes
                                     </p>
                                 </div>
@@ -100,87 +100,79 @@ export function ResumeWizard({ isOpen, onClose }: ResumeWizardProps) {
                                     className="rounded-lg p-2 text-tertiary outline-focus-ring transition hover:bg-secondary hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2"
                                     aria-label="Close"
                                 >
-                                    <svg
-                                        width="24"
-                                        height="24"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                    >
-                                        <path d="M18 6L6 18M6 6l12 12" />
-                                    </svg>
+                                    <X className="h-5 w-5" />
                                 </button>
                             </div>
 
                             {/* Step indicator */}
-                            <div className="flex items-center gap-2">
-                        {STEPS.map((step, index) => {
-                            const isCompleted = completedSteps.includes(step.id);
-                            const isCurrent = step.id === currentStep;
-                            const isAccessible =
-                                isCompleted || isCurrent || index <= currentStepIndex;
+                            <div className="flex items-stretch gap-2">
+                                {STEPS.map((step, index) => {
+                                    const isCompleted = completedSteps.includes(step.id);
+                                    const isCurrent = step.id === currentStep;
+                                    const isAccessible =
+                                        isCompleted || isCurrent || index <= currentStepIndex;
 
-                            return (
-                                <React.Fragment key={step.id}>
-                                    <button
-                                        onClick={() => isAccessible && handleStepClick(step.id)}
-                                        disabled={!isAccessible}
-                                        className={`group flex min-w-0 flex-1 flex-col gap-2 rounded-lg p-3 outline-focus-ring transition focus-visible:outline-2 focus-visible:outline-offset-2 ${
-                                            isCurrent
-                                                ? 'bg-brand-50 ring-1 ring-brand-500'
-                                                : isAccessible
-                                                  ? 'cursor-pointer hover:bg-secondary'
-                                                  : 'cursor-not-allowed opacity-40'
-                                        }`}
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            <div
-                                                className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
-                                                    isCompleted
-                                                        ? 'bg-success-500 text-white'
-                                                        : isCurrent
-                                                          ? 'bg-brand-500 text-white'
-                                                          : 'bg-secondary text-tertiary'
-                                                }`}
-                                            >
-                                                {isCompleted ? (
-                                                    <Check className="h-3 w-3" />
-                                                ) : (
-                                                    index + 1
-                                                )}
-                                            </div>
-                                            <span
-                                                className={`truncate text-sm font-medium ${
+                                    return (
+                                        <React.Fragment key={step.id}>
+                                            <button
+                                                onClick={() => isAccessible && handleStepClick(step.id)}
+                                                disabled={!isAccessible}
+                                                className={`group relative flex min-w-0 flex-1 flex-col gap-2 rounded-xl border p-3 text-left outline-focus-ring transition-all focus-visible:outline-2 focus-visible:outline-offset-2 ${
                                                     isCurrent
-                                                        ? 'text-brand-700'
+                                                        ? 'border-brand-500 bg-brand-50 shadow-sm'
                                                         : isAccessible
-                                                          ? 'text-secondary'
-                                                          : 'text-quaternary'
+                                                          ? 'border-transparent bg-secondary/50 hover:border-secondary hover:bg-secondary hover:shadow-sm cursor-pointer'
+                                                          : 'border-transparent bg-secondary/30 cursor-not-allowed opacity-50'
                                                 }`}
                                             >
-                                                {step.label}
-                                            </span>
-                                        </div>
-                                        <p
-                                            className={`hidden truncate text-xs md:block ${
-                                                isCurrent ? 'text-brand-600' : 'text-quaternary'
-                                            }`}
-                                        >
-                                            {step.description}
-                                        </p>
-                                    </button>
-                                    {index < STEPS.length - 1 && (
-                                        <div />
-                                    )}
-                                </React.Fragment>
-                            );
-                        })}
-                    </div>
-                </div>
+                                                <div className="flex items-center gap-2.5">
+                                                    <div
+                                                        className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition-colors ${
+                                                            isCompleted
+                                                                ? 'bg-success-500 text-white'
+                                                                : isCurrent
+                                                                  ? 'bg-brand-600 text-white'
+                                                                  : isAccessible
+                                                                    ? 'bg-tertiary/10 text-tertiary'
+                                                                    : 'bg-quaternary/10 text-quaternary'
+                                                        }`}
+                                                    >
+                                                        {isCompleted ? (
+                                                            <Check className="h-3.5 w-3.5" />
+                                                        ) : (
+                                                            index + 1
+                                                        )}
+                                                    </div>
+                                                    <span
+                                                        className={`truncate text-sm font-medium transition-colors ${
+                                                            isCurrent
+                                                                ? 'text-brand-700'
+                                                                : isAccessible
+                                                                  ? 'text-secondary group-hover:text-primary'
+                                                                  : 'text-quaternary'
+                                                        }`}
+                                                    >
+                                                        {step.label}
+                                                    </span>
+                                                </div>
+                                                <p
+                                                    className={`hidden truncate text-xs transition-colors sm:block ${
+                                                        isCurrent ? 'text-brand-600' : 'text-quaternary'
+                                                    }`}
+                                                >
+                                                    {step.description}
+                                                </p>
+                                            </button>
+                                        </React.Fragment>
+                                    );
+                                })}
+                            </div>
+                        </div>
 
                         {/* Content area */}
-                        <div className="flex-1 overflow-y-auto">{renderStepContent()}</div>
+                        <div className="flex-1 overflow-y-auto bg-primary px-6 py-6">
+                            {renderStepContent()}
+                        </div>
                     </div>
                 </Dialog>
             </Modal>
