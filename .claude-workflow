@@ -1,0 +1,81 @@
+#!/bin/bash
+# Claude Code Workflow Helper
+# This script automates the git workflow for Claude Code
+
+# Function to auto-commit and push changes
+auto_deploy() {
+    echo "🚀 Starting auto-deploy..."
+
+    # Check if there are changes
+    if [[ -z $(git status -s) ]]; then
+        echo "✅ No changes to deploy"
+        return 0
+    fi
+
+    # Get current branch
+    BRANCH=$(git branch --show-current)
+
+    # Stage all changes
+    git add -A
+
+    # Create commit with AI-generated message
+    CHANGED_FILES=$(git diff --cached --name-only | wc -l | xargs)
+    git commit -m "Update: Modified $CHANGED_FILES file(s)
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
+
+    # Push to remote
+    git push origin "$BRANCH"
+
+    echo "✅ Pushed to GitHub - Vercel will auto-deploy"
+    echo "🌐 Check deployment: https://dale-eta.vercel.app"
+}
+
+# Function to create feature branch
+new_feature() {
+    FEATURE_NAME=$1
+    if [[ -z "$FEATURE_NAME" ]]; then
+        echo "❌ Please provide a feature name"
+        exit 1
+    fi
+
+    BRANCH_NAME="feature/$FEATURE_NAME"
+    git checkout -b "$BRANCH_NAME"
+    git push -u origin "$BRANCH_NAME"
+    echo "✅ Created and switched to $BRANCH_NAME"
+}
+
+# Function to deploy to main
+deploy_to_prod() {
+    CURRENT_BRANCH=$(git branch --show-current)
+
+    if [[ "$CURRENT_BRANCH" == "main" ]]; then
+        auto_deploy
+    else
+        echo "📝 Creating PR from $CURRENT_BRANCH to main..."
+        gh pr create --fill --base main
+        echo "🔀 Merging PR..."
+        gh pr merge --squash --auto
+        echo "✅ Changes will be in production once CI passes"
+    fi
+}
+
+# Execute command
+case "$1" in
+    deploy)
+        auto_deploy
+        ;;
+    feature)
+        new_feature "$2"
+        ;;
+    prod)
+        deploy_to_prod
+        ;;
+    *)
+        echo "Usage: .claude-workflow [deploy|feature|prod]"
+        echo ""
+        echo "  deploy  - Commit and push current changes"
+        echo "  feature - Create new feature branch"
+        echo "  prod    - Deploy current branch to production"
+        ;;
+esac
