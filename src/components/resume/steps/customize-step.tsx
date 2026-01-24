@@ -58,7 +58,7 @@ export function CustomizeStep({ onNext, onPrevious }: CustomizeStepProps) {
     };
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 relative z-0">
             <div>
                 <h3 className="text-lg font-semibold text-primary">Customize Your Resume</h3>
                 <p className="mt-1 text-sm text-tertiary">
@@ -96,7 +96,7 @@ export function CustomizeStep({ onNext, onPrevious }: CustomizeStepProps) {
                                         onClick={() =>
                                             updateCustomization({ template: template.id })
                                         }
-                                        className={`group flex flex-col gap-2 rounded-xl border-2 p-3 text-left outline-focus-ring transition-all hover:shadow-md focus-visible:outline-2 ${
+                                        className={`group flex flex-col gap-2 rounded-xl border-2 p-3 text-left outline-focus-ring transition-all hover:shadow-md focus-visible:outline-2 cursor-pointer pointer-events-auto ${
                                             isSelected
                                                 ? 'border-brand-200 bg-brand-50/30 shadow-sm ring-2 ring-brand-100'
                                                 : 'border-secondary bg-primary hover:border-brand-100 hover:bg-brand-50/10'
@@ -155,7 +155,7 @@ export function CustomizeStep({ onNext, onPrevious }: CustomizeStepProps) {
                                 onClick={() =>
                                     updateCustomization({ primaryColor: color.value })
                                 }
-                                className={`flex items-center justify-between gap-3 rounded-lg border-2 px-4 py-3 text-left outline-focus-ring transition focus-visible:outline-2 ${
+                                className={`flex items-center justify-between gap-3 rounded-lg border-2 px-4 py-3 text-left outline-focus-ring transition focus-visible:outline-2 cursor-pointer pointer-events-auto ${
                                     isSelected
                                         ? 'border-brand-200 bg-brand-50/30 ring-2 ring-brand-100'
                                         : 'border-secondary bg-primary hover:border-brand-100 hover:bg-brand-50/10'
@@ -187,7 +187,7 @@ export function CustomizeStep({ onNext, onPrevious }: CustomizeStepProps) {
                             <button
                                 key={font.value}
                                 onClick={() => updateCustomization({ font: font.value })}
-                                className={`flex items-center justify-between rounded-lg border-2 px-4 py-3 text-left outline-focus-ring transition focus-visible:outline-2 ${
+                                className={`flex items-center justify-between rounded-lg border-2 px-4 py-3 text-left outline-focus-ring transition focus-visible:outline-2 cursor-pointer pointer-events-auto ${
                                     isSelected
                                         ? 'border-brand-200 bg-brand-50/30 ring-2 ring-brand-100'
                                         : 'border-secondary bg-primary hover:border-brand-100 hover:bg-brand-50/10'
