@@ -22,3 +22,6 @@ CREATE INDEX "ShareLink_resumeId_idx" ON "ShareLink"("resumeId");
 
 -- CreateIndex
 CREATE INDEX "ShareLink_token_idx" ON "ShareLink"("token");
+
+-- AddForeignKey
+ALTER TABLE "ShareLink" ADD CONSTRAINT "ShareLink_resumeId_fkey" FOREIGN KEY ("resumeId") REFERENCES "resumes"("id") ON DELETE CASCADE ON UPDATE CASCADE;
