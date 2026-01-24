@@ -1,13 +1,16 @@
 import type { TemplateProps } from '../types';
+import { getFontFamily } from '../template-utils';
 
 export function AcademicTemplate({ data }: TemplateProps) {
-    const { personalInfo, experience = [], education = [], skills = [] } = data;
+    const { personalInfo, experience = [], education = [], skills = [], customization } = data;
+    const accentColor = customization?.primaryColor || '#374151';
+    const fontFamily = getFontFamily(customization?.font || 'georgia');
 
     return (
-        <div className="mx-auto max-w-[8.5in] bg-white p-12 font-serif text-gray-900">
+        <div className="mx-auto max-w-[8.5in] bg-white p-12 text-gray-900" style={{ fontFamily }}>
             {/* Academic Header */}
-            <header className="mb-6 text-center">
-                <h1 className="text-3xl font-bold text-gray-900">
+            <header className="mb-6 text-center border-b-2 pb-4" style={{ borderColor: accentColor }}>
+                <h1 className="text-3xl font-bold" style={{ color: accentColor }}>
                     {personalInfo?.firstName} {personalInfo?.lastName}
                 </h1>
                 <div className="mt-3 space-y-0.5 text-sm text-gray-700">
@@ -42,7 +45,7 @@ export function AcademicTemplate({ data }: TemplateProps) {
             {/* Education (Primary focus for academic) */}
             {education.length > 0 && (
                 <section className="mb-6">
-                    <h2 className="mb-3 border-b border-gray-400 text-base font-bold uppercase text-gray-900">
+                    <h2 className="mb-2 border-b text-sm font-bold uppercase" style={{ borderColor: `${accentColor}40`, color: accentColor }}>
                         Education
                     </h2>
                     <div className="space-y-3">
@@ -70,7 +73,7 @@ export function AcademicTemplate({ data }: TemplateProps) {
             {/* Professional Experience */}
             {experience.length > 0 && (
                 <section className="mb-6">
-                    <h2 className="mb-3 border-b border-gray-400 text-base font-bold uppercase text-gray-900">
+                    <h2 className="mb-2 border-b text-sm font-bold uppercase" style={{ borderColor: `${accentColor}40`, color: accentColor }}>
                         Professional Experience
                     </h2>
                     <div className="space-y-4">
@@ -119,23 +122,6 @@ export function AcademicTemplate({ data }: TemplateProps) {
                 </section>
             )}
 
-            {/* Publications Section Placeholder */}
-            <section className="mb-6">
-                <h2 className="mb-2 border-b border-gray-400 text-base font-bold uppercase text-gray-900">
-                    Publications
-                </h2>
-                <p className="text-sm italic text-gray-600">
-                    [Publications will be added in future enhancement]
-                </p>
-            </section>
-
-            {/* References */}
-            <section>
-                <h2 className="mb-2 border-b border-gray-400 text-base font-bold uppercase text-gray-900">
-                    References
-                </h2>
-                <p className="text-sm text-gray-700">Available upon request</p>
-            </section>
         </div>
     );
 }

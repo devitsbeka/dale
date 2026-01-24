@@ -1,127 +1,135 @@
 import type { TemplateProps } from '../types';
+import { getFontFamily } from '../template-utils';
 
 export function CreativeTemplate({ data }: TemplateProps) {
-    const { personalInfo, experience = [], education = [], skills = [] } = data;
+    const { personalInfo, experience = [], education = [], skills = [], customization } = data;
+    const accentColor = customization?.primaryColor || '#8B5CF6';
+    const fontFamily = getFontFamily(customization?.font);
 
     return (
-        <div className="mx-auto max-w-[8.5in] bg-white font-sans">
-            {/* Asymmetric Header with Bold Color */}
-            <header className="relative bg-gradient-to-br from-purple-600 to-pink-500 px-12 pb-16 pt-12 text-white">
-                <div className="relative z-10">
-                    <h1 className="text-5xl font-black tracking-tight">
+        <div className="mx-auto max-w-[8.5in] bg-white" style={{ fontFamily }}>
+            {/* Bold Gradient Side Panel */}
+            <div className="flex">
+                {/* Left Sidebar - 35% width */}
+                <div
+                    className="w-[35%] px-8 py-12 text-white"
+                    style={{
+                        background: `linear-gradient(135deg, ${accentColor} 0%, ${accentColor}dd 100%)`
+                    }}
+                >
+                    <h1 className="text-4xl font-black leading-tight">
                         {personalInfo?.firstName}
                         <br />
                         {personalInfo?.lastName}
                     </h1>
-                    <div className="mt-6 space-y-1.5 text-sm font-medium text-purple-100">
-                        {personalInfo?.email && <div>✉ {personalInfo.email}</div>}
+
+                    <div className="mt-8 space-y-3 text-sm opacity-95">
+                        {personalInfo?.email && <div className="break-all">✉ {personalInfo.email}</div>}
                         {personalInfo?.phone && <div>☎ {personalInfo.phone}</div>}
                         {personalInfo?.location && <div>📍 {personalInfo.location}</div>}
-                        {personalInfo?.linkedin && <div>🔗 {personalInfo.linkedin}</div>}
-                        {personalInfo?.website && <div>🌐 {personalInfo.website}</div>}
+                        {personalInfo?.linkedin && <div className="break-all">🔗 {personalInfo.linkedin}</div>}
+                        {personalInfo?.website && <div className="break-all">🌐 {personalInfo.website}</div>}
                     </div>
-                </div>
-                <div className="absolute bottom-0 right-0 h-32 w-32 rounded-tl-full bg-white/10"></div>
-            </header>
 
-            <div className="p-12">
-                {/* Summary */}
-                {personalInfo?.summary && (
-                    <section className="mb-10">
-                        <h2 className="mb-4 flex items-center gap-3 text-2xl font-black text-purple-600">
-                            <span className="h-1.5 w-8 bg-gradient-to-r from-purple-600 to-pink-500"></span>
-                            About Me
-                        </h2>
-                        <p className="text-base leading-relaxed text-gray-700">{personalInfo.summary}</p>
-                    </section>
-                )}
-
-                {/* Experience */}
-                {experience.length > 0 && (
-                    <section className="mb-10">
-                        <h2 className="mb-6 flex items-center gap-3 text-2xl font-black text-purple-600">
-                            <span className="h-1.5 w-8 bg-gradient-to-r from-purple-600 to-pink-500"></span>
-                            Experience
-                        </h2>
-                        <div className="space-y-8">
-                            {experience.map((exp, idx) => (
-                                <div key={exp.id} className="relative pl-6">
+                    {/* Skills in Sidebar */}
+                    {skills.length > 0 && (
+                        <div className="mt-10">
+                            <h2 className="mb-4 text-xl font-black">SKILLS</h2>
+                            <div className="space-y-2">
+                                {skills.map((skill) => (
                                     <div
-                                        className="absolute left-0 top-2 h-3 w-3 rounded-full"
-                                        style={{
-                                            background: `linear-gradient(135deg, rgb(147, 51, 234) ${idx * 20}%, rgb(236, 72, 153) 100%)`,
-                                        }}
-                                    ></div>
-                                    <div>
-                                        <h3 className="text-xl font-bold text-gray-900">{exp.position}</h3>
-                                        <div className="mt-1 font-semibold text-purple-600">
-                                            {exp.company} — {exp.location}
+                                        key={skill.id}
+                                        className="rounded-lg bg-white/20 px-3 py-2 text-sm font-semibold backdrop-blur-sm"
+                                    >
+                                        {skill.name}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Right Content - 65% width */}
+                <div className="w-[65%] px-10 py-12">
+                    {/* Summary */}
+                    {personalInfo?.summary && (
+                        <section className="mb-8">
+                            <h2
+                                className="mb-3 text-2xl font-black uppercase"
+                                style={{ color: accentColor }}
+                            >
+                                About
+                            </h2>
+                            <p className="text-base leading-relaxed text-gray-700">
+                                {personalInfo.summary}
+                            </p>
+                        </section>
+                    )}
+
+                    {/* Experience */}
+                    {experience.length > 0 && (
+                        <section className="mb-8">
+                            <h2
+                                className="mb-5 text-2xl font-black uppercase"
+                                style={{ color: accentColor }}
+                            >
+                                Experience
+                            </h2>
+                            <div className="space-y-6">
+                                {experience.map((exp) => (
+                                    <div key={exp.id} className="relative pl-4 border-l-4" style={{ borderColor: `${accentColor}40` }}>
+                                        <div
+                                            className="absolute -left-[7px] top-1 h-3 w-3 rounded-full"
+                                            style={{ backgroundColor: accentColor }}
+                                        ></div>
+                                        <h3 className="text-lg font-bold text-gray-900">{exp.position}</h3>
+                                        <div className="mt-1 font-semibold" style={{ color: accentColor }}>
+                                            {exp.company} • {exp.location}
                                         </div>
-                                        <div className="mt-0.5 text-sm font-medium text-gray-500">
+                                        <div className="mt-0.5 text-sm text-gray-500">
                                             {exp.startDate} - {exp.current ? 'Present' : exp.endDate}
                                         </div>
+                                        {exp.achievements && exp.achievements.length > 0 && (
+                                            <ul className="mt-2 space-y-1 text-sm text-gray-700">
+                                                {exp.achievements.map((achievement, idx) => (
+                                                    <li key={idx} className="ml-4 list-disc">
+                                                        {achievement}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
                                     </div>
-                                    {exp.achievements && exp.achievements.length > 0 && (
-                                        <ul className="mt-3 space-y-1.5 text-gray-700">
-                                            {exp.achievements.map((achievement, achIdx) => (
-                                                <li key={achIdx} className="ml-4 list-disc">
-                                                    {achievement}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    </section>
-                )}
+                                ))}
+                            </div>
+                        </section>
+                    )}
 
-                {/* Education */}
-                {education.length > 0 && (
-                    <section className="mb-10">
-                        <h2 className="mb-6 flex items-center gap-3 text-2xl font-black text-purple-600">
-                            <span className="h-1.5 w-8 bg-gradient-to-r from-purple-600 to-pink-500"></span>
-                            Education
-                        </h2>
-                        <div className="space-y-6">
-                            {education.map((edu) => (
-                                <div key={edu.id} className="pl-6">
-                                    <h3 className="text-lg font-bold text-gray-900">{edu.degree}</h3>
-                                    <div className="mt-1 font-semibold text-purple-600">
-                                        {edu.school} — {edu.field}
+                    {/* Education */}
+                    {education.length > 0 && (
+                        <section>
+                            <h2
+                                className="mb-5 text-2xl font-black uppercase"
+                                style={{ color: accentColor }}
+                            >
+                                Education
+                            </h2>
+                            <div className="space-y-4">
+                                {education.map((edu) => (
+                                    <div key={edu.id}>
+                                        <h3 className="text-base font-bold text-gray-900">{edu.degree}</h3>
+                                        <div className="mt-1 font-semibold" style={{ color: accentColor }}>
+                                            {edu.school} • {edu.field}
+                                        </div>
+                                        <div className="mt-0.5 text-sm text-gray-500">
+                                            {edu.startDate} - {edu.endDate}
+                                            {edu.gpa && ` • GPA: ${edu.gpa}`}
+                                        </div>
                                     </div>
-                                    <div className="mt-0.5 text-sm font-medium text-gray-500">
-                                        {edu.startDate} - {edu.endDate}
-                                        {edu.gpa && ` • GPA: ${edu.gpa}`}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
-                )}
-
-                {/* Skills */}
-                {skills.length > 0 && (
-                    <section>
-                        <h2 className="mb-6 flex items-center gap-3 text-2xl font-black text-purple-600">
-                            <span className="h-1.5 w-8 bg-gradient-to-r from-purple-600 to-pink-500"></span>
-                            Skills
-                        </h2>
-                        <div className="flex flex-wrap gap-3">
-                            {skills.map((skill, idx) => (
-                                <span
-                                    key={skill.id}
-                                    className="rounded-lg px-4 py-2 text-sm font-bold text-white"
-                                    style={{
-                                        background: `linear-gradient(135deg, rgb(147, 51, 234) ${idx * 10}%, rgb(236, 72, 153) 100%)`,
-                                    }}
-                                >
-                                    {skill.name}
-                                </span>
-                            ))}
-                        </div>
-                    </section>
-                )}
+                                ))}
+                            </div>
+                        </section>
+                    )}
+                </div>
             </div>
         </div>
     );

@@ -1,10 +1,13 @@
 import type { TemplateProps } from '../types';
+import { getFontFamily } from '../template-utils';
 
 export function ClassicTemplate({ data }: TemplateProps) {
-    const { personalInfo, experience = [], education = [], skills = [] } = data;
+    const { personalInfo, experience = [], education = [], skills = [], customization } = data;
+    const accentColor = customization?.primaryColor || '#1F2937';
+    const fontFamily = getFontFamily(customization?.font || 'georgia');
 
     return (
-        <div className="mx-auto max-w-[8.5in] bg-white p-12 font-serif text-gray-900">
+        <div className="mx-auto max-w-[8.5in] bg-white p-12 text-gray-900" style={{ fontFamily }}>
             {/* Header */}
             <header className="border-b border-gray-400 pb-4 text-center">
                 <h1 className="text-4xl font-bold tracking-wide text-gray-900">
@@ -29,7 +32,7 @@ export function ClassicTemplate({ data }: TemplateProps) {
             {/* Summary */}
             {personalInfo?.summary && (
                 <section className="mt-6">
-                    <h2 className="border-b border-gray-300 pb-1 text-sm font-bold uppercase tracking-wider text-gray-900">
+                    <h2 className="border-b pb-1 text-sm font-bold uppercase tracking-wider" style={{ borderColor: accentColor, color: accentColor }}>
                         Professional Summary
                     </h2>
                     <p className="mt-2 text-justify leading-relaxed text-gray-800">{personalInfo.summary}</p>
@@ -39,7 +42,7 @@ export function ClassicTemplate({ data }: TemplateProps) {
             {/* Experience */}
             {experience.length > 0 && (
                 <section className="mt-6">
-                    <h2 className="border-b border-gray-300 pb-1 text-sm font-bold uppercase tracking-wider text-gray-900">
+                    <h2 className="border-b pb-1 text-sm font-bold uppercase tracking-wider" style={{ borderColor: accentColor, color: accentColor }}>
                         Professional Experience
                     </h2>
                     <div className="mt-3 space-y-4">
@@ -72,7 +75,7 @@ export function ClassicTemplate({ data }: TemplateProps) {
             {/* Education */}
             {education.length > 0 && (
                 <section className="mt-6">
-                    <h2 className="border-b border-gray-300 pb-1 text-sm font-bold uppercase tracking-wider text-gray-900">
+                    <h2 className="border-b pb-1 text-sm font-bold uppercase tracking-wider" style={{ borderColor: accentColor, color: accentColor }}>
                         Education
                     </h2>
                     <div className="mt-3 space-y-3">
@@ -100,7 +103,7 @@ export function ClassicTemplate({ data }: TemplateProps) {
             {/* Skills */}
             {skills.length > 0 && (
                 <section className="mt-6">
-                    <h2 className="border-b border-gray-300 pb-1 text-sm font-bold uppercase tracking-wider text-gray-900">
+                    <h2 className="border-b pb-1 text-sm font-bold uppercase tracking-wider" style={{ borderColor: accentColor, color: accentColor }}>
                         Skills & Competencies
                     </h2>
                     <p className="mt-2 text-sm text-gray-800">

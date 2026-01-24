@@ -1,12 +1,15 @@
 import type { TemplateProps } from '../types';
+import { getFontFamily } from '../template-utils';
 
 export function ModernTemplate({ data }: TemplateProps) {
-    const { personalInfo, experience = [], education = [], skills = [] } = data;
+    const { personalInfo, experience = [], education = [], skills = [], customization } = data;
+    const accentColor = customization?.primaryColor || '#3B82F6';
+    const fontFamily = getFontFamily(customization?.font);
 
     return (
-        <div className="mx-auto max-w-[8.5in] bg-white p-12 font-sans text-gray-900">
+        <div className="mx-auto max-w-[8.5in] bg-white p-12 text-gray-900" style={{ fontFamily }}>
             {/* Header */}
-            <header className="border-b-2 border-blue-600 pb-6">
+            <header className="border-b-2 pb-6" style={{ borderColor: accentColor }}>
                 <h1 className="text-4xl font-bold text-gray-900">
                     {personalInfo?.firstName} {personalInfo?.lastName}
                 </h1>
@@ -15,10 +18,10 @@ export function ModernTemplate({ data }: TemplateProps) {
                     {personalInfo?.phone && <span>{personalInfo.phone}</span>}
                     {personalInfo?.location && <span>{personalInfo.location}</span>}
                     {personalInfo?.linkedin && (
-                        <span className="text-blue-600">{personalInfo.linkedin}</span>
+                        <span style={{ color: accentColor }}>{personalInfo.linkedin}</span>
                     )}
                     {personalInfo?.website && (
-                        <span className="text-blue-600">{personalInfo.website}</span>
+                        <span style={{ color: accentColor }}>{personalInfo.website}</span>
                     )}
                 </div>
             </header>
@@ -26,7 +29,7 @@ export function ModernTemplate({ data }: TemplateProps) {
             {/* Summary */}
             {personalInfo?.summary && (
                 <section className="mt-8">
-                    <h2 className="mb-3 text-xl font-semibold text-blue-600">Professional Summary</h2>
+                    <h2 className="mb-3 text-xl font-semibold" style={{ color: accentColor }}>Professional Summary</h2>
                     <p className="leading-relaxed text-gray-700">{personalInfo.summary}</p>
                 </section>
             )}
@@ -34,7 +37,7 @@ export function ModernTemplate({ data }: TemplateProps) {
             {/* Experience */}
             {experience.length > 0 && (
                 <section className="mt-8">
-                    <h2 className="mb-4 text-xl font-semibold text-blue-600">Experience</h2>
+                    <h2 className="mb-4 text-xl font-semibold" style={{ color: accentColor }}>Experience</h2>
                     <div className="space-y-6">
                         {experience.map((exp) => (
                             <div key={exp.id}>
@@ -68,7 +71,7 @@ export function ModernTemplate({ data }: TemplateProps) {
             {/* Education */}
             {education.length > 0 && (
                 <section className="mt-8">
-                    <h2 className="mb-4 text-xl font-semibold text-blue-600">Education</h2>
+                    <h2 className="mb-4 text-xl font-semibold" style={{ color: accentColor }}>Education</h2>
                     <div className="space-y-4">
                         {education.map((edu) => (
                             <div key={edu.id} className="flex items-start justify-between">
@@ -94,12 +97,16 @@ export function ModernTemplate({ data }: TemplateProps) {
             {/* Skills */}
             {skills.length > 0 && (
                 <section className="mt-8">
-                    <h2 className="mb-4 text-xl font-semibold text-blue-600">Skills</h2>
+                    <h2 className="mb-4 text-xl font-semibold" style={{ color: accentColor }}>Skills</h2>
                     <div className="flex flex-wrap gap-2">
                         {skills.map((skill) => (
                             <span
                                 key={skill.id}
-                                className="rounded-full bg-blue-50 px-4 py-1.5 text-sm font-medium text-blue-700"
+                                className="rounded-full px-4 py-1.5 text-sm font-medium"
+                                style={{
+                                    backgroundColor: `${accentColor}15`,
+                                    color: accentColor
+                                }}
                             >
                                 {skill.name}
                             </span>
