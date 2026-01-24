@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useResume } from '@/hooks/resume';
+import { useResume } from '@/contexts/resume-context';
 import { Button } from '@/components/base/buttons/button';
 import { WelcomeModal } from '@/components/resume/welcome-modal';
 import { TemplateGallery } from '@/components/resume/template-gallery';
@@ -27,13 +27,111 @@ import {
 import type { ResumeData, WizardStep } from '@/types/resume';
 
 const STEPS: { id: WizardStep; label: string; icon: string }[] = [
-    { id: 'personal', label: 'Personal Info', icon: '👤' },
+    { id: 'personal', label: 'Personal', icon: '👤' },
     { id: 'experience', label: 'Experience', icon: '💼' },
     { id: 'education', label: 'Education', icon: '🎓' },
     { id: 'skills', label: 'Skills', icon: '⚡' },
     { id: 'customize', label: 'Customize', icon: '🎨' },
     { id: 'preview', label: 'Preview', icon: '👁️' },
 ];
+
+// Dummy data for beautiful preview
+const SAMPLE_DATA: Partial<ResumeData> = {
+    personalInfo: {
+        firstName: 'Ronald',
+        lastName: 'Dump',
+        email: 'ronald.dump@example.com',
+        phone: '+1 (555) 123-4567',
+        location: 'New York, NY',
+        linkedin: 'linkedin.com/in/ronalddump',
+        website: 'ronalddump.com',
+        summary:
+            'Visionary entrepreneur and business magnate with 40+ years of experience in real estate development, hospitality, and entertainment. Known for ambitious projects and transformative leadership.',
+    },
+    experience: [
+        {
+            id: '1',
+            company: 'Dump Organization',
+            position: 'Chairman & CEO',
+            location: 'New York, NY',
+            startDate: '1971-01',
+            endDate: '',
+            current: true,
+            achievements: [
+                'Built multinational conglomerate with holdings in real estate, hospitality, entertainment, and media',
+                'Developed iconic properties including Dump Tower, Dump World Tower, and luxury golf courses worldwide',
+                'Expanded brand into successful ventures in television, gaming, and consumer products',
+                'Negotiated billions in commercial real estate transactions across major metropolitan areas',
+            ],
+        },
+        {
+            id: '2',
+            company: 'The Apprentice',
+            position: 'Executive Producer & Host',
+            location: 'New York, NY',
+            startDate: '2004-01',
+            endDate: '2015-01',
+            current: false,
+            achievements: [
+                'Created and hosted Emmy-nominated reality TV show reaching 20+ million viewers',
+                'Produced 14 seasons featuring business challenges and entrepreneurial mentorship',
+                'Transformed into cultural phenomenon generating $200M+ in revenue',
+            ],
+        },
+        {
+            id: '3',
+            company: 'Dump Entertainment Resorts',
+            position: 'Founder & President',
+            location: 'Atlantic City, NJ',
+            startDate: '1984-01',
+            endDate: '2009-01',
+            current: false,
+            achievements: [
+                'Founded and operated three major casino hotels in Atlantic City',
+                'Created integrated resort properties combining gaming, entertainment, and hospitality',
+                'Developed innovative marketing strategies that increased property visibility',
+            ],
+        },
+    ],
+    education: [
+        {
+            id: '1',
+            school: 'Wharton School, University of Pennsylvania',
+            degree: 'Bachelor of Science',
+            field: 'Economics',
+            location: 'Philadelphia, PA',
+            startDate: '1966',
+            endDate: '1968',
+            gpa: '3.8',
+        },
+        {
+            id: '2',
+            school: 'Fordham University',
+            degree: 'Undergraduate Studies',
+            field: 'Business',
+            location: 'Bronx, NY',
+            startDate: '1964',
+            endDate: '1966',
+            gpa: '',
+        },
+    ],
+    skills: [
+        { id: '1', name: 'Real Estate Development', category: 'technical' },
+        { id: '2', name: 'Negotiation & Deal-Making', category: 'technical' },
+        { id: '3', name: 'Brand Building & Marketing', category: 'technical' },
+        { id: '4', name: 'Strategic Planning', category: 'technical' },
+        { id: '5', name: 'Public Speaking', category: 'soft' },
+        { id: '6', name: 'Media Relations', category: 'soft' },
+        { id: '7', name: 'Leadership & Management', category: 'soft' },
+        { id: '8', name: 'Financial Analysis', category: 'technical' },
+    ],
+    customization: {
+        template: 'modern',
+        primaryColor: '#2563EB',
+        font: 'Inter',
+        sectionOrder: ['experience', 'education', 'skills'],
+    },
+};
 
 export function ResumeBuilderContent() {
     const router = useRouter();
@@ -43,8 +141,7 @@ export function ResumeBuilderContent() {
         setCurrentStep,
         updateCustomization,
         setResumeData,
-        saveNow,
-        resumeId,
+        saveResume,
         isSaving,
     } = useResume();
 
@@ -52,6 +149,7 @@ export function ResumeBuilderContent() {
     const [showTemplatePreview, setShowTemplatePreview] = useState<string | null>(null);
     const [showImportModal, setShowImportModal] = useState(false);
     const [showShareDialog, setShowShareDialog] = useState(false);
+    const [resumeId, setResumeId] = useState<string | null>(null);
 
     // Check for imported data
     useEffect(() => {
@@ -66,15 +164,13 @@ export function ResumeBuilderContent() {
                 console.error('Failed to parse imported data:', error);
             }
         }
-    }, []);
+    }, [setResumeData, setCurrentStep]);
 
     const handleStartFromScratch = () => {
-        // User chose to start from scratch, just continue
         setCurrentStep('personal');
     };
 
     const handleImportResume = () => {
-        // User chose to import, open import modal
         setShowImportModal(true);
     };
 
@@ -90,7 +186,7 @@ export function ResumeBuilderContent() {
 
     const handleSave = async () => {
         try {
-            await saveNow();
+            await saveResume();
         } catch (error) {
             console.error('Failed to save resume:', error);
         }
@@ -141,6 +237,10 @@ export function ResumeBuilderContent() {
         }
     };
 
+    // Use sample data if resume is empty, otherwise use actual data
+    const hasData = resumeData.personalInfo?.firstName || resumeData.experience?.length;
+    const previewData = hasData ? resumeData : SAMPLE_DATA;
+
     return (
         <>
             <div className="flex h-screen overflow-hidden bg-primary">
@@ -157,7 +257,7 @@ export function ResumeBuilderContent() {
                                     Create your professional ATS-ready resume
                                 </p>
                             </div>
-                            <div className="flex gap-2">
+                            <div className="flex items-center gap-2">
                                 <Button
                                     color="link-gray"
                                     size="sm"
@@ -181,19 +281,19 @@ export function ResumeBuilderContent() {
 
                     {/* Step Indicator */}
                     <div className="border-b border-secondary bg-secondary/10 px-8 py-4">
-                        <div className="flex gap-2 overflow-x-auto">
+                        <div className="flex gap-2">
                             {STEPS.map((step) => (
                                 <button
                                     key={step.id}
                                     onClick={() => setCurrentStep(step.id)}
-                                    className={`flex shrink-0 items-center gap-2 rounded-lg px-4 py-2 transition-colors ${
+                                    className={`flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 transition-colors ${
                                         currentStep === step.id
                                             ? 'bg-brand-600 text-white'
                                             : 'bg-secondary/50 text-secondary hover:bg-secondary'
                                     }`}
                                 >
                                     <span className="text-sm">{step.icon}</span>
-                                    <span className="text-sm font-medium">{step.label}</span>
+                                    <span className="text-sm font-medium whitespace-nowrap">{step.label}</span>
                                 </button>
                             ))}
                         </div>
@@ -271,14 +371,25 @@ export function ResumeBuilderContent() {
                 </div>
 
                 {/* Right Panel - Live Preview */}
-                <div className="flex flex-1 flex-col bg-secondary/30">
-                    <div className="border-b border-secondary bg-primary px-8 py-4">
-                        <h2 className="text-sm font-semibold text-primary">Live Preview</h2>
-                        <p className="text-xs text-tertiary">See your resume in real-time</p>
+                <div className="flex flex-1 flex-col bg-gradient-to-br from-gray-50 to-gray-100">
+                    <div className="border-b border-secondary bg-white/80 backdrop-blur-sm px-8 py-6">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h2 className="text-lg font-semibold text-primary">Live Preview</h2>
+                                <p className="text-sm text-tertiary">See your resume in real-time</p>
+                            </div>
+                            {!hasData && (
+                                <div className="rounded-full bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700">
+                                    Sample Preview
+                                </div>
+                            )}
+                        </div>
                     </div>
                     <div className="flex-1 overflow-y-auto p-8">
                         <div className="mx-auto max-w-[800px]">
-                            <ResumePreview data={resumeData} />
+                            <div className="rounded-lg bg-white shadow-2xl ring-1 ring-gray-200">
+                                <ResumePreview data={previewData} />
+                            </div>
                         </div>
                     </div>
                 </div>
