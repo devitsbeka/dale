@@ -57,10 +57,16 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error fetching saved jobs:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch saved jobs' },
-      { status: 500 }
-    );
+    // Return empty data if database is not available
+    return NextResponse.json({
+      savedJobs: [],
+      pagination: {
+        page: 1,
+        limit: 20,
+        total: 0,
+        totalPages: 0,
+      },
+    });
   }
 }
 

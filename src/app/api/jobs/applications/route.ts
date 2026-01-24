@@ -92,10 +92,21 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error fetching applications:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch applications' },
-      { status: 500 }
-    );
+    // Return empty data if database is not available
+    return NextResponse.json({
+      applications: [],
+      pagination: {
+        page: 1,
+        limit: 20,
+        total: 0,
+        totalPages: 0,
+      },
+      stats: {
+        total: 0,
+        byStatus: {},
+        responseRate: 0,
+      },
+    });
   }
 }
 

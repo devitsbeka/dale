@@ -108,12 +108,27 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error fetching jobs:', error);
-    return NextResponse.json(
-      {
-        error: 'Failed to fetch jobs',
-        message: error instanceof Error ? error.message : 'Unknown error',
+    // Return empty data if job aggregation fails
+    return NextResponse.json({
+      jobs: [],
+      pagination: {
+        page: 1,
+        limit: 20,
+        total: 0,
+        totalPages: 0,
       },
-      { status: 500 }
-    );
+      sources: [],
+      fromCache: false,
+      filters: {
+        availableCategories: [],
+        availableLocations: [],
+        availableTags: [],
+      },
+      stats: {
+        totalJobs: 0,
+        byLocationType: {},
+        avgSalary: 0,
+      },
+    });
   }
 }
