@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -23,7 +23,17 @@ export function RichTextEditor({
     maxLength = 500,
     className = '',
 }: RichTextEditorProps) {
-    // Use Tiptap's useEditor hook at component level (CORRECT way)
+    // Store latest callback in ref to prevent editor re-creation
+    const onChangeRef = useRef(onChange);
+    const maxLengthRef = useRef(maxLength);
+
+    // Update refs when props change
+    useEffect(() => {
+        onChangeRef.current = onChange;
+        maxLengthRef.current = maxLength;
+    }, [onChange, maxLength]);
+
+    // Use Tiptap's useEditor hook at component level
     const editor = useEditor({
         extensions: [
             StarterKit.configure({
@@ -56,16 +66,17 @@ export function RichTextEditor({
             const html = editor.getHTML();
             const text = editor.getText();
 
-            if (text.length <= maxLength) {
-                onChange(html);
-            } else {
-                // Don't update if over limit
-                editor.commands.setContent(value);
+            // Use ref to get latest maxLength without causing re-render
+            if (text.length <= maxLengthRef.current) {
+                // Use ref to get latest onChange without causing re-render
+                onChangeRef.current(html);
             }
         },
         // CRITICAL: Prevent editor creation during SSR
         immediatelyRender: false,
-    });
+        // Prevent unnecessary re-renders
+        shouldRerenderOnTransaction: false,
+    }, []); // Empty dependency array - editor created ONCE
 
     // Sync editor content when value prop changes externally
     useEffect(() => {
