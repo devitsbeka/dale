@@ -5,6 +5,7 @@ import { Button } from '@/components/base/buttons/button';
 import { Input } from '@/components/base/input/input';
 import { InputGroup } from '@/components/base/input/input-group';
 import { Label } from '@/components/base/input/label';
+import { DraggableSectionList } from '@/components/resume/draggable-section-list';
 import { useResume } from '@/contexts/resume-context';
 import { ChevronRight, ChevronLeft, Plus, Trash01, Edit05 } from '@untitledui/icons';
 import type { Education } from '@/types/resume';
@@ -15,7 +16,7 @@ interface EducationStepProps {
 }
 
 export function EducationStep({ onNext, onPrevious }: EducationStepProps) {
-    const { resumeData, addEducation, updateEducation, removeEducation, markStepComplete } = useResume();
+    const { resumeData, addEducation, updateEducation, removeEducation, setEducation, markStepComplete } = useResume();
     const educationList = resumeData.education || [];
     const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -32,6 +33,10 @@ export function EducationStep({ onNext, onPrevious }: EducationStepProps) {
         };
         addEducation(newEdu);
         setEditingId(newEdu.id);
+    };
+
+    const handleReorder = (reorderedEducation: Education[]) => {
+        setEducation(reorderedEducation);
     };
 
     const handleNext = () => {
@@ -51,18 +56,22 @@ export function EducationStep({ onNext, onPrevious }: EducationStepProps) {
 
             {/* Existing education */}
             {educationList.length > 0 && (
-                <div className="space-y-4">
-                    {educationList.map((edu) => (
-                        <EducationCard
-                            key={edu.id}
-                            education={edu}
-                            isEditing={editingId === edu.id}
-                            onEdit={() => setEditingId(edu.id)}
-                            onSave={() => setEditingId(null)}
-                            onDelete={() => removeEducation(edu.id)}
-                            onUpdate={(updates) => updateEducation(edu.id, updates)}
-                        />
-                    ))}
+                <div className="pl-8">
+                    <DraggableSectionList
+                        items={educationList}
+                        onReorder={handleReorder}
+                        renderItem={(edu) => (
+                            <EducationCard
+                                key={edu.id}
+                                education={edu}
+                                isEditing={editingId === edu.id}
+                                onEdit={() => setEditingId(edu.id)}
+                                onSave={() => setEditingId(null)}
+                                onDelete={() => removeEducation(edu.id)}
+                                onUpdate={(updates) => updateEducation(edu.id, updates)}
+                            />
+                        )}
+                    />
                 </div>
             )}
 

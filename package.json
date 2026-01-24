@@ -9,9 +9,15 @@
         "postinstall": "bash scripts/install-hooks.sh"
     },
     "dependencies": {
+        "@dnd-kit/core": "^6.3.1",
+        "@dnd-kit/sortable": "^10.0.0",
+        "@dnd-kit/utilities": "^3.2.2",
         "@prisma/client": "^6.19.2",
         "@tailwindcss/postcss": "^4.1.18",
         "@tailwindcss/typography": "^0.5.19",
+        "@tiptap/extension-placeholder": "^3.17.0",
+        "@tiptap/react": "^3.17.0",
+        "@tiptap/starter-kit": "^3.17.0",
         "@untitledui/file-icons": "^0.0.8",
         "@untitledui/icons": "^0.0.19",
         "input-otp": "^1.4.2",

@@ -64,6 +64,13 @@ export function useResumeData() {
         }));
     }, []);
 
+    const setExperiences = useCallback((experiences: WorkExperience[]) => {
+        setResumeData((prev) => ({
+            ...prev,
+            experience: experiences,
+        }));
+    }, []);
+
     const addEducation = useCallback((edu: Education) => {
         setResumeData((prev) => ({
             ...prev,
@@ -84,6 +91,13 @@ export function useResumeData() {
         setResumeData((prev) => ({
             ...prev,
             education: (prev.education || []).filter((e) => e.id !== id),
+        }));
+    }, []);
+
+    const setEducation = useCallback((education: Education[]) => {
+        setResumeData((prev) => ({
+            ...prev,
+            education,
         }));
     }, []);
 
@@ -122,9 +136,11 @@ export function useResumeData() {
         addExperience,
         updateExperience,
         removeExperience,
+        setExperiences,
         addEducation,
         updateEducation,
         removeEducation,
+        setEducation,
         addSkill,
         removeSkill,
         updateCustomization,

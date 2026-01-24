@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Button } from '@/components/base/buttons/button';
 import { useResume } from '@/contexts/resume-context';
 import { ChevronLeft, Download03, FileCheck02 } from '@untitledui/icons';
 import { ResumePreview } from '../resume-preview';
 import { ATSScorePanel } from '../ats-score-panel';
 import { KeywordAnalyzerPanel } from '../keyword-analyzer-panel';
-import { analyzeATSCompatibility } from '@/lib/ats/analyzer';
+import { analyzeATSCompatibility, type ATSAnalysisResult } from '@/lib/ats/analyzer';
 
 interface PreviewStepProps {
     onPrevious: () => void;
@@ -17,10 +17,13 @@ interface PreviewStepProps {
 export function PreviewStep({ onPrevious, onClose }: PreviewStepProps) {
     const { resumeData, markStepComplete } = useResume();
     const previewRef = useRef<HTMLDivElement>(null);
+    const [isMounted, setIsMounted] = useState(false);
+    const [atsAnalysis, setAtsAnalysis] = useState<ATSAnalysisResult | null>(null);
 
-    // Calculate ATS score
-    const atsAnalysis = useMemo(() => {
-        return analyzeATSCompatibility(resumeData);
+    // Calculate ATS score only on client to avoid hydration issues
+    useEffect(() => {
+        setIsMounted(true);
+        setAtsAnalysis(analyzeATSCompatibility(resumeData));
     }, [resumeData]);
 
     const handleExportPDF = async () => {
@@ -93,11 +96,11 @@ export function PreviewStep({ onPrevious, onClose }: PreviewStepProps) {
                 </div>
             </div>
 
-            {/* ATS Analysis */}
-            <ATSScorePanel analysis={atsAnalysis} />
+            {/* ATS Analysis - only render after mount to avoid hydration issues */}
+            {isMounted && atsAnalysis && <ATSScorePanel analysis={atsAnalysis} />}
 
             {/* Keyword Analyzer */}
-            <KeywordAnalyzerPanel resumeData={resumeData} />
+            {isMounted && <KeywordAnalyzerPanel resumeData={resumeData} />}
 
             {/* Preview */}
             <div className="rounded-lg border border-secondary bg-primary p-6">

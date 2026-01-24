@@ -7,6 +7,8 @@ import { InputGroup } from '@/components/base/input/input-group';
 import { Label } from '@/components/base/input/label';
 import { HintText } from '@/components/base/input/hint-text';
 import { Checkbox } from '@/components/base/checkbox/checkbox';
+import { RichTextEditor } from '@/components/resume/rich-text-editor';
+import { DraggableSectionList } from '@/components/resume/draggable-section-list';
 import { useResume } from '@/contexts/resume-context';
 import { ChevronRight, ChevronLeft, Plus, Trash01, Edit05 } from '@untitledui/icons';
 import type { WorkExperience } from '@/types/resume';
@@ -17,7 +19,7 @@ interface ExperienceStepProps {
 }
 
 export function ExperienceStep({ onNext, onPrevious }: ExperienceStepProps) {
-    const { resumeData, addExperience, updateExperience, removeExperience, markStepComplete } = useResume();
+    const { resumeData, addExperience, updateExperience, removeExperience, setExperiences, markStepComplete } = useResume();
     const experiences = resumeData.experience || [];
     const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -34,6 +36,10 @@ export function ExperienceStep({ onNext, onPrevious }: ExperienceStepProps) {
         };
         addExperience(newExp);
         setEditingId(newExp.id);
+    };
+
+    const handleReorder = (reorderedExperiences: WorkExperience[]) => {
+        setExperiences(reorderedExperiences);
     };
 
     const handleNext = () => {
@@ -53,18 +59,22 @@ export function ExperienceStep({ onNext, onPrevious }: ExperienceStepProps) {
 
             {/* Existing experiences */}
             {experiences.length > 0 && (
-                <div className="space-y-4">
-                    {experiences.map((exp) => (
-                        <ExperienceCard
-                            key={exp.id}
-                            experience={exp}
-                            isEditing={editingId === exp.id}
-                            onEdit={() => setEditingId(exp.id)}
-                            onSave={() => setEditingId(null)}
-                            onDelete={() => removeExperience(exp.id)}
-                            onUpdate={(updates) => updateExperience(exp.id, updates)}
-                        />
-                    ))}
+                <div className="pl-8">
+                    <DraggableSectionList
+                        items={experiences}
+                        onReorder={handleReorder}
+                        renderItem={(exp) => (
+                            <ExperienceCard
+                                key={exp.id}
+                                experience={exp}
+                                isEditing={editingId === exp.id}
+                                onEdit={() => setEditingId(exp.id)}
+                                onSave={() => setEditingId(null)}
+                                onDelete={() => removeExperience(exp.id)}
+                                onUpdate={(updates) => updateExperience(exp.id, updates)}
+                            />
+                        )}
+                    />
                 </div>
             )}
 
@@ -126,12 +136,13 @@ function ExperienceCard({ experience, isEditing, onEdit, onSave, onDelete, onUpd
         const newAchievements = [...localExp.achievements];
         newAchievements[index] = value;
         setLocalExp({ ...localExp, achievements: newAchievements });
-    };
 
-    const handleAchievementBlur = (index: number, value: string) => {
-        const newAchievements = [...localExp.achievements];
-        newAchievements[index] = value;
-        onUpdate({ achievements: newAchievements.filter(a => a.trim() !== '') });
+        // Update immediately with rich text editor
+        // Filter out empty achievements (just empty HTML tags)
+        const filteredAchievements = newAchievements.filter(a =>
+            a.trim() !== '' && a !== '<p></p>' && a !== '<p><br></p>'
+        );
+        onUpdate({ achievements: filteredAchievements });
     };
 
     const handleRemoveAchievement = (index: number) => {
@@ -153,11 +164,15 @@ function ExperienceCard({ experience, isEditing, onEdit, onSave, onDelete, onUpd
                         {experience.startDate || 'Start'} - {experience.current ? 'Present' : experience.endDate || 'End'}
                     </p>
                     {experience.achievements.length > 0 && (
-                        <ul className="mt-2 list-inside list-disc space-y-1 text-xs text-secondary">
+                        <div className="mt-2 space-y-1 text-xs text-secondary">
                             {experience.achievements.map((achievement, idx) => (
-                                <li key={idx}>{achievement}</li>
+                                <div
+                                    key={idx}
+                                    className="prose prose-sm max-w-none"
+                                    dangerouslySetInnerHTML={{ __html: achievement }}
+                                />
                             ))}
-                        </ul>
+                        </div>
                     )}
                 </div>
                 <div className="ml-4 flex gap-2">
@@ -279,34 +294,28 @@ function ExperienceCard({ experience, isEditing, onEdit, onSave, onDelete, onUpd
 
                 <div className="space-y-3">
                     {localExp.achievements.length === 0 ? (
-                        <InputGroup>
-                            <Input
-                                type="text"
-                                placeholder="Led a team of 5 developers to ship feature X..."
-                                value=""
-                                onChange={(value) => {
+                        <RichTextEditor
+                            value=""
+                            onChange={(value) => {
+                                if (value && value !== '<p></p>') {
                                     setLocalExp({ ...localExp, achievements: [value] });
-                                }}
-                                onBlur={(e) => {
-                                    const value = e.target.value;
-                                    if (value.trim()) {
-                                        onUpdate({ achievements: [value] });
-                                    }
-                                }}
-                            />
-                        </InputGroup>
+                                    onUpdate({ achievements: [value] });
+                                }
+                            }}
+                            placeholder="Led a team of 5 developers to ship feature X..."
+                            maxLength={300}
+                        />
                     ) : (
                         localExp.achievements.map((achievement, index) => (
                             <div key={index} className="flex items-start gap-2">
-                                <InputGroup className="flex-1">
-                                    <Input
-                                        type="text"
-                                        placeholder="Led a team of 5 developers to ship feature X..."
+                                <div className="flex-1">
+                                    <RichTextEditor
                                         value={achievement}
                                         onChange={(value) => handleUpdateAchievement(index, value)}
-                                        onBlur={() => handleAchievementBlur(index, achievement)}
+                                        placeholder="Led a team of 5 developers to ship feature X..."
+                                        maxLength={300}
                                     />
-                                </InputGroup>
+                                </div>
                                 {localExp.achievements.length > 1 && (
                                     <Button
                                         color="tertiary-destructive"
@@ -314,6 +323,7 @@ function ExperienceCard({ experience, isEditing, onEdit, onSave, onDelete, onUpd
                                         onClick={() => handleRemoveAchievement(index)}
                                         iconLeading={Trash01}
                                         aria-label="Remove achievement"
+                                        className="mt-2"
                                     />
                                 )}
                             </div>

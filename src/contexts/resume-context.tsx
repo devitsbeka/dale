@@ -15,9 +15,11 @@ interface ResumeContextType {
     addExperience: (exp: WorkExperience) => void;
     updateExperience: (id: string, exp: Partial<WorkExperience>) => void;
     removeExperience: (id: string) => void;
+    setExperiences: (experiences: WorkExperience[]) => void;
     addEducation: (edu: Education) => void;
     updateEducation: (id: string, edu: Partial<Education>) => void;
     removeEducation: (id: string) => void;
+    setEducation: (education: Education[]) => void;
     addSkill: (skill: Skill) => void;
     removeSkill: (id: string) => void;
     updateCustomization: (custom: Partial<ResumeCustomization>) => void;
@@ -92,9 +94,11 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
         addExperience: resume.addExperience,
         updateExperience: resume.updateExperience,
         removeExperience: resume.removeExperience,
+        setExperiences: resume.setExperiences,
         addEducation: resume.addEducation,
         updateEducation: resume.updateEducation,
         removeEducation: resume.removeEducation,
+        setEducation: resume.setEducation,
         addSkill: resume.addSkill,
         removeSkill: resume.removeSkill,
         updateCustomization: resume.updateCustomization,
