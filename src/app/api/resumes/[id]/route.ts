@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
+
+type TransactionClient = Omit<typeof prisma, '$connect' | '$disconnect' | '$on' | '$transaction' | '$extends'>;
 
 // GET /api/resumes/:id - Fetch single resume
 export async function GET(
@@ -53,7 +56,7 @@ export async function PATCH(
         const { personalInfo, experiences, education, skills, customization, ...resumeData } = body;
 
         // Start a transaction to update all related data
-        const resume = await prisma.$transaction(async (tx: typeof prisma) => {
+        const resume = await prisma.$transaction(async (tx: TransactionClient) => {
             // Update main resume data
             const updatedResume = await tx.resume.update({
                 where: { id },
