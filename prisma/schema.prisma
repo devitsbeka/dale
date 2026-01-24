@@ -41,6 +41,7 @@ model Resume {
   skills        Skill[]
   customization ResumeCustomization?
   snapshots     ResumeSnapshot[]
+  shareLinks    ShareLink[]
 
   @@index([userId])
   @@index([slug])
@@ -155,4 +156,24 @@ model ResumeSnapshot {
   @@index([resumeId])
   @@index([createdAt])
   @@map("resume_snapshots")
+}
+
+// Share links for public resume sharing
+model ShareLink {
+  id            String    @id @default(cuid())
+  resumeId      String
+  token         String    @unique // Public share token
+  password      String?   // Optional password hash
+  expiresAt     DateTime? // Optional expiration
+  viewCount     Int       @default(0)
+  maxViews      Int?      // Optional max view limit
+  allowComments Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  resume        Resume    @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@index([resumeId])
+  @@index([token])
+  @@map("share_links")
 }

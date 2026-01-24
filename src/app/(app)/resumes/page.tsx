@@ -1,8 +1,9 @@
 'use client';
 
 import { Button } from '@/components/base/buttons/button';
-import { Plus, FilePlus02, FileCheck02, Calendar, Upload01 } from '@untitledui/icons';
+import { Plus, FilePlus02, FileCheck02, Calendar, Upload01, Share07 } from '@untitledui/icons';
 import { ResumeImportDialog } from '@/components/resume/resume-import-dialog';
+import { ShareDialog } from '@/components/resume/share-dialog';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import type { ResumeData } from '@/types/resume';
@@ -19,6 +20,8 @@ export default function ResumesPage() {
     const [resumes, setResumes] = useState<Resume[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [showImportDialog, setShowImportDialog] = useState(false);
+    const [showShareDialog, setShowShareDialog] = useState(false);
+    const [selectedResumeId, setSelectedResumeId] = useState<string | null>(null);
 
     useEffect(() => {
         fetchResumes();
@@ -182,11 +185,13 @@ export default function ResumesPage() {
                                         size="sm"
                                         onClick={(e: React.MouseEvent) => {
                                             e.stopPropagation();
-                                            // TODO: Implement preview
+                                            setSelectedResumeId(resume.id);
+                                            setShowShareDialog(true);
                                         }}
+                                        iconLeading={Share07}
                                         className="flex-1"
                                     >
-                                        Preview
+                                        Share
                                     </Button>
                                 </div>
                             </div>
@@ -200,6 +205,17 @@ export default function ResumesPage() {
                 <ResumeImportDialog
                     onImport={handleImport}
                     onClose={() => setShowImportDialog(false)}
+                />
+            )}
+
+            {/* Share Dialog */}
+            {showShareDialog && selectedResumeId && (
+                <ShareDialog
+                    resumeId={selectedResumeId}
+                    onClose={() => {
+                        setShowShareDialog(false);
+                        setSelectedResumeId(null);
+                    }}
                 />
             )}
         </div>
