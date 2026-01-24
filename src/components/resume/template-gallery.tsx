@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { AVAILABLE_TEMPLATES, type TemplateMetadata } from '@/lib/template-engine/types';
 import { Button } from '@/components/base/buttons/button';
 import { Badge } from '@/components/base/badges/badges';
-import { Check } from '@untitledui/icons';
+import { Check, Plus } from '@untitledui/icons';
 
 interface TemplateGalleryProps {
     selectedTemplate?: string;
@@ -47,6 +48,7 @@ export function TemplateGallery({
     onSelectTemplate,
     onPreviewTemplate,
 }: TemplateGalleryProps) {
+    const router = useRouter();
     const [hoveredTemplate, setHoveredTemplate] = useState<string | null>(null);
 
     return (
@@ -153,6 +155,20 @@ export function TemplateGallery({
                         </div>
                     );
                 })}
+
+                {/* Create Custom Template Card */}
+                <div
+                    className="group flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-secondary bg-secondary/10 p-8 transition-all duration-200 hover:border-brand-600 hover:bg-brand-50"
+                    onClick={() => router.push('/resume-builder/templates/new')}
+                >
+                    <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand-100 transition-transform duration-200 group-hover:scale-110">
+                        <Plus className="h-8 w-8 text-brand-600" />
+                    </div>
+                    <h3 className="mb-2 font-semibold text-primary">Create Custom Template</h3>
+                    <p className="text-center text-xs text-tertiary">
+                        Design your own template with custom colors, fonts, and layout
+                    </p>
+                </div>
             </div>
 
             {/* Popular templates badge */}

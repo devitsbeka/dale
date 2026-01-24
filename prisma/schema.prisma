@@ -19,6 +19,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   resumes         Resume[]
+  customTemplates CustomTemplate[]
   savedJobs       SavedJob[]
   jobApplications JobApplication[]
   jobAlerts       JobAlert[]
@@ -197,6 +198,23 @@ model ResumeAnalytics {
   @@index([eventType])
   @@index([timestamp])
   @@map("resume_analytics")
+}
+
+// Custom resume templates created by users
+model CustomTemplate {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  config    String   @db.Text // JSON configuration
+  isPublic  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isPublic])
+  @@map("custom_templates")
 }
 
 // ============================================
