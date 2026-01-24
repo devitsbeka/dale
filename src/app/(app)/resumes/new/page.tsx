@@ -14,6 +14,7 @@ import { ResumePreview } from '@/components/resume/resume-preview';
 import { OnboardingOverlay } from '@/components/resume/onboarding-overlay';
 import { SkipLink } from '@/components/accessibility/skip-link';
 import { LiveAnnouncer, useAnnouncer } from '@/components/accessibility/live-announcer';
+import { WizardSkeleton } from '@/components/loading/wizard-skeleton';
 import { Check } from '@untitledui/icons';
 import { useSearchParams } from 'next/navigation';
 import type { WizardStep } from '@/types/resume';
@@ -198,7 +199,7 @@ function ResumeBuilderContent() {
 export default function ResumeNewPage() {
     return (
         <ResumeProvider>
-            <Suspense fallback={<div className="flex h-screen items-center justify-center">Loading...</div>}>
+            <Suspense fallback={<WizardSkeleton />}>
                 <ResumeBuilderContent />
             </Suspense>
         </ResumeProvider>
