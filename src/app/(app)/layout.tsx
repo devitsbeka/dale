@@ -31,8 +31,8 @@ const expandedNavItems: Array<{ label: string; items: NavItemType[] }> = [
                 icon: BarChartSquare02,
             },
             {
-                label: 'Resumes',
-                href: '/resumes/new',
+                label: 'Resume Builder',
+                href: '/resume-builder',
                 icon: Edit04,
                 badge: <Badge size="sm" color="brand">New</Badge>,
             },
@@ -89,8 +89,8 @@ const collapsedNavItems: (NavItemType & { icon: React.FC<{ className?: string }>
         icon: BarChartSquare02,
     },
     {
-        label: 'Resumes',
-        href: '/resumes/new',
+        label: 'Resume Builder',
+        href: '/resume-builder',
         icon: Edit04,
     },
     {
