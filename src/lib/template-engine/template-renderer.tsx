@@ -1,3 +1,6 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import type { ResumeData } from '@/types/resume';
 import { ModernTemplate } from './templates/modern';
 import { ClassicTemplate } from './templates/classic';
@@ -25,6 +28,17 @@ const TEMPLATE_MAP = {
 };
 
 export function TemplateRenderer({ templateId, data }: TemplateRendererProps) {
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    // Don't render template during SSR to avoid hydration mismatches
+    if (!isMounted) {
+        return <div className="min-h-[11in] animate-pulse bg-gray-100" />;
+    }
+
     const Template = TEMPLATE_MAP[templateId as keyof typeof TEMPLATE_MAP] || ModernTemplate;
     return <Template data={data} />;
 }

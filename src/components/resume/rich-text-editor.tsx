@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, KeyboardEvent } from 'react';
+import React, { useState, useRef, KeyboardEvent, useEffect } from 'react';
 import { Label } from '@/components/base/input/label';
 
 interface RichTextEditorProps {
@@ -26,10 +26,24 @@ export function RichTextEditor({
     className = '',
 }: RichTextEditorProps) {
     const [isFocused, setIsFocused] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
     const editorRef = useRef<HTMLDivElement>(null);
+
+    // Mount only on client
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    // Set initial content after mount to avoid hydration issues
+    useEffect(() => {
+        if (isMounted && editorRef.current && editorRef.current.innerHTML !== value) {
+            editorRef.current.innerHTML = value || '';
+        }
+    }, [value, isMounted]);
 
     // Convert HTML to text for character count
     const getTextContent = (html: string): string => {
+        if (typeof window === 'undefined') return '';
         const div = document.createElement('div');
         div.innerHTML = html;
         return div.textContent || '';
@@ -67,11 +81,24 @@ export function RichTextEditor({
     };
 
     const isActive = (command: string): boolean => {
+        if (typeof document === 'undefined') return false;
         return document.queryCommandState(command);
     };
 
     const characterCount = getTextContent(value).length;
     const isOverLimit = characterCount > maxLength;
+
+    // Show loading state during SSR
+    if (!isMounted) {
+        return (
+            <div className={className}>
+                {label && <Label className="mb-2">{label}</Label>}
+                <div className="min-h-[140px] rounded-lg border border-secondary bg-primary p-3">
+                    <div className="h-4 w-3/4 rounded bg-secondary/30"></div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className={className}>
@@ -128,10 +155,10 @@ export function RichTextEditor({
             <div
                 ref={editorRef}
                 contentEditable
+                suppressContentEditableWarning
                 className={`prose prose-sm max-w-none min-h-[100px] rounded-b-lg border border-secondary bg-primary p-3 focus:outline-none focus:ring-2 focus:ring-brand-500 ${
                     !value && !isFocused ? 'text-tertiary' : ''
                 }`}
-                dangerouslySetInnerHTML={{ __html: value || '' }}
                 onInput={handleInput}
                 onKeyDown={handleKeyDown}
                 onFocus={() => setIsFocused(true)}
@@ -168,5 +195,3 @@ export function RichTextEditor({
 
 // Export memoized version
 export const MemoizedRichTextEditor = React.memo(RichTextEditor);
-
-// Force rebuild timestamp: 2026-01-24

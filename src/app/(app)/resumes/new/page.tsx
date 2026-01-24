@@ -208,3 +208,6 @@ export default function ResumeNewPage() {
         </ResumeProvider>
     );
 }
+
+// Disable static generation to prevent hydration issues
+export const dynamic = 'force-dynamic';
