@@ -1,9 +1,11 @@
 'use client';
 
 import { Button } from '@/components/base/buttons/button';
-import { Plus, FilePlus02, FileCheck02, Calendar } from '@untitledui/icons';
+import { Plus, FilePlus02, FileCheck02, Calendar, Upload01 } from '@untitledui/icons';
+import { ResumeImportDialog } from '@/components/resume/resume-import-dialog';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import type { ResumeData } from '@/types/resume';
 
 interface Resume {
     id: string;
@@ -16,6 +18,7 @@ export default function ResumesPage() {
     const router = useRouter();
     const [resumes, setResumes] = useState<Resume[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [showImportDialog, setShowImportDialog] = useState(false);
 
     useEffect(() => {
         fetchResumes();
@@ -45,6 +48,13 @@ export default function ResumesPage() {
         router.push(`/resumes/new?id=${id}`);
     };
 
+    const handleImport = (data: Partial<ResumeData>) => {
+        // Store imported data in localStorage temporarily
+        localStorage.setItem('dale_imported_resume', JSON.stringify(data));
+        // Navigate to resume builder with imported data
+        router.push('/resumes/new?import=true');
+    };
+
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('en-US', {
             year: 'numeric',
@@ -65,14 +75,24 @@ export default function ResumesPage() {
                                 Create and manage your professional resumes
                             </p>
                         </div>
-                        <Button
-                            color="primary"
-                            size="lg"
-                            onClick={handleCreateNew}
-                            iconLeading={Plus}
-                        >
-                            Create New Resume
-                        </Button>
+                        <div className="flex gap-2">
+                            <Button
+                                color="secondary"
+                                size="lg"
+                                onClick={() => setShowImportDialog(true)}
+                                iconLeading={Upload01}
+                            >
+                                Import Resume
+                            </Button>
+                            <Button
+                                color="primary"
+                                size="lg"
+                                onClick={handleCreateNew}
+                                iconLeading={Plus}
+                            >
+                                Create New Resume
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -174,6 +194,14 @@ export default function ResumesPage() {
                     </div>
                 )}
             </div>
+
+            {/* Import Dialog */}
+            {showImportDialog && (
+                <ResumeImportDialog
+                    onImport={handleImport}
+                    onClose={() => setShowImportDialog(false)}
+                />
+            )}
         </div>
     );
 }

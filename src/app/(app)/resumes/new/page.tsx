@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import type { Key } from 'react';
 import { Tabs, TabList, Tab, TabPanel } from '@/components/application/tabs/tabs';
 import { ResumeProvider, useResume } from '@/contexts/resume-context';
@@ -13,6 +13,7 @@ import { PreviewStep } from '@/components/resume/steps/preview-step';
 import { ResumePreview } from '@/components/resume/resume-preview';
 import { OnboardingOverlay } from '@/components/resume/onboarding-overlay';
 import { Check } from '@untitledui/icons';
+import { useSearchParams } from 'next/navigation';
 import type { WizardStep } from '@/types/resume';
 
 const STEPS: { id: WizardStep; label: string; description: string }[] = [
@@ -25,8 +26,26 @@ const STEPS: { id: WizardStep; label: string; description: string }[] = [
 ];
 
 function ResumeBuilderContent() {
-    const { currentStep, setCurrentStep, completedSteps, isOnboardingEnabled, resumeData } = useResume();
+    const { currentStep, setCurrentStep, completedSteps, isOnboardingEnabled, resumeData, setResumeData } = useResume();
     const [showOnboarding, setShowOnboarding] = useState(true);
+    const searchParams = useSearchParams();
+
+    // Load imported resume data if present
+    useEffect(() => {
+        const isImport = searchParams.get('import');
+        if (isImport === 'true') {
+            const importedData = localStorage.getItem('dale_imported_resume');
+            if (importedData) {
+                try {
+                    const data = JSON.parse(importedData);
+                    setResumeData(data);
+                    localStorage.removeItem('dale_imported_resume');
+                } catch (error) {
+                    console.error('Failed to load imported resume:', error);
+                }
+            }
+        }
+    }, [searchParams, setResumeData]);
 
     const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep);
     const isFirstStep = currentStepIndex === 0;
@@ -165,7 +184,9 @@ function ResumeBuilderContent() {
 export default function ResumeNewPage() {
     return (
         <ResumeProvider>
-            <ResumeBuilderContent />
+            <Suspense fallback={<div className="flex h-screen items-center justify-center">Loading...</div>}>
+                <ResumeBuilderContent />
+            </Suspense>
         </ResumeProvider>
     );
 }

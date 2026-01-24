@@ -11,6 +11,7 @@ interface ResumeContextType {
     isOnboardingEnabled: boolean;
 
     // Actions
+    setResumeData: (data: Partial<ResumeData>) => void;
     updatePersonalInfo: (info: Partial<PersonalInfo>) => void;
     addExperience: (exp: WorkExperience) => void;
     updateExperience: (id: string, exp: Partial<WorkExperience>) => void;
@@ -90,6 +91,7 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
         currentStep: resume.currentStep,
         completedSteps: resume.completedSteps,
         isOnboardingEnabled: resume.isOnboardingEnabled,
+        setResumeData: resume.setResumeData,
         updatePersonalInfo: resume.updatePersonalInfo,
         addExperience: resume.addExperience,
         updateExperience: resume.updateExperience,
