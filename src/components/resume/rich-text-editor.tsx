@@ -23,9 +23,11 @@ export function RichTextEditor({
     const [isMounted, setIsMounted] = useState(false);
     const [editor, setEditor] = useState<any>(null);
 
-    // Use refs to avoid dependencies in handleUpdate
+    // Use refs for ALL props to make callbacks completely stable
     const valueRef = useRef(value);
     const onChangeRef = useRef(onChange);
+    const maxLengthRef = useRef(maxLength);
+    const placeholderRef = useRef(placeholder);
 
     useEffect(() => {
         valueRef.current = value;
@@ -35,23 +37,32 @@ export function RichTextEditor({
         onChangeRef.current = onChange;
     }, [onChange]);
 
-    // Stable callback for Tiptap onUpdate - never recreates
+    useEffect(() => {
+        maxLengthRef.current = maxLength;
+    }, [maxLength]);
+
+    useEffect(() => {
+        placeholderRef.current = placeholder;
+    }, [placeholder]);
+
+    // Completely stable callback - ZERO dependencies!
     const handleUpdate = useCallback(({ editor }: any) => {
         const html = editor.getHTML();
         const text = editor.getText();
 
-        if (text.length <= maxLength) {
-            onChangeRef.current(html); // Use ref instead of direct onChange
+        if (text.length <= maxLengthRef.current) {
+            onChangeRef.current(html);
         } else {
             editor.commands.setContent(valueRef.current);
         }
-    }, [maxLength]); // onChange removed from dependencies!
+    }, []); // NO dependencies - completely stable!
 
     useEffect(() => {
         setIsMounted(true);
     }, []);
 
     // Only import and create editor after component mounts on client
+    // CRITICAL: Only depends on isMounted - editor created ONCE and never recreated
     useEffect(() => {
         if (!isMounted) return;
 
@@ -81,7 +92,7 @@ export function RichTextEditor({
                         },
                     }),
                     Placeholder.configure({
-                        placeholder,
+                        placeholder: placeholderRef.current,
                     }),
                 ],
                 content: value,
@@ -101,7 +112,7 @@ export function RichTextEditor({
         return () => {
             editorInstance?.destroy();
         };
-    }, [isMounted, placeholder, maxLength]); // handleUpdate is stable, but we still capture it from closure
+    }, [isMounted]); // ONLY isMounted - editor created once, never recreated!
 
     // Sync editor content when value changes externally
     useEffect(() => {
