@@ -7,6 +7,7 @@ import { Label } from '@/components/base/input/label';
 import { Select } from '@/components/base/select/select';
 import { Checkbox } from '@/components/base/checkbox/checkbox';
 import { useFocusTrap } from '@/hooks/use-focus-trap';
+import { generateQRCode } from '@/lib/qr-code/generator';
 import {
     Share07,
     Copy01,
@@ -15,6 +16,11 @@ import {
     Calendar,
     Eye,
     CheckCircle,
+    QrCode01,
+    Download03,
+    Mail01,
+    Link01,
+    MessageChatSquare,
 } from '@untitledui/icons';
 
 interface ShareLink {
@@ -38,6 +44,8 @@ export function ShareDialog({ resumeId, onClose }: ShareDialogProps) {
     const [isLoading, setIsLoading] = useState(true);
     const [isCreating, setIsCreating] = useState(false);
     const [copiedToken, setCopiedToken] = useState<string | null>(null);
+    const [qrCodeDataURL, setQrCodeDataURL] = useState<string | null>(null);
+    const [showQRCode, setShowQRCode] = useState<string | null>(null);
 
     // Form state
     const [password, setPassword] = useState('');
@@ -124,6 +132,46 @@ export function ShareDialog({ resumeId, onClose }: ShareDialogProps) {
         } catch (error) {
             console.error('Failed to delete share link:', error);
         }
+    };
+
+    const handleGenerateQRCode = async (token: string) => {
+        const url = `${window.location.origin}/share/${token}`;
+        const qrCode = await generateQRCode(url);
+        setQrCodeDataURL(qrCode);
+        setShowQRCode(token);
+    };
+
+    const handleDownloadQRCode = () => {
+        if (!qrCodeDataURL) return;
+
+        const link = document.createElement('a');
+        link.href = qrCodeDataURL;
+        link.download = 'resume-qr-code.png';
+        link.click();
+    };
+
+    const handleShareViaEmail = (token: string) => {
+        const url = `${window.location.origin}/share/${token}`;
+        const subject = encodeURIComponent('Check out my resume');
+        const body = encodeURIComponent(`I'd like to share my resume with you:\n\n${url}`);
+        window.open(`mailto:?subject=${subject}&body=${body}`);
+    };
+
+    const handleShareViaLinkedIn = (token: string) => {
+        const url = `${window.location.origin}/share/${token}`;
+        window.open(
+            `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+            '_blank'
+        );
+    };
+
+    const handleShareViaTwitter = (token: string) => {
+        const url = `${window.location.origin}/share/${token}`;
+        const text = encodeURIComponent('Check out my resume');
+        window.open(
+            `https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(url)}`,
+            '_blank'
+        );
     };
 
     return (
@@ -267,9 +315,35 @@ export function ShareDialog({ resumeId, onClose }: ShareDialogProps) {
                                                         Created {new Date(link.createdAt).toLocaleDateString()}
                                                     </span>
                                                 </div>
+
+                                                {/* Social sharing buttons */}
+                                                <div className="mt-3 flex gap-2">
+                                                    <p className="text-xs text-tertiary">Share via:</p>
+                                                    <button
+                                                        onClick={() => handleShareViaEmail(link.token)}
+                                                        className="text-secondary hover:text-brand-600"
+                                                        aria-label="Share via Email"
+                                                    >
+                                                        <Mail01 className="h-4 w-4" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleShareViaLinkedIn(link.token)}
+                                                        className="text-secondary hover:text-brand-600"
+                                                        aria-label="Share on LinkedIn"
+                                                    >
+                                                        <Link01 className="h-4 w-4" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleShareViaTwitter(link.token)}
+                                                        className="text-secondary hover:text-brand-600"
+                                                        aria-label="Share on Twitter"
+                                                    >
+                                                        <MessageChatSquare className="h-4 w-4" />
+                                                    </button>
+                                                </div>
                                             </div>
 
-                                            <div className="flex gap-2">
+                                            <div className="flex flex-wrap gap-2">
                                                 <Button
                                                     color="secondary"
                                                     size="sm"
@@ -278,6 +352,13 @@ export function ShareDialog({ resumeId, onClose }: ShareDialogProps) {
                                                 >
                                                     {copiedToken === link.token ? 'Copied!' : 'Copy'}
                                                 </Button>
+                                                <Button
+                                                    color="secondary"
+                                                    size="sm"
+                                                    onClick={() => handleGenerateQRCode(link.token)}
+                                                    iconLeading={QrCode01}
+                                                    aria-label="QR Code"
+                                                />
                                                 <Button
                                                     color="tertiary-destructive"
                                                     size="sm"
@@ -293,6 +374,44 @@ export function ShareDialog({ resumeId, onClose }: ShareDialogProps) {
                         )}
                     </div>
                 </div>
+
+                {/* QR Code Modal */}
+                {showQRCode && qrCodeDataURL && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/50 p-4">
+                        <div className="w-full max-w-sm rounded-lg bg-primary p-6 shadow-xl">
+                            <h3 className="mb-4 text-center text-lg font-semibold text-primary">
+                                QR Code
+                            </h3>
+                            <div className="flex justify-center">
+                                <img
+                                    src={qrCodeDataURL}
+                                    alt="QR Code"
+                                    className="rounded-lg border-2 border-secondary"
+                                />
+                            </div>
+                            <p className="mt-4 text-center text-sm text-tertiary">
+                                Scan this code to view the resume
+                            </p>
+                            <div className="mt-6 flex gap-2">
+                                <Button
+                                    color="secondary"
+                                    onClick={handleDownloadQRCode}
+                                    iconLeading={Download03}
+                                    className="flex-1"
+                                >
+                                    Download
+                                </Button>
+                                <Button
+                                    color="primary"
+                                    onClick={() => setShowQRCode(null)}
+                                    className="flex-1"
+                                >
+                                    Close
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
