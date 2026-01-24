@@ -4,32 +4,12 @@ import React from 'react';
 import { Button } from '@/components/base/buttons/button';
 import { useResume } from '@/contexts/resume-context';
 import { ChevronRight, ChevronLeft, Check } from '@untitledui/icons';
+import { AVAILABLE_TEMPLATES } from '@/lib/template-engine/types';
 
 interface CustomizeStepProps {
     onNext: () => void;
     onPrevious: () => void;
 }
-
-const TEMPLATES = [
-    {
-        id: 'modern',
-        name: 'Modern',
-        description: 'Clean and contemporary design',
-        preview: '/templates/modern.png',
-    },
-    {
-        id: 'classic',
-        name: 'Classic',
-        description: 'Traditional professional layout',
-        preview: '/templates/classic.png',
-    },
-    {
-        id: 'minimal',
-        name: 'Minimal',
-        description: 'Simple and elegant',
-        preview: '/templates/minimal.png',
-    },
-];
 
 const COLORS = [
     { value: '#E9684B', label: 'Warm Orange', class: 'bg-brand-500' },
@@ -65,8 +45,8 @@ export function CustomizeStep({ onNext, onPrevious }: CustomizeStepProps) {
             {/* Template selection */}
             <div className="space-y-4">
                 <h4 className="text-sm font-semibold text-secondary">Choose Template</h4>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                    {TEMPLATES.map((template) => {
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    {AVAILABLE_TEMPLATES.map((template) => {
                         const isSelected = customization.template === template.id;
                         return (
                             <button
@@ -74,32 +54,39 @@ export function CustomizeStep({ onNext, onPrevious }: CustomizeStepProps) {
                                 onClick={() =>
                                     updateCustomization({ template: template.id })
                                 }
-                                className={`flex flex-col gap-3 rounded-xl border-2 p-4 text-left outline-focus-ring transition focus-visible:outline-2 ${
+                                className={`group flex flex-col gap-2 rounded-xl border-2 p-3 text-left outline-focus-ring transition-all hover:shadow-md focus-visible:outline-2 ${
                                     isSelected
-                                        ? 'border-brand-500 bg-brand-50'
+                                        ? 'border-brand-500 bg-brand-50 shadow-sm'
                                         : 'border-secondary bg-primary hover:border-gray-400'
                                 }`}
                             >
-                                <div className="flex items-start justify-between">
-                                    <div>
-                                        <h5 className="font-semibold text-primary">
+                                <div className="flex items-start justify-between gap-2">
+                                    <div className="min-w-0 flex-1">
+                                        <h5 className="truncate font-semibold text-primary">
                                             {template.name}
                                         </h5>
-                                        <p className="text-sm text-tertiary">
+                                        <p className="line-clamp-2 text-xs text-tertiary">
                                             {template.description}
                                         </p>
                                     </div>
                                     {isSelected && (
-                                        <div className="text-brand-500">
-                                            <Check className="h-5 w-5" />
+                                        <div className="flex-shrink-0 text-brand-500">
+                                            <Check className="h-4 w-4" />
                                         </div>
                                     )}
                                 </div>
-                                <div className="aspect-[8.5/11] rounded-lg bg-secondary" />
+                                <div className="flex flex-wrap gap-1 text-xs">
+                                    <span className="rounded bg-secondary px-2 py-0.5 text-tertiary">
+                                        {template.category}
+                                    </span>
+                                </div>
                             </button>
                         );
                     })}
                 </div>
+                <p className="text-xs text-tertiary">
+                    Tip: Your selected template will update the preview in real-time
+                </p>
             </div>
 
             {/* Color selection */}
