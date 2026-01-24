@@ -46,7 +46,7 @@ export function WelcomeModal({ onStartFromScratch, onImportResume }: WelcomeModa
     if (!isOpen) return null;
 
     return (
-        <ModalOverlay isOpen={isOpen} onOpenChange={() => handleClose(false)}>
+        <ModalOverlay isOpen={true} isDismissable={true} onOpenChange={() => handleClose(false)}>
             <Modal className="max-w-2xl">
                 <Dialog>
                     <div className="rounded-2xl bg-primary p-8 shadow-2xl ring-1 ring-secondary">
