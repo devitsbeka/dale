@@ -53,7 +53,7 @@ export async function PATCH(
         const { personalInfo, experiences, education, skills, customization, ...resumeData } = body;
 
         // Start a transaction to update all related data
-        const resume = await prisma.$transaction(async (tx) => {
+        const resume = await prisma.$transaction(async (tx: typeof prisma) => {
             // Update main resume data
             const updatedResume = await tx.resume.update({
                 where: { id },

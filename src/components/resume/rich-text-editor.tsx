@@ -15,7 +15,23 @@ interface RichTextEditorProps {
     className?: string;
 }
 
-export function RichTextEditor({
+// Loading skeleton component to avoid hydration issues
+function EditorSkeleton({ className, label }: { className: string; label?: string }) {
+    return (
+        <div className={className}>
+            {label && <Label className="mb-2">{label}</Label>}
+            <div className="min-h-[140px] rounded-lg border border-secondary bg-primary p-3">
+                <div className="animate-pulse space-y-2">
+                    <div className="h-4 w-3/4 rounded bg-secondary"></div>
+                    <div className="h-4 w-1/2 rounded bg-secondary"></div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// Inner component that uses the editor hook - only rendered on client
+function RichTextEditorInner({
     value,
     onChange,
     placeholder = 'Type here...',
@@ -23,12 +39,6 @@ export function RichTextEditor({
     maxLength = 500,
     className = '',
 }: RichTextEditorProps) {
-    const [isMounted, setIsMounted] = useState(false);
-
-    useEffect(() => {
-        setIsMounted(true);
-    }, []);
-
     const editor = useEditor({
         extensions: [
             StarterKit.configure({
@@ -75,21 +85,6 @@ export function RichTextEditor({
 
     const characterCount = editor?.getText().length || 0;
     const isOverLimit = characterCount > maxLength;
-
-    // Don't render editor content until mounted to avoid hydration issues
-    if (!isMounted) {
-        return (
-            <div className={className}>
-                {label && <Label className="mb-2">{label}</Label>}
-                <div className="min-h-[140px] rounded-lg border border-secondary bg-primary p-3">
-                    <div className="animate-pulse space-y-2">
-                        <div className="h-4 w-3/4 rounded bg-secondary"></div>
-                        <div className="h-4 w-1/2 rounded bg-secondary"></div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
 
     return (
         <div className={className}>
@@ -157,4 +152,20 @@ export function RichTextEditor({
             )}
         </div>
     );
+}
+
+// Main exported component with client-side mounting guard
+export function RichTextEditor(props: RichTextEditorProps) {
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    // Don't render editor until mounted to avoid hydration issues with Tiptap
+    if (!isMounted) {
+        return <EditorSkeleton className={props.className || ''} label={props.label} />;
+    }
+
+    return <RichTextEditorInner {...props} />;
 }

@@ -1,7 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
-import { TemplateRenderer } from '@/lib/template-engine/template-renderer';
 import type { ResumeData } from '@/types/resume';
+
+// Inline types to match Prisma schema
+interface PrismaExperience {
+    id: string;
+    company: string;
+    position: string;
+    location: string | null;
+    startDate: string;
+    endDate: string | null;
+    isCurrent: boolean;
+    achievements: string[];
+}
+
+interface PrismaEducation {
+    id: string;
+    school: string;
+    degree: string;
+    field: string | null;
+    location: string | null;
+    startDate: string;
+    endDate: string;
+    gpa: string | null;
+}
+
+interface PrismaSkill {
+    id: string;
+    name: string;
+    category: string;
+}
 
 // GET /api/resumes/:id/pdf-render - Render resume for PDF generation
 export async function GET(
@@ -39,7 +67,7 @@ export async function GET(
                 website: resume.personalInfo.website || undefined,
                 summary: resume.personalInfo.summary || '',
             } : undefined,
-            experience: resume.experiences.map((exp) => ({
+            experience: resume.experiences.map((exp: PrismaExperience) => ({
                 id: exp.id,
                 company: exp.company,
                 position: exp.position,
@@ -49,7 +77,7 @@ export async function GET(
                 current: exp.isCurrent,
                 achievements: exp.achievements as string[],
             })),
-            education: resume.education.map((edu) => ({
+            education: resume.education.map((edu: PrismaEducation) => ({
                 id: edu.id,
                 school: edu.school,
                 degree: edu.degree,
@@ -59,7 +87,7 @@ export async function GET(
                 endDate: edu.endDate || '',
                 gpa: edu.gpa || undefined,
             })),
-            skills: resume.skills.map((skill) => ({
+            skills: resume.skills.map((skill: PrismaSkill) => ({
                 id: skill.id,
                 name: skill.name,
                 category: skill.category as 'technical' | 'soft' | 'language' | 'tool',
