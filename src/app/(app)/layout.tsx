@@ -4,6 +4,7 @@ import { useState, type ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
 import {
     BarChartSquare02,
+    Briefcase02,
     Calendar,
     CheckDone01,
     Edit04,
@@ -34,6 +35,12 @@ const expandedNavItems: Array<{ label: string; items: NavItemType[] }> = [
                 href: '/resumes/new',
                 icon: Edit04,
                 badge: <Badge size="sm" color="brand">New</Badge>,
+            },
+            {
+                label: 'Jobs',
+                href: '/jobs',
+                icon: Briefcase02,
+                badge: <Badge size="sm" color="success">Live</Badge>,
             },
             {
                 label: 'Projects',
@@ -85,6 +92,11 @@ const collapsedNavItems: (NavItemType & { icon: React.FC<{ className?: string }>
         label: 'Resumes',
         href: '/resumes/new',
         icon: Edit04,
+    },
+    {
+        label: 'Jobs',
+        href: '/jobs',
+        icon: Briefcase02,
     },
     {
         label: 'Projects',
