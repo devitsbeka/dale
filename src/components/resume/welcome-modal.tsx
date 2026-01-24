@@ -67,9 +67,9 @@ export function WelcomeModal({ onStartFromScratch, onImportResume }: WelcomeModa
                         {/* Start from Scratch */}
                         <button
                             onClick={handleStartFromScratch}
-                            className="group flex flex-col items-center gap-3 rounded-xl border-2 border-secondary bg-primary p-6 transition-all hover:border-brand-500 hover:bg-brand-50 hover:shadow-lg"
+                            className="group flex flex-col items-center gap-3 rounded-xl border-2 border-secondary bg-primary p-6 transition-all hover:border-brand-200 hover:bg-brand-50/50 hover:shadow-md"
                         >
-                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-100 transition-colors group-hover:bg-brand-200">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-50 transition-colors group-hover:bg-brand-100">
                                 <FilePlus02 className="h-6 w-6 text-brand-600" />
                             </div>
                             <div className="text-center">
@@ -83,9 +83,9 @@ export function WelcomeModal({ onStartFromScratch, onImportResume }: WelcomeModa
                         {/* Import Resume */}
                         <button
                             onClick={handleImport}
-                            className="group flex flex-col items-center gap-3 rounded-xl border-2 border-secondary bg-primary p-6 transition-all hover:border-brand-500 hover:bg-brand-50 hover:shadow-lg"
+                            className="group flex flex-col items-center gap-3 rounded-xl border-2 border-secondary bg-primary p-6 transition-all hover:border-purple-200 hover:bg-purple-50/50 hover:shadow-md"
                         >
-                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100 transition-colors group-hover:bg-purple-200">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-50 transition-colors group-hover:bg-purple-100">
                                 <Upload01 className="h-6 w-6 text-purple-600" />
                             </div>
                             <div className="text-center">

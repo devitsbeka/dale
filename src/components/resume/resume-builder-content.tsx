@@ -286,10 +286,10 @@ export function ResumeBuilderContent() {
                                 <button
                                     key={step.id}
                                     onClick={() => setCurrentStep(step.id)}
-                                    className={`flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 transition-colors ${
+                                    className={`flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 transition-all ${
                                         currentStep === step.id
-                                            ? 'bg-brand-600 text-white'
-                                            : 'bg-secondary/50 text-secondary hover:bg-secondary'
+                                            ? 'bg-primary text-primary shadow-sm ring-2 ring-brand-200'
+                                            : 'bg-transparent text-secondary hover:bg-secondary/50'
                                     }`}
                                 >
                                     <span className="text-sm">{step.icon}</span>
