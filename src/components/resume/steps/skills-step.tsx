@@ -79,92 +79,99 @@ export function SkillsStep({ onNext, onPrevious }: SkillsStepProps) {
     );
 
     return (
-        <div>
+        <div className="space-y-8">
+            {/* Header */}
             <div>
-                <div>
-                    <h3>Skills</h3>
-                    <p>
-                        Add skills relevant to the positions you're applying for.
-                    </p>
-                </div>
+                <h3 className="text-lg font-semibold text-primary">Skills</h3>
+                <p className="mt-1 text-sm text-tertiary">
+                    Add skills relevant to the positions you're applying for.
+                </p>
+            </div>
 
-                {/* Added skills */}
-                {Object.entries(groupedSkills).map(([category, categorySkills]) => (
-                    <div key={category}>
-                        <h4>
-                            {category.replace('_', ' ')}
-                        </h4>
-                        <div>
-                            {categorySkills.map((skill) => (
-                                <div
-                                    key={skill.id}
-                                   
-                                >
-                                    <span>{skill.name}</span>
-                                    <button
-                                        onClick={() => removeSkill(skill.id)}
-                                       
+            {/* Added skills */}
+            {Object.keys(groupedSkills).length > 0 && (
+                <div className="space-y-4">
+                    {Object.entries(groupedSkills).map(([category, categorySkills]) => (
+                        <div key={category} className="space-y-2">
+                            <h4 className="text-sm font-semibold text-secondary capitalize">
+                                {category.replace('_', ' ')}
+                            </h4>
+                            <div className="flex flex-wrap gap-2">
+                                {categorySkills.map((skill) => (
+                                    <div
+                                        key={skill.id}
+                                        className="flex items-center gap-2 rounded-lg border border-secondary bg-secondary/30 px-3 py-1.5"
                                     >
-                                        <X />
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                ))}
-
-                {/* Add skill form */}
-                <div>
-                    <h4>Add Skill</h4>
-
-                    <div>
-                        <div>
-                            <InputGroup>
-                                <Label>Skill Name</Label>
-                                <Input
-                                    type="text"
-                                    placeholder="e.g., React, Leadership, Spanish"
-                                    value={skillName}
-                                    onChange={(value) => setSkillName(value)}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
-                                            e.preventDefault();
-                                            handleAddSkill();
-                                        }
-                                    }}
-                                />
-                            </InputGroup>
-                        </div>
-
-                        <InputGroup>
-                            <Label>Category</Label>
-                            <Select
-                                value={skillCategory}
-                                onChange={(value) => setSkillCategory(value as Skill['category'])
-                                }
-                            >
-                                {SKILL_CATEGORIES.map((cat) => (
-                                    <option key={cat.value} value={cat.value}>
-                                        {cat.label}
-                                    </option>
+                                        <span className="text-sm text-primary">{skill.name}</span>
+                                        <button
+                                            onClick={() => removeSkill(skill.id)}
+                                            className="rounded p-0.5 text-tertiary outline-focus-ring transition hover:bg-error-50 hover:text-error-600 focus-visible:outline-2 focus-visible:outline-offset-2"
+                                        >
+                                            <X className="h-3 w-3" />
+                                        </button>
+                                    </div>
                                 ))}
-                            </Select>
-                        </InputGroup>
-                    </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
 
-                    <Button color="secondary" onClick={handleAddSkill} iconLeading={Plus}>
-                        Add Skill
-                    </Button>
+            {/* Add skill form */}
+            <div className="space-y-6 rounded-lg border border-secondary bg-secondary/10 p-6">
+                <h4 className="text-sm font-semibold text-secondary">Add Skill</h4>
+
+                <div className="grid grid-cols-2 gap-4">
+                    <InputGroup className="w-full max-w-[300px]">
+                        <Label>Skill Name</Label>
+                        <Input
+                            type="text"
+                            placeholder="e.g., React, Leadership, Spanish"
+                            value={skillName}
+                            onChange={(value) => setSkillName(value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    handleAddSkill();
+                                }
+                            }}
+                        />
+                    </InputGroup>
+
+                    <InputGroup className="w-full max-w-[300px]">
+                        <Label>Category</Label>
+                        <Select
+                            value={skillCategory}
+                            onChange={(value) => setSkillCategory(value as Skill['category'])}
+                        >
+                            {SKILL_CATEGORIES.map((cat) => (
+                                <option key={cat.value} value={cat.value}>
+                                    {cat.label}
+                                </option>
+                            ))}
+                        </Select>
+                    </InputGroup>
                 </div>
 
-                {/* Suggested skills */}
-                <div>
-                    <h4>Suggested Skills</h4>
+                <Button
+                    color="secondary"
+                    onClick={handleAddSkill}
+                    iconLeading={Plus}
+                    isDisabled={!skillName.trim()}
+                >
+                    Add Skill
+                </Button>
+            </div>
 
+            {/* Suggested skills */}
+            <div className="space-y-6 rounded-lg border border-secondary bg-secondary/10 p-6">
+                <h4 className="text-sm font-semibold text-secondary">Suggested Skills</h4>
+
+                <div className="space-y-4">
                     {SKILL_CATEGORIES.map((category) => (
-                        <div key={category.value}>
-                            <p>{category.label}</p>
-                            <div>
+                        <div key={category.value} className="space-y-2">
+                            <p className="text-sm font-medium text-secondary">{category.label}</p>
+                            <div className="flex flex-wrap gap-2">
                                 {SUGGESTED_SKILLS[
                                     category.value as keyof typeof SUGGESTED_SKILLS
                                 ].map((skillName) => {
@@ -193,55 +200,26 @@ export function SkillsStep({ onNext, onPrevious }: SkillsStepProps) {
                         </div>
                     ))}
                 </div>
-
-                <div>
-                    <Button
-                        color="link-gray"
-                        size="lg"
-                        onClick={onPrevious}
-                        iconLeading={ChevronLeft}
-                    >
-                        Back
-                    </Button>
-                    <Button
-                        color="primary"
-                        size="lg"
-                        onClick={handleNext}
-                        iconTrailing={ChevronRight}
-                    >
-                        Continue to Customize
-                    </Button>
-                </div>
             </div>
 
-            <div>
-                <h4>Preview</h4>
-                <div>
-                    <h3>Skills</h3>
-                    {skills.length === 0 ? (
-                        <p>No skills added yet.</p>
-                    ) : (
-                        <div>
-                            {Object.entries(groupedSkills).map(([category, categorySkills]) => (
-                                <div key={category}>
-                                    <h4>
-                                        {category.replace('_', ' ')}
-                                    </h4>
-                                    <div>
-                                        {categorySkills.map((skill) => (
-                                            <span
-                                                key={skill.id}
-                                               
-                                            >
-                                                {skill.name}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
+            {/* Navigation */}
+            <div className="flex justify-between border-t border-secondary pt-6">
+                <Button
+                    color="link-gray"
+                    size="lg"
+                    onClick={onPrevious}
+                    iconLeading={ChevronLeft}
+                >
+                    Back
+                </Button>
+                <Button
+                    color="primary"
+                    size="lg"
+                    onClick={handleNext}
+                    iconTrailing={ChevronRight}
+                >
+                    Continue to Customize
+                </Button>
             </div>
         </div>
     );
