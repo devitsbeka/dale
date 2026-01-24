@@ -1,11 +1,15 @@
 'use client';
 
 import React from 'react';
-import { Button } from '@/components/base/button';
-import { Input, InputGroup } from '@/components/base/input';
-import { Textarea } from '@/components/base/textarea';
+import { Button } from '@/components/base/buttons/button';
+import { Input } from '@/components/base/input/input';
+import { InputGroup } from '@/components/base/input/input-group';
+import { Label } from '@/components/base/input/label';
+import { HintText } from '@/components/base/input/hint-text';
+import { TextArea } from '@/components/base/textarea/textarea';
 import { useResume } from '@/contexts/resume-context';
-import { ChevronRight } from '@untitledui/icons/react';
+import { ChevronRight } from '@untitledui/icons';
+import type { PersonalInfo } from '@/types/resume';
 
 interface PersonalInfoStepProps {
     onNext: () => void;
@@ -13,7 +17,7 @@ interface PersonalInfoStepProps {
 
 export function PersonalInfoStep({ onNext }: PersonalInfoStepProps) {
     const { resumeData, updatePersonalInfo, markStepComplete } = useResume();
-    const personalInfo = resumeData.personalInfo || {};
+    const personalInfo = resumeData.personalInfo || ({} as PersonalInfo);
 
     const handleNext = () => {
         markStepComplete('personal');
@@ -27,132 +31,129 @@ export function PersonalInfoStep({ onNext }: PersonalInfoStepProps) {
         personalInfo.phone;
 
     return (
-        <div className="grid gap-8 p-6 lg:grid-cols-2">
+        <div>
             {/* Form Section */}
-            <div className="flex flex-col gap-6">
+            <div>
                 <div>
-                    <h3 className="text-md font-semibold text-primary">Personal Information</h3>
-                    <p className="text-sm text-tertiary">
+                    <h3>Personal Information</h3>
+                    <p>
                         Tell us about yourself. This information will appear at the top of your resume.
                     </p>
                 </div>
 
-                <div className="flex flex-col gap-5">
+                <div>
                     {/* Name fields */}
-                    <div className="grid gap-5 md:grid-cols-2">
+                    <div>
                         <InputGroup>
-                            <InputGroup.Label>First name</InputGroup.Label>
+                            <Label>First name</Label>
                             <Input
                                 type="text"
                                 placeholder="John"
                                 value={personalInfo.firstName || ''}
-                                onChange={(e) =>
-                                    updatePersonalInfo({ firstName: e.target.value })
+                                onChange={(value) => updatePersonalInfo({ firstName: value })
                                 }
-                                required
+                                isRequired
                             />
                         </InputGroup>
 
                         <InputGroup>
-                            <InputGroup.Label>Last name</InputGroup.Label>
+                            <Label>Last name</Label>
                             <Input
                                 type="text"
                                 placeholder="Doe"
                                 value={personalInfo.lastName || ''}
-                                onChange={(e) =>
-                                    updatePersonalInfo({ lastName: e.target.value })
+                                onChange={(value) => updatePersonalInfo({ lastName: value })
                                 }
-                                required
+                                isRequired
                             />
                         </InputGroup>
                     </div>
 
                     {/* Contact fields */}
-                    <div className="grid gap-5 md:grid-cols-2">
+                    <div>
                         <InputGroup>
-                            <InputGroup.Label>Email</InputGroup.Label>
+                            <Label>Email</Label>
                             <Input
                                 type="email"
                                 placeholder="john.doe@example.com"
                                 value={personalInfo.email || ''}
-                                onChange={(e) => updatePersonalInfo({ email: e.target.value })}
-                                required
+                                onChange={(value) => updatePersonalInfo({ email: value })}
+                                isRequired
                             />
                         </InputGroup>
 
                         <InputGroup>
-                            <InputGroup.Label>Phone</InputGroup.Label>
+                            <Label>Phone</Label>
                             <Input
                                 type="tel"
                                 placeholder="+1 (555) 000-0000"
                                 value={personalInfo.phone || ''}
-                                onChange={(e) => updatePersonalInfo({ phone: e.target.value })}
-                                required
+                                onChange={(value) => updatePersonalInfo({ phone: value })}
+                                isRequired
                             />
                         </InputGroup>
                     </div>
 
                     <InputGroup>
-                        <InputGroup.Label>Location</InputGroup.Label>
+                        <Label>Location</Label>
                         <Input
                             type="text"
                             placeholder="San Francisco, CA"
                             value={personalInfo.location || ''}
-                            onChange={(e) => updatePersonalInfo({ location: e.target.value })}
+                            onChange={(value) => updatePersonalInfo({ location: value })}
                         />
-                        <InputGroup.HintText>
+                        <HintText>
                             City and state/country (optional but recommended)
-                        </InputGroup.HintText>
+                        </HintText>
                     </InputGroup>
 
                     {/* Optional fields */}
-                    <div className="grid gap-5 md:grid-cols-2">
+                    <div>
                         <InputGroup>
-                            <InputGroup.Label>LinkedIn</InputGroup.Label>
+                            <Label>LinkedIn</Label>
                             <Input
                                 type="url"
                                 placeholder="linkedin.com/in/johndoe"
                                 value={personalInfo.linkedin || ''}
-                                onChange={(e) =>
-                                    updatePersonalInfo({ linkedin: e.target.value })
+                                onChange={(value) => updatePersonalInfo({ linkedin: value })
                                 }
                             />
                         </InputGroup>
 
                         <InputGroup>
-                            <InputGroup.Label>Website/Portfolio</InputGroup.Label>
+                            <Label>Website/Portfolio</Label>
                             <Input
                                 type="url"
                                 placeholder="johndoe.com"
                                 value={personalInfo.website || ''}
-                                onChange={(e) => updatePersonalInfo({ website: e.target.value })}
+                                onChange={(value) => updatePersonalInfo({ website: value })}
                             />
                         </InputGroup>
                     </div>
 
                     {/* Professional summary */}
                     <InputGroup>
-                        <InputGroup.Label>Professional Summary</InputGroup.Label>
-                        <Textarea
+                        <Label>Professional Summary</Label>
+                        <TextArea
                             placeholder="A brief overview of your professional background and career goals (2-3 sentences)..."
                             value={personalInfo.summary || ''}
-                            onChange={(e) => updatePersonalInfo({ summary: e.target.value })}
+                            onChange={(value) => updatePersonalInfo({ summary: value })}
                             rows={4}
                         />
-                        <InputGroup.HintText>
+                        <HintText>
                             Keep it concise and impactful. Focus on your key strengths and what
                             you bring to the role.
-                        </InputGroup.HintText>
+                        </HintText>
                     </InputGroup>
                 </div>
 
                 {/* Navigation */}
-                <div className="flex justify-end gap-3 border-t border-secondary pt-5">
+                <div>
                     <Button
-                        variant="primary"
+                        color="primary"
                         size="lg"
                         onClick={handleNext}
-                        disabled={!isValid}
+                        isDisabled={!isValid}
                         iconTrailing={ChevronRight}
                     >
                         Continue to Experience
@@ -161,46 +162,46 @@ export function PersonalInfoStep({ onNext }: PersonalInfoStepProps) {
             </div>
 
             {/* Preview Section */}
-            <div className="rounded-xl border border-secondary bg-secondary/30 p-6">
-                <h4 className="mb-4 text-sm font-semibold text-secondary">Preview</h4>
-                <div className="rounded-lg bg-white p-6 shadow-xs">
-                    <div className="space-y-2">
-                        <h2 className="text-xl font-bold text-gray-900">
+            <div>
+                <h4>Preview</h4>
+                <div>
+                    <div>
+                        <h2>
                             {personalInfo.firstName && personalInfo.lastName
                                 ? `${personalInfo.firstName} ${personalInfo.lastName}`
                                 : 'Your Name'}
                         </h2>
-                        <div className="flex flex-wrap gap-2 text-sm text-gray-600">
+                        <div>
                             {personalInfo.email && <span>{personalInfo.email}</span>}
                             {personalInfo.email && personalInfo.phone && (
-                                <span className="text-gray-400">•</span>
+                                <span>•</span>
                             )}
                             {personalInfo.phone && <span>{personalInfo.phone}</span>}
                             {(personalInfo.email || personalInfo.phone) &&
                                 personalInfo.location && (
-                                    <span className="text-gray-400">•</span>
+                                    <span>•</span>
                                 )}
                             {personalInfo.location && <span>{personalInfo.location}</span>}
                         </div>
                         {(personalInfo.linkedin || personalInfo.website) && (
-                            <div className="flex flex-wrap gap-2 text-sm text-blue-600">
+                            <div>
                                 {personalInfo.linkedin && (
-                                    <a href="#" className="hover:underline">
+                                    <a href="#">
                                         LinkedIn
                                     </a>
                                 )}
                                 {personalInfo.linkedin && personalInfo.website && (
-                                    <span className="text-gray-400">•</span>
+                                    <span>•</span>
                                 )}
                                 {personalInfo.website && (
-                                    <a href="#" className="hover:underline">
+                                    <a href="#">
                                         Portfolio
                                     </a>
                                 )}
                             </div>
                         )}
                         {personalInfo.summary && (
-                            <p className="mt-4 text-sm leading-relaxed text-gray-700">
+                            <p>
                                 {personalInfo.summary}
                             </p>
                         )}

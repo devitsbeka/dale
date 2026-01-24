@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Button } from '@/components/base/button';
+import { Button } from '@/components/base/buttons/button';
 import { useResume } from '@/contexts/resume-context';
-import { X, Lightbulb01 } from '@untitledui/icons/react';
+import { X, Lightbulb01 } from '@untitledui/icons';
 import type { WizardStep } from '@/types/resume';
 
 interface OnboardingOverlayProps {
@@ -60,36 +60,35 @@ export function OnboardingOverlay({ currentStep, onDismiss }: OnboardingOverlayP
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-start justify-center bg-gray-900/20 p-4 pt-20 backdrop-blur-sm">
-            <div className="relative w-full max-w-md animate-in fade-in zoom-in-95 rounded-xl border border-secondary bg-white p-6 shadow-2xl">
+        <div>
+            <div>
                 <button
                     onClick={onDismiss}
-                    className="absolute right-4 top-4 rounded-lg p-1.5 text-tertiary outline-focus-ring transition hover:bg-secondary hover:text-primary"
+                   
                     aria-label="Close"
                 >
-                    <X className="h-5 w-5" />
+                    <X />
                 </button>
 
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-brand-50">
-                    <Lightbulb01 className="h-6 w-6 text-brand-600" />
+                <div>
+                    <Lightbulb01 />
                 </div>
 
-                <h3 className="mb-2 text-lg font-semibold text-primary">{content.title}</h3>
-                <p className="mb-4 text-sm text-secondary">{content.message}</p>
+                <h3>{content.title}</h3>
+                <p>{content.message}</p>
 
-                <div className="mb-6 rounded-lg bg-brand-50 p-3">
-                    <p className="text-sm font-medium text-brand-900">{content.tip}</p>
+                <div>
+                    <p>{content.tip}</p>
                 </div>
 
-                <div className="flex flex-col gap-2">
-                    <Button variant="primary" size="md" onClick={onDismiss} className="w-full">
+                <div>
+                    <Button color="primary" size="md" onClick={onDismiss}>
                         Got it, thanks!
                     </Button>
                     <Button
-                        variant="link"
+                        color="link-gray"
                         size="sm"
                         onClick={handleDontShowAgain}
-                        className="text-tertiary"
                     >
                         Don't show these tips again
                     </Button>

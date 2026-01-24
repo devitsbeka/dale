@@ -1,11 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button } from '@/components/base/button';
-import { Input, InputGroup } from '@/components/base/input';
-import { Select } from '@/components/base/select';
+import { Button } from '@/components/base/buttons/button';
+import { Input } from '@/components/base/input/input';
+import { InputGroup } from '@/components/base/input/input-group';
+import { Label } from '@/components/base/input/label';
+import { HintText } from '@/components/base/input/hint-text';
+import { Select } from '@/components/base/select/select';
 import { useResume } from '@/contexts/resume-context';
-import { ChevronRight, ChevronLeft, Plus, X } from '@untitledui/icons/react';
+import { ChevronRight, ChevronLeft, Plus, X } from '@untitledui/icons';
 import type { Skill } from '@/types/resume';
 
 interface SkillsStepProps {
@@ -76,33 +79,33 @@ export function SkillsStep({ onNext, onPrevious }: SkillsStepProps) {
     );
 
     return (
-        <div className="grid gap-8 p-6 lg:grid-cols-2">
-            <div className="flex flex-col gap-6">
+        <div>
+            <div>
                 <div>
-                    <h3 className="text-md font-semibold text-primary">Skills</h3>
-                    <p className="text-sm text-tertiary">
+                    <h3>Skills</h3>
+                    <p>
                         Add skills relevant to the positions you're applying for.
                     </p>
                 </div>
 
                 {/* Added skills */}
                 {Object.entries(groupedSkills).map(([category, categorySkills]) => (
-                    <div key={category} className="flex flex-col gap-2">
-                        <h4 className="text-sm font-medium text-secondary capitalize">
+                    <div key={category}>
+                        <h4>
                             {category.replace('_', ' ')}
                         </h4>
-                        <div className="flex flex-wrap gap-2">
+                        <div>
                             {categorySkills.map((skill) => (
                                 <div
                                     key={skill.id}
-                                    className="flex items-center gap-2 rounded-lg bg-brand-50 px-3 py-1.5 text-sm font-medium text-brand-700 ring-1 ring-brand-200"
+                                   
                                 >
                                     <span>{skill.name}</span>
                                     <button
                                         onClick={() => removeSkill(skill.id)}
-                                        className="rounded outline-focus-ring transition hover:text-brand-900"
+                                       
                                     >
-                                        <X className="h-3.5 w-3.5" />
+                                        <X />
                                     </button>
                                 </div>
                             ))}
@@ -111,18 +114,18 @@ export function SkillsStep({ onNext, onPrevious }: SkillsStepProps) {
                 ))}
 
                 {/* Add skill form */}
-                <div className="flex flex-col gap-5 rounded-xl border border-secondary bg-primary p-5">
-                    <h4 className="text-sm font-semibold text-secondary">Add Skill</h4>
+                <div>
+                    <h4>Add Skill</h4>
 
-                    <div className="grid gap-5 md:grid-cols-3">
-                        <div className="md:col-span-2">
+                    <div>
+                        <div>
                             <InputGroup>
-                                <InputGroup.Label>Skill Name</InputGroup.Label>
+                                <Label>Skill Name</Label>
                                 <Input
                                     type="text"
                                     placeholder="e.g., React, Leadership, Spanish"
                                     value={skillName}
-                                    onChange={(e) => setSkillName(e.target.value)}
+                                    onChange={(value) => setSkillName(value)}
                                     onKeyDown={(e) => {
                                         if (e.key === 'Enter') {
                                             e.preventDefault();
@@ -134,11 +137,10 @@ export function SkillsStep({ onNext, onPrevious }: SkillsStepProps) {
                         </div>
 
                         <InputGroup>
-                            <InputGroup.Label>Category</InputGroup.Label>
+                            <Label>Category</Label>
                             <Select
                                 value={skillCategory}
-                                onChange={(e) =>
-                                    setSkillCategory(e.target.value as Skill['category'])
+                                onChange={(value) => setSkillCategory(value as Skill['category'])
                                 }
                             >
                                 {SKILL_CATEGORIES.map((cat) => (
@@ -150,19 +152,19 @@ export function SkillsStep({ onNext, onPrevious }: SkillsStepProps) {
                         </InputGroup>
                     </div>
 
-                    <Button variant="secondary" onClick={handleAddSkill} iconLeading={Plus}>
+                    <Button color="secondary" onClick={handleAddSkill} iconLeading={Plus}>
                         Add Skill
                     </Button>
                 </div>
 
                 {/* Suggested skills */}
-                <div className="flex flex-col gap-4 rounded-xl border border-secondary bg-secondary/30 p-5">
-                    <h4 className="text-sm font-semibold text-secondary">Suggested Skills</h4>
+                <div>
+                    <h4>Suggested Skills</h4>
 
                     {SKILL_CATEGORIES.map((category) => (
-                        <div key={category.value} className="flex flex-col gap-2">
-                            <p className="text-xs font-medium text-tertiary">{category.label}</p>
-                            <div className="flex flex-wrap gap-2">
+                        <div key={category.value}>
+                            <p>{category.label}</p>
+                            <div>
                                 {SUGGESTED_SKILLS[
                                     category.value as keyof typeof SUGGESTED_SKILLS
                                 ].map((skillName) => {
@@ -192,9 +194,9 @@ export function SkillsStep({ onNext, onPrevious }: SkillsStepProps) {
                     ))}
                 </div>
 
-                <div className="flex justify-between gap-3 border-t border-secondary pt-5">
+                <div>
                     <Button
-                        variant="link"
+                        color="link-gray"
                         size="lg"
                         onClick={onPrevious}
                         iconLeading={ChevronLeft}
@@ -202,7 +204,7 @@ export function SkillsStep({ onNext, onPrevious }: SkillsStepProps) {
                         Back
                     </Button>
                     <Button
-                        variant="primary"
+                        color="primary"
                         size="lg"
                         onClick={handleNext}
                         iconTrailing={ChevronRight}
@@ -212,24 +214,24 @@ export function SkillsStep({ onNext, onPrevious }: SkillsStepProps) {
                 </div>
             </div>
 
-            <div className="rounded-xl border border-secondary bg-secondary/30 p-6">
-                <h4 className="mb-4 text-sm font-semibold text-secondary">Preview</h4>
-                <div className="rounded-lg bg-white p-6 shadow-xs">
-                    <h3 className="mb-4 text-lg font-bold text-gray-900">Skills</h3>
+            <div>
+                <h4>Preview</h4>
+                <div>
+                    <h3>Skills</h3>
                     {skills.length === 0 ? (
-                        <p className="text-sm text-gray-500">No skills added yet.</p>
+                        <p>No skills added yet.</p>
                     ) : (
-                        <div className="space-y-4">
+                        <div>
                             {Object.entries(groupedSkills).map(([category, categorySkills]) => (
                                 <div key={category}>
-                                    <h4 className="mb-2 text-sm font-semibold capitalize text-gray-700">
+                                    <h4>
                                         {category.replace('_', ' ')}
                                     </h4>
-                                    <div className="flex flex-wrap gap-2">
+                                    <div>
                                         {categorySkills.map((skill) => (
                                             <span
                                                 key={skill.id}
-                                                className="rounded bg-gray-100 px-2.5 py-1 text-sm text-gray-700"
+                                               
                                             >
                                                 {skill.name}
                                             </span>

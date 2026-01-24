@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Modal, ModalOverlay } from '@/components/application/modal';
-import { Button } from '@/components/base/button';
+import { Modal, ModalOverlay } from '@/components/application/modals/modal';
+import { Button } from '@/components/base/buttons/button';
 import { useResume } from '@/contexts/resume-context';
 import { PersonalInfoStep } from './steps/personal-info-step';
 import { ExperienceStep } from './steps/experience-step';
@@ -11,7 +11,7 @@ import { SkillsStep } from './steps/skills-step';
 import { CustomizeStep } from './steps/customize-step';
 import { PreviewStep } from './steps/preview-step';
 import { OnboardingOverlay } from './onboarding-overlay';
-import { Check, ChevronLeft, ChevronRight } from '@untitledui/icons/react';
+import { Check, ChevronLeft, ChevronRight } from '@untitledui/icons';
 import type { WizardStep } from '@/types/resume';
 
 interface ResumeWizardProps {
@@ -74,7 +74,7 @@ export function ResumeWizard({ isOpen, onClose }: ResumeWizardProps) {
     return (
         <ModalOverlay isOpen={isOpen} onOpenChange={onClose} isDismissable={true}>
             <Modal
-                className="max-h-[90vh] w-full max-w-[1400px] overflow-hidden"
+               
                 aria-label="Resume Builder Wizard"
             >
                 {/* Onboarding overlay */}
@@ -86,19 +86,19 @@ export function ResumeWizard({ isOpen, onClose }: ResumeWizardProps) {
                 )}
 
                 {/* Header with step indicator */}
-                <div className="border-b border-secondary bg-primary px-6 py-5">
-                    <div className="mb-6 flex items-center justify-between">
+                <div>
+                    <div>
                         <div>
-                            <h2 className="text-lg font-semibold text-primary">
+                            <h2>
                                 Create Your Resume
                             </h2>
-                            <p className="text-sm text-tertiary">
+                            <p>
                                 Build an ATS-optimized resume in minutes
                             </p>
                         </div>
                         <button
                             onClick={onClose}
-                            className="rounded-lg p-2 text-tertiary outline-focus-ring transition hover:bg-secondary hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2"
+                           
                             aria-label="Close"
                         >
                             <svg
@@ -115,7 +115,7 @@ export function ResumeWizard({ isOpen, onClose }: ResumeWizardProps) {
                     </div>
 
                     {/* Step indicator */}
-                    <div className="flex items-center gap-2">
+                    <div>
                         {STEPS.map((step, index) => {
                             const isCompleted = completedSteps.includes(step.id);
                             const isCurrent = step.id === currentStep;
@@ -135,7 +135,7 @@ export function ResumeWizard({ isOpen, onClose }: ResumeWizardProps) {
                                                   : 'cursor-not-allowed opacity-40'
                                         }`}
                                     >
-                                        <div className="flex items-center gap-2">
+                                        <div>
                                             <div
                                                 className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
                                                     isCompleted
@@ -146,7 +146,7 @@ export function ResumeWizard({ isOpen, onClose }: ResumeWizardProps) {
                                                 }`}
                                             >
                                                 {isCompleted ? (
-                                                    <Check className="h-4 w-4" />
+                                                    <Check />
                                                 ) : (
                                                     index + 1
                                                 )}
@@ -172,7 +172,7 @@ export function ResumeWizard({ isOpen, onClose }: ResumeWizardProps) {
                                         </p>
                                     </button>
                                     {index < STEPS.length - 1 && (
-                                        <div className="h-px w-4 shrink-0 bg-secondary" />
+                                        <div />
                                     )}
                                 </React.Fragment>
                             );
@@ -181,7 +181,7 @@ export function ResumeWizard({ isOpen, onClose }: ResumeWizardProps) {
                 </div>
 
                 {/* Content area */}
-                <div className="flex-1 overflow-y-auto">{renderStepContent()}</div>
+                <div>{renderStepContent()}</div>
             </Modal>
         </ModalOverlay>
     );

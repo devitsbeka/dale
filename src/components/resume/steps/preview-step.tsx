@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useRef } from 'react';
-import { Button } from '@/components/base/button';
+import { Button } from '@/components/base/buttons/button';
 import { useResume } from '@/contexts/resume-context';
-import { ChevronLeft, Download03, FileCheck02 } from '@untitledui/icons/react';
+import { ChevronLeft, Download03, FileCheck02 } from '@untitledui/icons';
 import { ResumePreview } from '../resume-preview';
 
 interface PreviewStepProps {
@@ -57,17 +57,17 @@ export function PreviewStep({ onPrevious, onClose }: PreviewStepProps) {
     };
 
     return (
-        <div className="flex flex-col gap-6 p-6">
-            <div className="flex items-center justify-between">
+        <div>
+            <div>
                 <div>
-                    <h3 className="text-md font-semibold text-primary">Preview & Export</h3>
-                    <p className="text-sm text-tertiary">
+                    <h3>Preview & Export</h3>
+                    <p>
                         Review your resume and export when ready.
                     </p>
                 </div>
-                <div className="flex gap-3">
+                <div>
                     <Button
-                        variant="secondary"
+                        color="secondary"
                         size="md"
                         onClick={handleDownloadJSON}
                         iconLeading={FileCheck02}
@@ -75,7 +75,7 @@ export function PreviewStep({ onPrevious, onClose }: PreviewStepProps) {
                         Save Draft
                     </Button>
                     <Button
-                        variant="primary"
+                        color="primary"
                         size="md"
                         onClick={handleExportPDF}
                         iconLeading={Download03}
@@ -86,12 +86,12 @@ export function PreviewStep({ onPrevious, onClose }: PreviewStepProps) {
             </div>
 
             {/* ATS Tips */}
-            <div className="rounded-xl border border-success-200 bg-success-50 p-4">
-                <h4 className="mb-2 flex items-center gap-2 text-sm font-semibold text-success-900">
-                    <FileCheck02 className="h-5 w-5" />
+            <div>
+                <h4>
+                    <FileCheck02 />
                     ATS-Optimized Resume
                 </h4>
-                <ul className="space-y-1 text-sm text-success-700">
+                <ul>
                     <li>✓ Clean formatting with no graphics</li>
                     <li>✓ Standard section headings</li>
                     <li>✓ Keyword-rich content</li>
@@ -100,17 +100,17 @@ export function PreviewStep({ onPrevious, onClose }: PreviewStepProps) {
             </div>
 
             {/* Preview */}
-            <div className="rounded-xl border border-secondary bg-secondary/30 p-6">
-                <div ref={previewRef} className="mx-auto max-w-[8.5in]">
+            <div>
+                <div ref={previewRef}>
                     <ResumePreview data={resumeData} />
                 </div>
             </div>
 
-            <div className="flex justify-between gap-3 border-t border-secondary pt-5">
-                <Button variant="link" size="lg" onClick={onPrevious} iconLeading={ChevronLeft}>
+            <div>
+                <Button color="link-gray" size="lg" onClick={onPrevious} iconLeading={ChevronLeft}>
                     Back to Customize
                 </Button>
-                <Button variant="primary" size="lg" onClick={onClose}>
+                <Button color="primary" size="lg" onClick={onClose}>
                     Done
                 </Button>
             </div>

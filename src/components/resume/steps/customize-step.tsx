@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Button } from '@/components/base/button';
+import { Button } from '@/components/base/buttons/button';
 import { useResume } from '@/contexts/resume-context';
-import { ChevronRight, ChevronLeft, Check } from '@untitledui/icons/react';
+import { ChevronRight, ChevronLeft, Check } from '@untitledui/icons';
 
 interface CustomizeStepProps {
     onNext: () => void;
@@ -54,18 +54,18 @@ export function CustomizeStep({ onNext, onPrevious }: CustomizeStepProps) {
     };
 
     return (
-        <div className="flex flex-col gap-8 p-6">
+        <div>
             <div>
-                <h3 className="text-md font-semibold text-primary">Customize Your Resume</h3>
-                <p className="text-sm text-tertiary">
+                <h3>Customize Your Resume</h3>
+                <p>
                     Choose a template and adjust the styling to match your preferences.
                 </p>
             </div>
 
             {/* Template selection */}
-            <div className="flex flex-col gap-4">
-                <h4 className="text-sm font-semibold text-secondary">Choose Template</h4>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div>
+                <h4>Choose Template</h4>
+                <div>
                     {TEMPLATES.map((template) => {
                         const isSelected = customization.template === template.id;
                         return (
@@ -80,22 +80,22 @@ export function CustomizeStep({ onNext, onPrevious }: CustomizeStepProps) {
                                         : 'border-secondary bg-primary hover:border-gray-400'
                                 }`}
                             >
-                                <div className="flex items-start justify-between">
+                                <div>
                                     <div>
-                                        <h5 className="font-semibold text-primary">
+                                        <h5>
                                             {template.name}
                                         </h5>
-                                        <p className="text-sm text-tertiary">
+                                        <p>
                                             {template.description}
                                         </p>
                                     </div>
                                     {isSelected && (
-                                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-500 text-white">
-                                            <Check className="h-4 w-4" />
+                                        <div>
+                                            <Check />
                                         </div>
                                     )}
                                 </div>
-                                <div className="h-40 rounded-lg bg-secondary/30" />
+                                <div />
                             </button>
                         );
                     })}
@@ -103,9 +103,9 @@ export function CustomizeStep({ onNext, onPrevious }: CustomizeStepProps) {
             </div>
 
             {/* Color selection */}
-            <div className="flex flex-col gap-4">
-                <h4 className="text-sm font-semibold text-secondary">Accent Color</h4>
-                <div className="flex flex-wrap gap-3">
+            <div>
+                <h4>Accent Color</h4>
+                <div>
                     {COLORS.map((color) => {
                         const isSelected = customization.primaryColor === color.value;
                         return (
@@ -121,10 +121,10 @@ export function CustomizeStep({ onNext, onPrevious }: CustomizeStepProps) {
                                 }`}
                             >
                                 <div className={`h-6 w-6 rounded-full ${color.class}`} />
-                                <span className="text-sm font-medium text-secondary">
+                                <span>
                                     {color.label}
                                 </span>
-                                {isSelected && <Check className="h-4 w-4 text-brand-500" />}
+                                {isSelected && <Check />}
                             </button>
                         );
                     })}
@@ -132,9 +132,9 @@ export function CustomizeStep({ onNext, onPrevious }: CustomizeStepProps) {
             </div>
 
             {/* Font selection */}
-            <div className="flex flex-col gap-4">
-                <h4 className="text-sm font-semibold text-secondary">Font</h4>
-                <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+                <h4>Font</h4>
+                <div>
                     {[
                         { value: 'inter', label: 'Inter', preview: 'Modern sans-serif' },
                         { value: 'roboto', label: 'Roboto', preview: 'Professional sans-serif' },
@@ -153,11 +153,11 @@ export function CustomizeStep({ onNext, onPrevious }: CustomizeStepProps) {
                                 }`}
                             >
                                 <div>
-                                    <p className="font-semibold text-primary">{font.label}</p>
-                                    <p className="text-sm text-tertiary">{font.preview}</p>
+                                    <p>{font.label}</p>
+                                    <p>{font.preview}</p>
                                 </div>
                                 {isSelected && (
-                                    <Check className="h-5 w-5 text-brand-500" />
+                                    <Check />
                                 )}
                             </button>
                         );
@@ -165,12 +165,12 @@ export function CustomizeStep({ onNext, onPrevious }: CustomizeStepProps) {
                 </div>
             </div>
 
-            <div className="flex justify-between gap-3 border-t border-secondary pt-5">
-                <Button variant="link" size="lg" onClick={onPrevious} iconLeading={ChevronLeft}>
+            <div>
+                <Button color="link-gray" size="lg" onClick={onPrevious} iconLeading={ChevronLeft}>
                     Back
                 </Button>
                 <Button
-                    variant="primary"
+                    color="primary"
                     size="lg"
                     onClick={handleNext}
                     iconTrailing={ChevronRight}
