@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { Button } from '@/components/base/buttons/button';
 import { Input } from '@/components/base/input/input';
@@ -13,9 +13,9 @@ import { useResume } from '@/contexts/resume-context';
 import { ChevronRight, ChevronLeft, Plus, Trash01, Edit05 } from '@untitledui/icons';
 import type { WorkExperience } from '@/types/resume';
 
-// Dynamically import RichTextEditor to avoid SSR
+// Dynamically import MemoizedRichTextEditor to avoid SSR
 const RichTextEditor = dynamic(
-    () => import('@/components/resume/rich-text-editor').then((mod) => mod.RichTextEditor),
+    () => import('@/components/resume/rich-text-editor').then((mod) => mod.MemoizedRichTextEditor),
     {
         ssr: false,
         loading: () => (
@@ -148,7 +148,7 @@ function ExperienceCard({ experience, isEditing, onEdit, onSave, onDelete, onUpd
         onUpdate({ achievements: newAchievements });
     };
 
-    const handleUpdateAchievement = (index: number, value: string) => {
+    const handleUpdateAchievement = useCallback((index: number, value: string) => {
         const newAchievements = [...localExp.achievements];
         newAchievements[index] = value;
         setLocalExp({ ...localExp, achievements: newAchievements });
@@ -159,13 +159,21 @@ function ExperienceCard({ experience, isEditing, onEdit, onSave, onDelete, onUpd
             a.trim() !== '' && a !== '<p></p>' && a !== '<p><br></p>'
         );
         onUpdate({ achievements: filteredAchievements });
-    };
+    }, [localExp.achievements, onUpdate]);
 
     const handleRemoveAchievement = (index: number) => {
         const newAchievements = localExp.achievements.filter((_, i) => i !== index);
         setLocalExp({ ...localExp, achievements: newAchievements });
         onUpdate({ achievements: newAchievements });
     };
+
+    // Stabilize callbacks to prevent Tiptap re-initialization
+    const handleFirstAchievementChange = useCallback((value: string) => {
+        if (value && value !== '<p></p>') {
+            setLocalExp(prev => ({ ...prev, achievements: [value] }));
+            onUpdate({ achievements: [value] });
+        }
+    }, [onUpdate]);
 
     if (!isEditing) {
         return (
@@ -312,12 +320,7 @@ function ExperienceCard({ experience, isEditing, onEdit, onSave, onDelete, onUpd
                     {localExp.achievements.length === 0 ? (
                         <RichTextEditor
                             value=""
-                            onChange={(value) => {
-                                if (value && value !== '<p></p>') {
-                                    setLocalExp({ ...localExp, achievements: [value] });
-                                    onUpdate({ achievements: [value] });
-                                }
-                            }}
+                            onChange={handleFirstAchievementChange}
                             placeholder="Led a team of 5 developers to ship feature X..."
                             maxLength={300}
                         />

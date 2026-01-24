@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Label } from '@/components/base/input/label';
 
 interface RichTextEditorProps {
@@ -22,6 +22,25 @@ export function RichTextEditor({
 }: RichTextEditorProps) {
     const [isMounted, setIsMounted] = useState(false);
     const [editor, setEditor] = useState<any>(null);
+
+    // Use a ref for value to avoid dependency in handleUpdate
+    const valueRef = useRef(value);
+    useEffect(() => {
+        valueRef.current = value;
+    }, [value]);
+
+    // Stable callback for Tiptap onUpdate
+    const handleUpdate = useCallback(({ editor }: any) => {
+        const html = editor.getHTML();
+        const text = editor.getText();
+
+        if (text.length <= maxLength) {
+            onChange(html);
+        } else {
+            // Use ref to access current value without dependency
+            editor.commands.setContent(valueRef.current);
+        }
+    }, [maxLength, onChange]);
 
     useEffect(() => {
         setIsMounted(true);
@@ -66,16 +85,7 @@ export function RichTextEditor({
                         class: 'prose prose-sm max-w-none focus:outline-none min-h-[100px] p-3',
                     },
                 },
-                onUpdate: ({ editor }) => {
-                    const html = editor.getHTML();
-                    const text = editor.getText();
-
-                    if (text.length <= maxLength) {
-                        onChange(html);
-                    } else {
-                        editor.commands.setContent(value);
-                    }
-                },
+                onUpdate: handleUpdate,
             });
 
             setEditor(editorInstance);
@@ -86,7 +96,7 @@ export function RichTextEditor({
         return () => {
             editorInstance?.destroy();
         };
-    }, [isMounted, placeholder, maxLength, onChange]);
+    }, [isMounted, placeholder, maxLength, handleUpdate]);
 
     // Sync editor content when value changes externally
     useEffect(() => {
@@ -194,3 +204,6 @@ function RichTextEditorContent({ editor }: { editor: any }) {
 
     return <EditorContent editor={editor} />;
 }
+
+// Export memoized version to prevent unnecessary re-renders
+export const MemoizedRichTextEditor = React.memo(RichTextEditor);

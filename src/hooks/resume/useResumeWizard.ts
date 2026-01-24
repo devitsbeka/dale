@@ -10,6 +10,8 @@ export function useResumeWizard() {
 
     // Load onboarding preference
     useEffect(() => {
+        if (typeof window === 'undefined') return;
+
         const onboardingDisabled = localStorage.getItem(ONBOARDING_KEY);
         if (onboardingDisabled === 'true') {
             setIsOnboardingEnabled(false);
