@@ -1,6 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useEffect } from 'react';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Placeholder from '@tiptap/extension-placeholder';
 import { Label } from '@/components/base/input/label';
 
 interface RichTextEditorProps {
@@ -20,114 +23,59 @@ export function RichTextEditor({
     maxLength = 500,
     className = '',
 }: RichTextEditorProps) {
-    const [isMounted, setIsMounted] = useState(false);
-    const [editor, setEditor] = useState<any>(null);
-
-    // Use refs for ALL props to make callbacks completely stable
-    const valueRef = useRef(value);
-    const onChangeRef = useRef(onChange);
-    const maxLengthRef = useRef(maxLength);
-    const placeholderRef = useRef(placeholder);
-
-    useEffect(() => {
-        valueRef.current = value;
-    }, [value]);
-
-    useEffect(() => {
-        onChangeRef.current = onChange;
-    }, [onChange]);
-
-    useEffect(() => {
-        maxLengthRef.current = maxLength;
-    }, [maxLength]);
-
-    useEffect(() => {
-        placeholderRef.current = placeholder;
-    }, [placeholder]);
-
-    // Completely stable callback - ZERO dependencies!
-    const handleUpdate = useCallback(({ editor }: any) => {
-        const html = editor.getHTML();
-        const text = editor.getText();
-
-        if (text.length <= maxLengthRef.current) {
-            onChangeRef.current(html);
-        } else {
-            editor.commands.setContent(valueRef.current);
-        }
-    }, []); // NO dependencies - completely stable!
-
-    useEffect(() => {
-        setIsMounted(true);
-    }, []);
-
-    // Only import and create editor after component mounts on client
-    // CRITICAL: Only depends on isMounted - editor created ONCE and never recreated
-    useEffect(() => {
-        if (!isMounted) return;
-
-        let editorInstance: any = null;
-
-        const initEditor = async () => {
-            // Import Editor class instead of useEditor hook
-            const { Editor } = await import('@tiptap/core');
-            const StarterKit = (await import('@tiptap/starter-kit')).default;
-            const Placeholder = (await import('@tiptap/extension-placeholder')).default;
-
-            // Create editor instance directly without using the hook
-            editorInstance = new Editor({
-                extensions: [
-                    StarterKit.configure({
-                        heading: false,
-                        codeBlock: false,
-                        horizontalRule: false,
-                        blockquote: false,
-                        bulletList: {
-                            HTMLAttributes: {
-                                class: 'list-disc pl-4',
-                            },
-                        },
-                        orderedList: {
-                            HTMLAttributes: {
-                                class: 'list-decimal pl-4',
-                            },
-                        },
-                    }),
-                    Placeholder.configure({
-                        placeholder: placeholderRef.current,
-                    }),
-                ],
-                content: value,
-                editorProps: {
-                    attributes: {
-                        class: 'prose prose-sm max-w-none focus:outline-none min-h-[100px] p-3',
+    // Use Tiptap's useEditor hook at component level (CORRECT way)
+    const editor = useEditor({
+        extensions: [
+            StarterKit.configure({
+                heading: false,
+                codeBlock: false,
+                horizontalRule: false,
+                blockquote: false,
+                bulletList: {
+                    HTMLAttributes: {
+                        class: 'list-disc pl-4',
                     },
                 },
-                onUpdate: handleUpdate,
-            });
+                orderedList: {
+                    HTMLAttributes: {
+                        class: 'list-decimal pl-4',
+                    },
+                },
+            }),
+            Placeholder.configure({
+                placeholder,
+            }),
+        ],
+        content: value,
+        editorProps: {
+            attributes: {
+                class: 'prose prose-sm max-w-none focus:outline-none min-h-[100px] p-3',
+            },
+        },
+        onUpdate: ({ editor }) => {
+            const html = editor.getHTML();
+            const text = editor.getText();
 
-            setEditor(editorInstance);
-        };
+            if (text.length <= maxLength) {
+                onChange(html);
+            } else {
+                // Don't update if over limit
+                editor.commands.setContent(value);
+            }
+        },
+        // CRITICAL: Prevent editor creation during SSR
+        immediatelyRender: false,
+    });
 
-        initEditor();
-
-        return () => {
-            editorInstance?.destroy();
-        };
-    }, [isMounted]); // ONLY isMounted - editor created once, never recreated!
-
-    // Sync editor content when value changes externally
+    // Sync editor content when value prop changes externally
     useEffect(() => {
         if (editor && value !== editor.getHTML()) {
             editor.commands.setContent(value);
         }
     }, [editor, value]);
 
-    const characterCount = editor?.getText().length || 0;
-    const isOverLimit = characterCount > maxLength;
-
-    // Show skeleton until mounted and editor ready
-    if (!isMounted || !editor) {
+    // Show skeleton until editor is ready
+    if (!editor) {
         return (
             <div className={className}>
                 {label && <Label className="mb-2">{label}</Label>}
@@ -140,6 +88,9 @@ export function RichTextEditor({
             </div>
         );
     }
+
+    const characterCount = editor.getText().length;
+    const isOverLimit = characterCount > maxLength;
 
     return (
         <div className={className}>
@@ -194,7 +145,7 @@ export function RichTextEditor({
 
             {/* Editor */}
             <div className="rounded-b-lg border border-secondary bg-primary">
-                <RichTextEditorContent editor={editor} />
+                <EditorContent editor={editor} />
             </div>
 
             {isOverLimit && (
@@ -204,23 +155,6 @@ export function RichTextEditor({
             )}
         </div>
     );
-}
-
-// Client-only EditorContent wrapper
-function RichTextEditorContent({ editor }: { editor: any }) {
-    const [EditorContent, setEditorContent] = useState<any>(null);
-
-    useEffect(() => {
-        import('@tiptap/react').then((mod) => {
-            setEditorContent(() => mod.EditorContent);
-        });
-    }, []);
-
-    if (!EditorContent) {
-        return <div className="p-3">Loading editor...</div>;
-    }
-
-    return <EditorContent editor={editor} />;
 }
 
 // Export memoized version to prevent unnecessary re-renders
