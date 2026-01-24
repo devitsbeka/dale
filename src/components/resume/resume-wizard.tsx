@@ -35,6 +35,7 @@ export function ResumeWizard({ isOpen, onClose }: ResumeWizardProps) {
     const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep);
     const isFirstStep = currentStepIndex === 0;
     const isLastStep = currentStepIndex === STEPS.length - 1;
+    const progressPercentage = ((currentStepIndex + 1) / STEPS.length) * 100;
 
     const handleNext = () => {
         if (!isLastStep) {
@@ -84,14 +85,14 @@ export function ResumeWizard({ isOpen, onClose }: ResumeWizardProps) {
                             />
                         )}
 
-                        {/* Header with step indicator */}
-                        <div className="border-b border-secondary bg-primary px-6 py-6">
-                            <div className="mb-6 flex items-start justify-between gap-4">
+                        {/* Header */}
+                        <div className="border-b border-secondary bg-primary px-8 pt-8 pb-6">
+                            <div className="mb-8 flex items-start justify-between gap-4">
                                 <div>
-                                    <h2 className="text-xl font-semibold text-primary">
+                                    <h2 className="text-2xl font-semibold text-primary">
                                         Create Your Resume
                                     </h2>
-                                    <p className="mt-1 text-sm text-tertiary">
+                                    <p className="mt-1.5 text-sm text-tertiary">
                                         Build an ATS-optimized resume in minutes
                                     </p>
                                 </div>
@@ -104,8 +105,35 @@ export function ResumeWizard({ isOpen, onClose }: ResumeWizardProps) {
                                 </button>
                             </div>
 
-                            {/* Step indicator */}
-                            <div className="flex items-stretch gap-2">
+                            {/* Progress bar */}
+                            <div className="mb-6">
+                                <div className="mb-2 flex items-center justify-between">
+                                    <span className="text-xs font-medium text-secondary">
+                                        Step {currentStepIndex + 1} of {STEPS.length}
+                                    </span>
+                                    <span className="text-xs font-medium text-secondary">
+                                        {Math.round(progressPercentage)}% Complete
+                                    </span>
+                                </div>
+                                <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
+                                    <div
+                                        className="h-full rounded-full bg-gradient-to-r from-brand-500 to-brand-600 transition-all duration-500 ease-out"
+                                        style={{ width: `${progressPercentage}%` }}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Step indicators */}
+                            <div className="relative flex items-center justify-between">
+                                {/* Progress line background */}
+                                <div className="absolute left-6 right-6 top-3 h-0.5 bg-secondary" />
+                                <div
+                                    className="absolute left-6 top-3 h-0.5 bg-brand-500 transition-all duration-500 ease-out"
+                                    style={{
+                                        width: `calc(${(currentStepIndex / (STEPS.length - 1)) * 100}% - 48px)`,
+                                    }}
+                                />
+
                                 {STEPS.map((step, index) => {
                                     const isCompleted = completedSteps.includes(step.id);
                                     const isCurrent = step.id === currentStep;
@@ -113,64 +141,62 @@ export function ResumeWizard({ isOpen, onClose }: ResumeWizardProps) {
                                         isCompleted || isCurrent || index <= currentStepIndex;
 
                                     return (
-                                        <React.Fragment key={step.id}>
-                                            <button
-                                                onClick={() => isAccessible && handleStepClick(step.id)}
-                                                disabled={!isAccessible}
-                                                className={`group relative flex min-w-0 flex-1 flex-col gap-2 rounded-xl border p-3 text-left outline-focus-ring transition-all focus-visible:outline-2 focus-visible:outline-offset-2 ${
-                                                    isCurrent
-                                                        ? 'border-brand-500 bg-brand-50 shadow-sm'
-                                                        : isAccessible
-                                                          ? 'border-transparent bg-secondary/50 hover:border-secondary hover:bg-secondary hover:shadow-sm cursor-pointer'
-                                                          : 'border-transparent bg-secondary/30 cursor-not-allowed opacity-50'
+                                        <button
+                                            key={step.id}
+                                            onClick={() => isAccessible && handleStepClick(step.id)}
+                                            disabled={!isAccessible}
+                                            className={`group relative z-10 flex flex-col items-center gap-2 outline-focus-ring transition-all focus-visible:outline-2 focus-visible:outline-offset-2 ${
+                                                isAccessible ? 'cursor-pointer' : 'cursor-not-allowed'
+                                            }`}
+                                        >
+                                            {/* Circle indicator */}
+                                            <div
+                                                className={`flex h-12 w-12 items-center justify-center rounded-full border-4 font-semibold shadow-lg transition-all ${
+                                                    isCompleted
+                                                        ? 'border-success-500 bg-success-500 text-white ring-4 ring-success-500/20'
+                                                        : isCurrent
+                                                          ? 'border-white bg-brand-600 text-white ring-4 ring-brand-500/30 scale-110'
+                                                          : isAccessible
+                                                            ? 'border-white bg-secondary text-tertiary ring-2 ring-secondary group-hover:bg-tertiary/20 group-hover:ring-tertiary/20'
+                                                            : 'border-white bg-quaternary/30 text-quaternary opacity-50'
                                                 }`}
                                             >
-                                                <div className="flex items-center gap-2.5">
-                                                    <div
-                                                        className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition-colors ${
-                                                            isCompleted
-                                                                ? 'bg-success-500 text-white'
-                                                                : isCurrent
-                                                                  ? 'bg-brand-600 text-white'
-                                                                  : isAccessible
-                                                                    ? 'bg-tertiary/10 text-tertiary'
-                                                                    : 'bg-quaternary/10 text-quaternary'
-                                                        }`}
-                                                    >
-                                                        {isCompleted ? (
-                                                            <Check className="h-3.5 w-3.5" />
-                                                        ) : (
-                                                            index + 1
-                                                        )}
-                                                    </div>
-                                                    <span
-                                                        className={`truncate text-sm font-medium transition-colors ${
-                                                            isCurrent
-                                                                ? 'text-brand-700'
-                                                                : isAccessible
-                                                                  ? 'text-secondary group-hover:text-primary'
-                                                                  : 'text-quaternary'
-                                                        }`}
-                                                    >
-                                                        {step.label}
-                                                    </span>
-                                                </div>
-                                                <p
-                                                    className={`hidden truncate text-xs transition-colors sm:block ${
+                                                {isCompleted ? (
+                                                    <Check className="h-5 w-5" />
+                                                ) : (
+                                                    <span className="text-sm">{index + 1}</span>
+                                                )}
+                                            </div>
+
+                                            {/* Label */}
+                                            <div className="flex flex-col items-center gap-0.5">
+                                                <span
+                                                    className={`whitespace-nowrap text-xs font-semibold transition-all ${
+                                                        isCurrent
+                                                            ? 'text-brand-700'
+                                                            : isAccessible
+                                                              ? 'text-secondary group-hover:text-primary'
+                                                              : 'text-quaternary'
+                                                    }`}
+                                                >
+                                                    {step.label}
+                                                </span>
+                                                <span
+                                                    className={`hidden text-xs transition-all md:block ${
                                                         isCurrent ? 'text-brand-600' : 'text-quaternary'
                                                     }`}
                                                 >
                                                     {step.description}
-                                                </p>
-                                            </button>
-                                        </React.Fragment>
+                                                </span>
+                                            </div>
+                                        </button>
                                     );
                                 })}
                             </div>
                         </div>
 
                         {/* Content area */}
-                        <div className="flex-1 overflow-y-auto bg-primary px-6 py-6">
+                        <div className="flex-1 overflow-y-auto bg-primary px-8 py-8">
                             {renderStepContent()}
                         </div>
                     </div>
