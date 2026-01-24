@@ -5,7 +5,8 @@
     "scripts": {
         "dev": "next dev --turbopack",
         "build": "next build",
-        "start": "next start"
+        "start": "next start",
+        "postinstall": "bash scripts/install-hooks.sh"
     },
     "dependencies": {
         "@tailwindcss/postcss": "^4.1.18",
