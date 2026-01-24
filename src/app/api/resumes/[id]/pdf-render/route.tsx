@@ -39,7 +39,7 @@ export async function GET(
                 website: resume.personalInfo.website || undefined,
                 summary: resume.personalInfo.summary || '',
             } : undefined,
-            experience: resume.experiences.map((exp) => ({
+            experience: resume.experiences.map((exp: typeof resume.experiences[number]) => ({
                 id: exp.id,
                 company: exp.company,
                 position: exp.position,
@@ -49,7 +49,7 @@ export async function GET(
                 current: exp.isCurrent,
                 achievements: exp.achievements as string[],
             })),
-            education: resume.education.map((edu) => ({
+            education: resume.education.map((edu: typeof resume.education[number]) => ({
                 id: edu.id,
                 school: edu.school,
                 degree: edu.degree,
@@ -59,7 +59,7 @@ export async function GET(
                 endDate: edu.endDate || '',
                 gpa: edu.gpa || undefined,
             })),
-            skills: resume.skills.map((skill) => ({
+            skills: resume.skills.map((skill: typeof resume.skills[number]) => ({
                 id: skill.id,
                 name: skill.name,
                 category: skill.category as 'technical' | 'soft' | 'language' | 'tool',
