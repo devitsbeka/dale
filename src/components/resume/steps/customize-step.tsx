@@ -54,18 +54,18 @@ export function CustomizeStep({ onNext, onPrevious }: CustomizeStepProps) {
     };
 
     return (
-        <div>
+        <div className="space-y-8">
             <div>
-                <h3>Customize Your Resume</h3>
-                <p>
+                <h3 className="text-lg font-semibold text-primary">Customize Your Resume</h3>
+                <p className="mt-1 text-sm text-tertiary">
                     Choose a template and adjust the styling to match your preferences.
                 </p>
             </div>
 
             {/* Template selection */}
-            <div>
-                <h4>Choose Template</h4>
-                <div>
+            <div className="space-y-4">
+                <h4 className="text-sm font-semibold text-secondary">Choose Template</h4>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                     {TEMPLATES.map((template) => {
                         const isSelected = customization.template === template.id;
                         return (
@@ -80,22 +80,22 @@ export function CustomizeStep({ onNext, onPrevious }: CustomizeStepProps) {
                                         : 'border-secondary bg-primary hover:border-gray-400'
                                 }`}
                             >
-                                <div>
+                                <div className="flex items-start justify-between">
                                     <div>
-                                        <h5>
+                                        <h5 className="font-semibold text-primary">
                                             {template.name}
                                         </h5>
-                                        <p>
+                                        <p className="text-sm text-tertiary">
                                             {template.description}
                                         </p>
                                     </div>
                                     {isSelected && (
-                                        <div>
-                                            <Check />
+                                        <div className="text-brand-500">
+                                            <Check className="h-5 w-5" />
                                         </div>
                                     )}
                                 </div>
-                                <div />
+                                <div className="aspect-[8.5/11] rounded-lg bg-secondary" />
                             </button>
                         );
                     })}
@@ -103,9 +103,9 @@ export function CustomizeStep({ onNext, onPrevious }: CustomizeStepProps) {
             </div>
 
             {/* Color selection */}
-            <div>
-                <h4>Accent Color</h4>
-                <div>
+            <div className="space-y-4">
+                <h4 className="text-sm font-semibold text-secondary">Accent Color</h4>
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
                     {COLORS.map((color) => {
                         const isSelected = customization.primaryColor === color.value;
                         return (
@@ -121,10 +121,10 @@ export function CustomizeStep({ onNext, onPrevious }: CustomizeStepProps) {
                                 }`}
                             >
                                 <div className={`h-6 w-6 rounded-full ${color.class}`} />
-                                <span>
+                                <span className="flex-1 text-sm text-primary">
                                     {color.label}
                                 </span>
-                                {isSelected && <Check />}
+                                {isSelected && <Check className="h-4 w-4 text-gray-900" />}
                             </button>
                         );
                     })}
@@ -132,9 +132,9 @@ export function CustomizeStep({ onNext, onPrevious }: CustomizeStepProps) {
             </div>
 
             {/* Font selection */}
-            <div>
-                <h4>Font</h4>
-                <div>
+            <div className="space-y-4">
+                <h4 className="text-sm font-semibold text-secondary">Font</h4>
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                     {[
                         { value: 'inter', label: 'Inter', preview: 'Modern sans-serif' },
                         { value: 'roboto', label: 'Roboto', preview: 'Professional sans-serif' },
@@ -153,11 +153,11 @@ export function CustomizeStep({ onNext, onPrevious }: CustomizeStepProps) {
                                 }`}
                             >
                                 <div>
-                                    <p>{font.label}</p>
-                                    <p>{font.preview}</p>
+                                    <p className="font-semibold text-primary">{font.label}</p>
+                                    <p className="text-sm text-tertiary">{font.preview}</p>
                                 </div>
                                 {isSelected && (
-                                    <Check />
+                                    <Check className="h-4 w-4 text-brand-500" />
                                 )}
                             </button>
                         );
@@ -165,7 +165,7 @@ export function CustomizeStep({ onNext, onPrevious }: CustomizeStepProps) {
                 </div>
             </div>
 
-            <div>
+            <div className="flex justify-between border-t border-secondary pt-6">
                 <Button color="link-gray" size="lg" onClick={onPrevious} iconLeading={ChevronLeft}>
                     Back
                 </Button>

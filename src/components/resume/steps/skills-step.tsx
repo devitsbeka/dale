@@ -104,12 +104,13 @@ export function SkillsStep({ onNext, onPrevious }: SkillsStepProps) {
                                         className="flex items-center gap-2 rounded-lg border border-secondary bg-secondary/30 px-3 py-1.5"
                                     >
                                         <span className="text-sm text-primary">{skill.name}</span>
-                                        <button
+                                        <Button
+                                            color="tertiary-destructive"
+                                            size="sm"
                                             onClick={() => removeSkill(skill.id)}
-                                            className="rounded p-0.5 text-tertiary outline-focus-ring transition hover:bg-error-50 hover:text-error-600 focus-visible:outline-2 focus-visible:outline-offset-2"
-                                        >
-                                            <X className="h-3 w-3" />
-                                        </button>
+                                            iconLeading={X}
+                                            aria-label="Remove skill"
+                                        />
                                     </div>
                                 ))}
                             </div>
@@ -144,7 +145,7 @@ export function SkillsStep({ onNext, onPrevious }: SkillsStepProps) {
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
-                        <InputGroup className="w-full max-w-[300px]">
+                        <InputGroup className="w-full">
                             <Label>Skill Name</Label>
                             <Input
                                 type="text"
@@ -160,9 +161,9 @@ export function SkillsStep({ onNext, onPrevious }: SkillsStepProps) {
                             />
                         </InputGroup>
 
-                        <InputGroup className="w-full max-w-[300px]">
-                            <Label>Category</Label>
+                        <div className="w-full">
                             <Select
+                                label="Category"
                                 value={skillCategory}
                                 onChange={(value) => setSkillCategory(value as Skill['category'])}
                             >
@@ -172,7 +173,7 @@ export function SkillsStep({ onNext, onPrevious }: SkillsStepProps) {
                                     </option>
                                 ))}
                             </Select>
-                        </InputGroup>
+                        </div>
                     </div>
 
                     <Button

@@ -133,18 +133,20 @@ function EducationCard({ education, isEditing, onEdit, onSave, onDelete, onUpdat
                     )}
                 </div>
                 <div className="ml-4 flex gap-2">
-                    <button
+                    <Button
+                        color="tertiary"
+                        size="sm"
                         onClick={onEdit}
-                        className="rounded-lg p-2 text-tertiary outline-focus-ring transition hover:bg-secondary hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2"
-                    >
-                        <Edit05 className="h-4 w-4" />
-                    </button>
-                    <button
+                        iconLeading={Edit05}
+                        aria-label="Edit"
+                    />
+                    <Button
+                        color="tertiary-destructive"
+                        size="sm"
                         onClick={onDelete}
-                        className="rounded-lg p-2 text-tertiary outline-focus-ring transition hover:bg-error-50 hover:text-error-600 focus-visible:outline-2 focus-visible:outline-offset-2"
-                    >
-                        <Trash01 className="h-4 w-4" />
-                    </button>
+                        iconLeading={Trash01}
+                        aria-label="Delete"
+                    />
                 </div>
             </div>
         );
@@ -163,8 +165,8 @@ function EducationCard({ education, isEditing, onEdit, onSave, onDelete, onUpdat
                 </Button>
             </div>
 
-            <InputGroup className="w-full max-w-[300px]">
-                <Label>School/University</Label>
+            <InputGroup className="w-full">
+                <Label>School</Label>
                 <Input
                     type="text"
                     placeholder="University of California, Berkeley"
@@ -176,7 +178,7 @@ function EducationCard({ education, isEditing, onEdit, onSave, onDelete, onUpdat
             </InputGroup>
 
             <div className="grid grid-cols-2 gap-4">
-                <InputGroup className="w-full max-w-[300px]">
+                <InputGroup className="w-full">
                     <Label>Degree</Label>
                     <Input
                         type="text"
@@ -188,8 +190,8 @@ function EducationCard({ education, isEditing, onEdit, onSave, onDelete, onUpdat
                     />
                 </InputGroup>
 
-                <InputGroup className="w-full max-w-[300px]">
-                    <Label>Field of Study</Label>
+                <InputGroup className="w-full">
+                    <Label>Field</Label>
                     <Input
                         type="text"
                         placeholder="Computer Science"
@@ -200,7 +202,7 @@ function EducationCard({ education, isEditing, onEdit, onSave, onDelete, onUpdat
                 </InputGroup>
             </div>
 
-            <InputGroup className="w-full max-w-[300px]">
+            <InputGroup className="w-full">
                 <Label>Location</Label>
                 <Input
                     type="text"
@@ -212,7 +214,7 @@ function EducationCard({ education, isEditing, onEdit, onSave, onDelete, onUpdat
             </InputGroup>
 
             <div className="grid grid-cols-2 gap-4">
-                <InputGroup className="w-full max-w-[300px]">
+                <InputGroup className="w-full">
                     <Label>Start Date</Label>
                     <Input
                         type="month"
@@ -222,7 +224,7 @@ function EducationCard({ education, isEditing, onEdit, onSave, onDelete, onUpdat
                     />
                 </InputGroup>
 
-                <InputGroup className="w-full max-w-[300px]">
+                <InputGroup className="w-full">
                     <Label>End Date</Label>
                     <Input
                         type="month"
@@ -232,7 +234,7 @@ function EducationCard({ education, isEditing, onEdit, onSave, onDelete, onUpdat
                     />
                 </InputGroup>
 
-                <InputGroup className="w-full max-w-[300px]">
+                <InputGroup className="w-full">
                     <Label>GPA (Optional)</Label>
                     <Input
                         type="text"

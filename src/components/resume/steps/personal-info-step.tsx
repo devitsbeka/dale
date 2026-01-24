@@ -44,7 +44,7 @@ export function PersonalInfoStep({ onNext }: PersonalInfoStepProps) {
             <div className="space-y-6">
                 {/* Name fields */}
                 <div className="grid grid-cols-2 gap-4">
-                    <InputGroup className="w-full max-w-[300px]">
+                    <InputGroup className="w-full">
                         <Label>First name</Label>
                         <Input
                             type="text"
@@ -55,7 +55,7 @@ export function PersonalInfoStep({ onNext }: PersonalInfoStepProps) {
                         />
                     </InputGroup>
 
-                    <InputGroup className="w-full max-w-[300px]">
+                    <InputGroup className="w-full">
                         <Label>Last name</Label>
                         <Input
                             type="text"
@@ -68,7 +68,7 @@ export function PersonalInfoStep({ onNext }: PersonalInfoStepProps) {
                 </div>
 
                 {/* Contact fields */}
-                <InputGroup className="w-full max-w-[300px]">
+                <InputGroup className="w-full">
                     <Label>Email</Label>
                     <Input
                         type="email"
@@ -79,7 +79,7 @@ export function PersonalInfoStep({ onNext }: PersonalInfoStepProps) {
                     />
                 </InputGroup>
 
-                <InputGroup className="w-full max-w-[300px]">
+                <InputGroup className="w-full">
                     <Label>Phone</Label>
                     <Input
                         type="tel"
@@ -90,7 +90,7 @@ export function PersonalInfoStep({ onNext }: PersonalInfoStepProps) {
                     />
                 </InputGroup>
 
-                <InputGroup className="w-full max-w-[300px]">
+                <InputGroup className="w-full">
                     <Label>Location</Label>
                     <Input
                         type="text"
@@ -107,7 +107,7 @@ export function PersonalInfoStep({ onNext }: PersonalInfoStepProps) {
                         Optional Information
                     </h4>
                     <div className="space-y-6">
-                        <InputGroup className="w-full max-w-[300px]">
+                        <InputGroup className="w-full">
                             <Label>LinkedIn</Label>
                             <Input
                                 type="url"
@@ -117,11 +117,11 @@ export function PersonalInfoStep({ onNext }: PersonalInfoStepProps) {
                             />
                         </InputGroup>
 
-                        <InputGroup className="w-full max-w-[300px]">
-                            <Label>Website/Portfolio</Label>
+                        <InputGroup className="w-full">
+                            <Label>Website</Label>
                             <Input
                                 type="url"
-                                placeholder="johndoe.com"
+                                placeholder="johndoe.com or portfolio link"
                                 value={personalInfo.website || ''}
                                 onChange={(value) => updatePersonalInfo({ website: value })}
                             />

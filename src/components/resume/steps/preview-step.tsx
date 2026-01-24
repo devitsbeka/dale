@@ -57,15 +57,15 @@ export function PreviewStep({ onPrevious, onClose }: PreviewStepProps) {
     };
 
     return (
-        <div>
-            <div>
+        <div className="space-y-8">
+            <div className="flex items-start justify-between">
                 <div>
-                    <h3>Preview & Export</h3>
-                    <p>
+                    <h3 className="text-lg font-semibold text-primary">Preview & Export</h3>
+                    <p className="mt-1 text-sm text-tertiary">
                         Review your resume and export when ready.
                     </p>
                 </div>
-                <div>
+                <div className="flex gap-2">
                     <Button
                         color="secondary"
                         size="md"
@@ -86,12 +86,12 @@ export function PreviewStep({ onPrevious, onClose }: PreviewStepProps) {
             </div>
 
             {/* ATS Tips */}
-            <div>
-                <h4>
-                    <FileCheck02 />
+            <div className="rounded-lg border border-secondary bg-secondary/10 p-4">
+                <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold text-secondary">
+                    <FileCheck02 className="h-4 w-4" />
                     ATS-Optimized Resume
                 </h4>
-                <ul>
+                <ul className="space-y-2 text-sm text-tertiary">
                     <li>✓ Clean formatting with no graphics</li>
                     <li>✓ Standard section headings</li>
                     <li>✓ Keyword-rich content</li>
@@ -100,13 +100,13 @@ export function PreviewStep({ onPrevious, onClose }: PreviewStepProps) {
             </div>
 
             {/* Preview */}
-            <div>
+            <div className="rounded-lg border border-secondary bg-primary p-6">
                 <div ref={previewRef}>
                     <ResumePreview data={resumeData} />
                 </div>
             </div>
 
-            <div>
+            <div className="flex justify-between border-t border-secondary pt-6">
                 <Button color="link-gray" size="lg" onClick={onPrevious} iconLeading={ChevronLeft}>
                     Back to Customize
                 </Button>

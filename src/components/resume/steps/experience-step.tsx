@@ -161,18 +161,20 @@ function ExperienceCard({ experience, isEditing, onEdit, onSave, onDelete, onUpd
                     )}
                 </div>
                 <div className="ml-4 flex gap-2">
-                    <button
+                    <Button
+                        color="tertiary"
+                        size="sm"
                         onClick={onEdit}
-                        className="rounded-lg p-2 text-tertiary outline-focus-ring transition hover:bg-secondary hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2"
-                    >
-                        <Edit05 className="h-4 w-4" />
-                    </button>
-                    <button
+                        iconLeading={Edit05}
+                        aria-label="Edit"
+                    />
+                    <Button
+                        color="tertiary-destructive"
+                        size="sm"
                         onClick={onDelete}
-                        className="rounded-lg p-2 text-tertiary outline-focus-ring transition hover:bg-error-50 hover:text-error-600 focus-visible:outline-2 focus-visible:outline-offset-2"
-                    >
-                        <Trash01 className="h-4 w-4" />
-                    </button>
+                        iconLeading={Trash01}
+                        aria-label="Delete"
+                    />
                 </div>
             </div>
         );
@@ -192,7 +194,7 @@ function ExperienceCard({ experience, isEditing, onEdit, onSave, onDelete, onUpd
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-                <InputGroup className="w-full max-w-[300px]">
+                <InputGroup className="w-full">
                     <Label>Job Title</Label>
                     <Input
                         type="text"
@@ -204,7 +206,7 @@ function ExperienceCard({ experience, isEditing, onEdit, onSave, onDelete, onUpd
                     />
                 </InputGroup>
 
-                <InputGroup className="w-full max-w-[300px]">
+                <InputGroup className="w-full">
                     <Label>Company</Label>
                     <Input
                         type="text"
@@ -217,7 +219,7 @@ function ExperienceCard({ experience, isEditing, onEdit, onSave, onDelete, onUpd
                 </InputGroup>
             </div>
 
-            <InputGroup className="w-full max-w-[300px]">
+            <InputGroup className="w-full">
                 <Label>Location</Label>
                 <Input
                     type="text"
@@ -229,7 +231,7 @@ function ExperienceCard({ experience, isEditing, onEdit, onSave, onDelete, onUpd
             </InputGroup>
 
             <div className="grid grid-cols-2 gap-4">
-                <InputGroup className="w-full max-w-[300px]">
+                <InputGroup className="w-full">
                     <Label>Start Date</Label>
                     <Input
                         type="month"
@@ -239,7 +241,7 @@ function ExperienceCard({ experience, isEditing, onEdit, onSave, onDelete, onUpd
                     />
                 </InputGroup>
 
-                <InputGroup className="w-full max-w-[300px]">
+                <InputGroup className="w-full">
                     <Label>End Date</Label>
                     <Input
                         type="month"
@@ -306,12 +308,13 @@ function ExperienceCard({ experience, isEditing, onEdit, onSave, onDelete, onUpd
                                     />
                                 </InputGroup>
                                 {localExp.achievements.length > 1 && (
-                                    <button
+                                    <Button
+                                        color="tertiary-destructive"
+                                        size="sm"
                                         onClick={() => handleRemoveAchievement(index)}
-                                        className="mt-1 rounded-lg p-2 text-tertiary outline-focus-ring transition hover:text-error-600 focus-visible:outline-2 focus-visible:outline-offset-2"
-                                    >
-                                        <Trash01 className="h-4 w-4" />
-                                    </button>
+                                        iconLeading={Trash01}
+                                        aria-label="Remove achievement"
+                                    />
                                 )}
                             </div>
                         ))
