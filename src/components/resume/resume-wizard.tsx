@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Modal, ModalOverlay } from '@/components/application/modals/modal';
+import { Modal, ModalOverlay, Dialog } from '@/components/application/modals/modal';
 import { Button } from '@/components/base/buttons/button';
 import { useResume } from '@/contexts/resume-context';
 import { PersonalInfoStep } from './steps/personal-info-step';
@@ -73,10 +73,9 @@ export function ResumeWizard({ isOpen, onClose }: ResumeWizardProps) {
 
     return (
         <ModalOverlay isOpen={isOpen} onOpenChange={onClose} isDismissable={true}>
-            <Modal
-               
-                aria-label="Resume Builder Wizard"
-            >
+            <Modal className="max-w-[1400px]">
+                <Dialog className="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-2xl bg-primary shadow-2xl">
+                    <div className="flex flex-1 flex-col overflow-hidden">
                 {/* Onboarding overlay */}
                 {isOnboardingEnabled && showOnboarding && (
                     <OnboardingOverlay
@@ -85,37 +84,37 @@ export function ResumeWizard({ isOpen, onClose }: ResumeWizardProps) {
                     />
                 )}
 
-                {/* Header with step indicator */}
-                <div>
-                    <div>
-                        <div>
-                            <h2>
-                                Create Your Resume
-                            </h2>
-                            <p>
-                                Build an ATS-optimized resume in minutes
-                            </p>
-                        </div>
-                        <button
-                            onClick={onClose}
-                           
-                            aria-label="Close"
-                        >
-                            <svg
-                                width="24"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                            >
-                                <path d="M18 6L6 18M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
+                        {/* Header with step indicator */}
+                        <div className="border-b border-secondary bg-primary px-6 py-5">
+                            <div className="mb-6 flex items-center justify-between">
+                                <div>
+                                    <h2 className="text-lg font-semibold text-primary">
+                                        Create Your Resume
+                                    </h2>
+                                    <p className="text-sm text-tertiary">
+                                        Build an ATS-optimized resume in minutes
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={onClose}
+                                    className="rounded-lg p-2 text-tertiary outline-focus-ring transition hover:bg-secondary hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2"
+                                    aria-label="Close"
+                                >
+                                    <svg
+                                        width="24"
+                                        height="24"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                    >
+                                        <path d="M18 6L6 18M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
 
-                    {/* Step indicator */}
-                    <div>
+                            {/* Step indicator */}
+                            <div className="flex items-center gap-2">
                         {STEPS.map((step, index) => {
                             const isCompleted = completedSteps.includes(step.id);
                             const isCurrent = step.id === currentStep;
@@ -180,8 +179,10 @@ export function ResumeWizard({ isOpen, onClose }: ResumeWizardProps) {
                     </div>
                 </div>
 
-                {/* Content area */}
-                <div>{renderStepContent()}</div>
+                        {/* Content area */}
+                        <div className="flex-1 overflow-y-auto">{renderStepContent()}</div>
+                    </div>
+                </Dialog>
             </Modal>
         </ModalOverlay>
     );
