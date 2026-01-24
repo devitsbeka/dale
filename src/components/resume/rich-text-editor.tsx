@@ -1,18 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import dynamic from 'next/dynamic';
 import { Label } from '@/components/base/input/label';
-
-// Import Tiptap components dynamically to avoid SSR
-const EditorContent = dynamic(
-    () => import('@tiptap/react').then((mod) => mod.EditorContent),
-    { ssr: false }
-);
-
-import { useEditor } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import Placeholder from '@tiptap/extension-placeholder';
 
 interface RichTextEditorProps {
     value: string;
@@ -32,68 +21,84 @@ export function RichTextEditor({
     className = '',
 }: RichTextEditorProps) {
     const [isMounted, setIsMounted] = useState(false);
+    const [editor, setEditor] = useState<any>(null);
 
     useEffect(() => {
         setIsMounted(true);
     }, []);
 
-    // Only create editor after component mounts on client
-    const editor = useEditor(
-        {
-            extensions: [
-                StarterKit.configure({
-                    heading: false,
-                    codeBlock: false,
-                    horizontalRule: false,
-                    blockquote: false,
-                    bulletList: {
-                        HTMLAttributes: {
-                            class: 'list-disc pl-4',
-                        },
-                    },
-                    orderedList: {
-                        HTMLAttributes: {
-                            class: 'list-decimal pl-4',
-                        },
-                    },
-                }),
-                Placeholder.configure({
-                    placeholder,
-                }),
-            ],
-            content: value,
-            editorProps: {
-                attributes: {
-                    class: 'prose prose-sm max-w-none focus:outline-none min-h-[100px] p-3',
-                },
-            },
-            onUpdate: ({ editor }) => {
-                const html = editor.getHTML();
-                const text = editor.getText();
+    // Only import and create editor after component mounts on client
+    useEffect(() => {
+        if (!isMounted) return;
 
-                if (text.length <= maxLength) {
-                    onChange(html);
-                } else {
-                    editor.commands.setContent(value);
-                }
-            },
-            immediatelyRender: false,
-            editable: isMounted,
-        },
-        [isMounted, placeholder, value, maxLength, onChange]
-    );
+        let editorInstance: any = null;
+
+        const initEditor = async () => {
+            const { useEditor } = await import('@tiptap/react');
+            const StarterKit = (await import('@tiptap/starter-kit')).default;
+            const Placeholder = (await import('@tiptap/extension-placeholder')).default;
+
+            editorInstance = useEditor({
+                extensions: [
+                    StarterKit.configure({
+                        heading: false,
+                        codeBlock: false,
+                        horizontalRule: false,
+                        blockquote: false,
+                        bulletList: {
+                            HTMLAttributes: {
+                                class: 'list-disc pl-4',
+                            },
+                        },
+                        orderedList: {
+                            HTMLAttributes: {
+                                class: 'list-decimal pl-4',
+                            },
+                        },
+                    }),
+                    Placeholder.configure({
+                        placeholder,
+                    }),
+                ],
+                content: value,
+                editorProps: {
+                    attributes: {
+                        class: 'prose prose-sm max-w-none focus:outline-none min-h-[100px] p-3',
+                    },
+                },
+                onUpdate: ({ editor }) => {
+                    const html = editor.getHTML();
+                    const text = editor.getText();
+
+                    if (text.length <= maxLength) {
+                        onChange(html);
+                    } else {
+                        editor.commands.setContent(value);
+                    }
+                },
+            });
+
+            setEditor(editorInstance);
+        };
+
+        initEditor();
+
+        return () => {
+            editorInstance?.destroy();
+        };
+    }, [isMounted, placeholder, maxLength, onChange]);
 
     // Sync editor content when value changes externally
     useEffect(() => {
-        if (editor && isMounted && value !== editor.getHTML()) {
+        if (editor && value !== editor.getHTML()) {
             editor.commands.setContent(value);
         }
-    }, [editor, value, isMounted]);
+    }, [editor, value]);
 
     const characterCount = editor?.getText().length || 0;
     const isOverLimit = characterCount > maxLength;
 
-    // Show skeleton until mounted
+    // Show skeleton until mounted and editor ready
     if (!isMounted || !editor) {
         return (
             <div className={className}>
@@ -161,7 +166,7 @@ export function RichTextEditor({
 
             {/* Editor */}
             <div className="rounded-b-lg border border-secondary bg-primary">
-                <EditorContent editor={editor} />
+                <RichTextEditorContent editor={editor} />
             </div>
 
             {isOverLimit && (
@@ -171,4 +176,21 @@ export function RichTextEditor({
             )}
         </div>
     );
+}
+
+// Client-only EditorContent wrapper
+function RichTextEditorContent({ editor }: { editor: any }) {
+    const [EditorContent, setEditorContent] = useState<any>(null);
+
+    useEffect(() => {
+        import('@tiptap/react').then((mod) => {
+            setEditorContent(() => mod.EditorContent);
+        });
+    }, []);
+
+    if (!EditorContent) {
+        return <div className="p-3">Loading editor...</div>;
+    }
+
+    return <EditorContent editor={editor} />;
 }
