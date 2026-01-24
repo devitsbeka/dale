@@ -18,7 +18,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  resumes   Resume[]
+  resumes         Resume[]
+  savedJobs       SavedJob[]
+  jobApplications JobApplication[]
+  jobAlerts       JobAlert[]
 
   @@map("users")
 }
@@ -41,6 +44,7 @@ model Resume {
   skills        Skill[]
   customization ResumeCustomization?
   snapshots     ResumeSnapshot[]
+  applications  JobApplication[]
 
   @@index([userId])
   @@index([slug])
@@ -155,4 +159,159 @@ model ResumeSnapshot {
   @@index([resumeId])
   @@index([createdAt])
   @@map("resume_snapshots")
+}
+
+// ============================================
+// JOBS FEATURE MODELS
+// ============================================
+
+// Cached job from external APIs
+model Job {
+  id              String   @id @default(cuid())
+  externalId      String   // ID from the source API
+  source          String   // remotive, remoteok, arbeitnow, himalayas, themuse, jobicy, usajobs
+
+  // Core job info
+  title           String
+  company         String
+  companyLogo     String?
+  companyUrl      String?
+  location        String?
+  locationType    String   // remote, onsite, hybrid
+
+  // Job details
+  description     String   @db.Text
+  descriptionHtml String?  @db.Text
+  requirements    String?  @db.Text
+  benefits        String?  @db.Text
+
+  // Categorization
+  category        String?  // engineering, design, marketing, sales, etc.
+  tags            String[] // Array of job tags/skills
+  experienceLevel String?  // entry, mid, senior, executive
+  employmentType  String?  // full-time, part-time, contract, internship
+
+  // Compensation
+  salaryMin       Int?
+  salaryMax       Int?
+  salaryCurrency  String?
+  salaryPeriod    String?  // yearly, monthly, hourly
+
+  // Application
+  applyUrl        String
+  applicationEmail String?
+
+  // Metadata
+  publishedAt     DateTime?
+  expiresAt       DateTime?
+  fetchedAt       DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  savedBy         SavedJob[]
+  applications    JobApplication[]
+
+  @@unique([source, externalId])
+  @@index([source])
+  @@index([category])
+  @@index([locationType])
+  @@index([publishedAt])
+  @@index([title])
+  @@index([company])
+  @@map("jobs")
+}
+
+// User's saved/bookmarked jobs
+model SavedJob {
+  id        String   @id @default(cuid())
+  userId    String
+  jobId     String
+  notes     String?  @db.Text
+  priority  Int      @default(0) // 0=normal, 1=high, 2=very high
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, jobId])
+  @@index([userId])
+  @@index([jobId])
+  @@map("saved_jobs")
+}
+
+// Job applications tracking
+model JobApplication {
+  id              String   @id @default(cuid())
+  userId          String
+  jobId           String
+  resumeId        String?
+
+  // Application status
+  status          String   @default("applied") // applied, screening, interviewing, offer, rejected, withdrawn, accepted
+
+  // Application details
+  coverLetter     String?  @db.Text
+  appliedAt       DateTime @default(now())
+  appliedVia      String   @default("direct") // direct, linkedin, email, referral
+
+  // Interview tracking
+  interviewRounds Int      @default(0)
+  nextStepDate    DateTime?
+  nextStepNotes   String?
+
+  // Offer details
+  offeredSalary   Int?
+  offeredCurrency String?
+  offerDeadline   DateTime?
+
+  // Notes and timeline
+  notes           String?  @db.Text
+  timeline        String?  @db.Text // JSON array of status changes with timestamps
+
+  // Metadata
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job             Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  resume          Resume?  @relation(fields: [resumeId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, jobId])
+  @@index([userId])
+  @@index([jobId])
+  @@index([status])
+  @@index([appliedAt])
+  @@map("job_applications")
+}
+
+// Job search alerts
+model JobAlert {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+
+  // Search criteria
+  keywords    String?
+  locations   String[] // Array of locations
+  categories  String[] // Array of categories
+  locationType String? // remote, onsite, hybrid
+  experienceLevel String?
+  employmentType String?
+  salaryMin   Int?
+
+  // Alert settings
+  frequency   String   @default("daily") // instant, daily, weekly
+  isActive    Boolean  @default(true)
+  lastSentAt  DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isActive])
+  @@map("job_alerts")
 }
