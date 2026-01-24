@@ -69,11 +69,13 @@ export function RichTextEditor({
         let editorInstance: any = null;
 
         const initEditor = async () => {
-            const { useEditor } = await import('@tiptap/react');
+            // Import Editor class instead of useEditor hook
+            const { Editor } = await import('@tiptap/core');
             const StarterKit = (await import('@tiptap/starter-kit')).default;
             const Placeholder = (await import('@tiptap/extension-placeholder')).default;
 
-            editorInstance = useEditor({
+            // Create editor instance directly without using the hook
+            editorInstance = new Editor({
                 extensions: [
                     StarterKit.configure({
                         heading: false,
