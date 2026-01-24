@@ -3,6 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/base/buttons/button';
 import { Upload01, FileCheck02, AlertCircle } from '@untitledui/icons';
+import { useFocusTrap } from '@/hooks/use-focus-trap';
 import type { ResumeData } from '@/types/resume';
 
 interface ResumeImportDialogProps {
@@ -15,6 +16,7 @@ export function ResumeImportDialog({ onImport, onClose }: ResumeImportDialogProp
     const [error, setError] = useState<string | null>(null);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const dialogRef = useFocusTrap<HTMLDivElement>(true);
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -55,10 +57,10 @@ export function ResumeImportDialog({ onImport, onClose }: ResumeImportDialogProp
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="w-full max-w-md rounded-lg bg-primary p-6 shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" role="dialog" aria-modal="true" aria-labelledby="import-dialog-title">
+            <div ref={dialogRef} className="w-full max-w-md rounded-lg bg-primary p-6 shadow-xl">
                 <div className="mb-4">
-                    <h2 className="text-xl font-semibold text-primary">Import Resume</h2>
+                    <h2 id="import-dialog-title" className="text-xl font-semibold text-primary">Import Resume</h2>
                     <p className="mt-1 text-sm text-tertiary">
                         Upload a resume in JSON format (PDF/DOCX coming soon)
                     </p>
@@ -102,8 +104,8 @@ export function ResumeImportDialog({ onImport, onClose }: ResumeImportDialogProp
 
                 {/* Error message */}
                 {error && (
-                    <div className="mb-4 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3">
-                        <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-600" />
+                    <div role="alert" aria-live="assertive" className="mb-4 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3">
+                        <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-600" aria-hidden="true" />
                         <p className="text-sm text-red-700">{error}</p>
                     </div>
                 )}

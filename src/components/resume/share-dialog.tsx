@@ -6,6 +6,7 @@ import { Input } from '@/components/base/input/input';
 import { Label } from '@/components/base/input/label';
 import { Select } from '@/components/base/select/select';
 import { Checkbox } from '@/components/base/checkbox/checkbox';
+import { useFocusTrap } from '@/hooks/use-focus-trap';
 import {
     Share07,
     Copy01,
@@ -44,6 +45,9 @@ export function ShareDialog({ resumeId, onClose }: ShareDialogProps) {
     const [expiresIn, setExpiresIn] = useState<string>('never');
     const [maxViews, setMaxViews] = useState<string>('');
     const [useMaxViews, setUseMaxViews] = useState(false);
+
+    // Focus trap for accessibility
+    const dialogRef = useFocusTrap<HTMLDivElement>(true);
 
     useEffect(() => {
         fetchShareLinks();
@@ -123,15 +127,15 @@ export function ShareDialog({ resumeId, onClose }: ShareDialogProps) {
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="w-full max-w-2xl rounded-lg bg-primary shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true" aria-labelledby="share-dialog-title">
+            <div ref={dialogRef} className="w-full max-w-2xl rounded-lg bg-primary shadow-xl">
                 {/* Header */}
                 <div className="border-b border-secondary p-6">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <Share07 className="h-6 w-6 text-brand-500" />
                             <div>
-                                <h2 className="text-xl font-semibold text-primary">Share Resume</h2>
+                                <h2 id="share-dialog-title" className="text-xl font-semibold text-primary">Share Resume</h2>
                                 <p className="text-sm text-tertiary">
                                     Create secure links to share your resume
                                 </p>

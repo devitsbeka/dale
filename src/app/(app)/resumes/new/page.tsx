@@ -12,6 +12,8 @@ import { CustomizeStep } from '@/components/resume/steps/customize-step';
 import { PreviewStep } from '@/components/resume/steps/preview-step';
 import { ResumePreview } from '@/components/resume/resume-preview';
 import { OnboardingOverlay } from '@/components/resume/onboarding-overlay';
+import { SkipLink } from '@/components/accessibility/skip-link';
+import { LiveAnnouncer, useAnnouncer } from '@/components/accessibility/live-announcer';
 import { Check } from '@untitledui/icons';
 import { useSearchParams } from 'next/navigation';
 import type { WizardStep } from '@/types/resume';
@@ -29,6 +31,7 @@ function ResumeBuilderContent() {
     const { currentStep, setCurrentStep, completedSteps, isOnboardingEnabled, resumeData, setResumeData } = useResume();
     const [showOnboarding, setShowOnboarding] = useState(true);
     const searchParams = useSearchParams();
+    const { message, announce } = useAnnouncer();
 
     // Load imported resume data if present
     useEffect(() => {
@@ -64,11 +67,22 @@ function ResumeBuilderContent() {
     };
 
     const handleTabChange = (key: Key) => {
-        setCurrentStep(key as WizardStep);
+        const stepId = key as WizardStep;
+        setCurrentStep(stepId);
+
+        // Announce step change for screen readers
+        const step = STEPS.find(s => s.id === stepId);
+        if (step) {
+            announce(`Navigated to ${step.label} step. ${step.description}.`);
+        }
     };
 
     return (
         <div className="relative flex h-screen overflow-hidden bg-primary">
+            {/* Accessibility features */}
+            <SkipLink />
+            <LiveAnnouncer message={message} />
+
             {/* Onboarding overlay */}
             {isOnboardingEnabled && showOnboarding && (
                 <OnboardingOverlay
@@ -78,7 +92,7 @@ function ResumeBuilderContent() {
             )}
 
             {/* Left side - Form */}
-            <div className="flex w-[600px] flex-col border-r border-secondary">
+            <div id="main-content" className="flex w-[600px] flex-col border-r border-secondary">
                 {/* Header */}
                 <div className="border-b border-secondary bg-primary px-6 py-6">
                     <div>
