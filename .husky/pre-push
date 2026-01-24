@@ -1,0 +1,6 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Run deployment verification before push
+echo "Running pre-deployment checks..."
+./scripts/verify-deployment.sh
