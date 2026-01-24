@@ -5,15 +5,20 @@ export function useResumeActions() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const createResume = useCallback(async (name?: string) => {
+    const createResume = useCallback(async (data?: Partial<ResumeData> | string) => {
         setIsLoading(true);
         setError(null);
 
         try {
+            // Handle legacy string parameter or new data object
+            const payload = typeof data === 'string'
+                ? { name: data || 'Untitled Resume' }
+                : { name: 'My Resume', ...data };
+
             const response = await fetch('/api/resumes', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: name || 'Untitled Resume' }),
+                body: JSON.stringify(payload),
             });
 
             if (!response.ok) {

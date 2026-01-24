@@ -88,8 +88,8 @@ export function CustomizeStep({ onNext, onPrevious }: CustomizeStepProps) {
                                         }
                                         className={`group flex flex-col gap-2 rounded-xl border-2 p-3 text-left outline-focus-ring transition-all hover:shadow-md focus-visible:outline-2 ${
                                             isSelected
-                                                ? 'border-brand-500 bg-brand-50 shadow-sm'
-                                                : 'border-secondary bg-primary hover:border-gray-400'
+                                                ? 'border-brand-200 bg-brand-50/30 shadow-sm ring-2 ring-brand-100'
+                                                : 'border-secondary bg-primary hover:border-brand-100 hover:bg-brand-50/10'
                                         }`}
                                     >
                                         <div className="flex items-start justify-between gap-2">
@@ -147,8 +147,8 @@ export function CustomizeStep({ onNext, onPrevious }: CustomizeStepProps) {
                                 }
                                 className={`flex items-center gap-3 rounded-lg border-2 px-4 py-3 outline-focus-ring transition focus-visible:outline-2 ${
                                     isSelected
-                                        ? 'border-gray-900 bg-secondary'
-                                        : 'border-secondary bg-primary hover:border-gray-400'
+                                        ? 'border-gray-300 bg-gray-50 ring-2 ring-gray-200'
+                                        : 'border-secondary bg-primary hover:border-gray-300 hover:bg-gray-50/50'
                                 }`}
                             >
                                 <div className={`h-6 w-6 rounded-full ${color.class}`} />
@@ -179,8 +179,8 @@ export function CustomizeStep({ onNext, onPrevious }: CustomizeStepProps) {
                                 onClick={() => updateCustomization({ font: font.value })}
                                 className={`flex items-center justify-between rounded-lg border-2 px-4 py-3 text-left outline-focus-ring transition focus-visible:outline-2 ${
                                     isSelected
-                                        ? 'border-brand-500 bg-brand-50'
-                                        : 'border-secondary bg-primary hover:border-gray-400'
+                                        ? 'border-brand-200 bg-brand-50/30 ring-2 ring-brand-100'
+                                        : 'border-secondary bg-primary hover:border-brand-100 hover:bg-brand-50/10'
                                 }`}
                             >
                                 <div>

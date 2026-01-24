@@ -7,6 +7,7 @@ import { sanitizeResumeData } from '@/utils/sanitize-resume-data';
 
 interface ResumeContextType {
     resumeData: Partial<ResumeData>;
+    resumeId: string | null;
     currentStep: WizardStep;
     completedSteps: WizardStep[];
     isOnboardingEnabled: boolean;
@@ -28,7 +29,9 @@ interface ResumeContextType {
     setCurrentStep: (step: WizardStep) => void;
     markStepComplete: (step: WizardStep) => void;
     toggleOnboarding: () => void;
-    saveResume: () => void;
+    saveResume: () => Promise<void>;
+    saveNow: () => Promise<void>;
+    createResume: (data?: Partial<ResumeData> | string) => Promise<any>;
     loadResume: (id: string) => void;
     resetResume: () => void;
 
@@ -98,6 +101,7 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
 
     const value: ResumeContextType = {
         resumeData: resume.resumeData,
+        resumeId: resume.resumeId,
         currentStep: resume.currentStep,
         completedSteps: resume.completedSteps,
         isOnboardingEnabled: resume.isOnboardingEnabled,
@@ -118,6 +122,8 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
         markStepComplete: resume.markStepComplete,
         toggleOnboarding: resume.toggleOnboarding,
         saveResume,
+        saveNow: resume.saveNow,
+        createResume: resume.createResume,
         loadResume,
         resetResume,
         isSaving: resume.isSaving,

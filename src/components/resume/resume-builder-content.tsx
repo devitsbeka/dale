@@ -141,7 +141,9 @@ export function ResumeBuilderContent() {
         setCurrentStep,
         updateCustomization,
         setResumeData,
-        saveResume,
+        resumeId,
+        createResume,
+        saveNow,
         isSaving,
     } = useResume();
 
@@ -149,7 +151,6 @@ export function ResumeBuilderContent() {
     const [showTemplatePreview, setShowTemplatePreview] = useState<string | null>(null);
     const [showImportModal, setShowImportModal] = useState(false);
     const [showShareDialog, setShowShareDialog] = useState(false);
-    const [resumeId, setResumeId] = useState<string | null>(null);
 
     // Check for imported data
     useEffect(() => {
@@ -186,9 +187,19 @@ export function ResumeBuilderContent() {
 
     const handleSave = async () => {
         try {
-            await saveResume();
+            if (!resumeId) {
+                // Create new resume if it doesn't exist
+                const newResume = await createResume(resumeData);
+                // Show success message
+                alert('Resume saved successfully!');
+            } else {
+                // Update existing resume
+                await saveNow();
+                alert('Resume updated successfully!');
+            }
         } catch (error) {
             console.error('Failed to save resume:', error);
+            alert('Failed to save resume. Please try again.');
         }
     };
 
@@ -238,8 +249,14 @@ export function ResumeBuilderContent() {
     };
 
     // Use sample data if resume is empty, otherwise use actual data
+    // Always use user's customization if they've set it
     const hasData = resumeData.personalInfo?.firstName || resumeData.experience?.length;
-    const previewData = hasData ? resumeData : SAMPLE_DATA;
+    const previewData = hasData
+        ? resumeData
+        : {
+            ...SAMPLE_DATA,
+            customization: resumeData.customization || SAMPLE_DATA.customization,
+        };
 
     return (
         <>
