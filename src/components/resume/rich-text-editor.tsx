@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -23,6 +23,12 @@ export function RichTextEditor({
     maxLength = 500,
     className = '',
 }: RichTextEditorProps) {
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
     const editor = useEditor({
         extensions: [
             StarterKit.configure({
@@ -69,6 +75,21 @@ export function RichTextEditor({
 
     const characterCount = editor?.getText().length || 0;
     const isOverLimit = characterCount > maxLength;
+
+    // Don't render editor content until mounted to avoid hydration issues
+    if (!isMounted) {
+        return (
+            <div className={className}>
+                {label && <Label className="mb-2">{label}</Label>}
+                <div className="min-h-[140px] rounded-lg border border-secondary bg-primary p-3">
+                    <div className="animate-pulse space-y-2">
+                        <div className="h-4 w-3/4 rounded bg-secondary"></div>
+                        <div className="h-4 w-1/2 rounded bg-secondary"></div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className={className}>

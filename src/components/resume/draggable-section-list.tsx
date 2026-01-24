@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     DndContext,
     closestCenter,
@@ -38,6 +38,12 @@ export function DraggableSectionList<T extends DraggableItem>({
     renderItem,
     keyExtractor = (item) => item.id,
 }: DraggableSectionListProps<T>) {
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
@@ -66,6 +72,19 @@ export function DraggableSectionList<T extends DraggableItem>({
             onReorder(reorderedItems);
         }
     };
+
+    // Render simple list without drag-and-drop until mounted
+    if (!isMounted) {
+        return (
+            <div className="space-y-4">
+                {items.map((item) => (
+                    <div key={keyExtractor(item)}>
+                        {renderItem(item, false)}
+                    </div>
+                ))}
+            </div>
+        );
+    }
 
     return (
         <DndContext
