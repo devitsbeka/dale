@@ -29,6 +29,7 @@ export function RichTextEditor({
         setIsMounted(true);
     }, []);
 
+    // Create editor with immediate render disabled for SSR
     const editor = useEditor({
         extensions: [
             StarterKit.configure({
@@ -71,6 +72,7 @@ export function RichTextEditor({
                 editor.commands.setContent(value);
             }
         },
+        immediatelyRender: false,
     });
 
     const characterCount = editor?.getText().length || 0;

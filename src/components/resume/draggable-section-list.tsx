@@ -44,15 +44,16 @@ export function DraggableSectionList<T extends DraggableItem>({
         setIsMounted(true);
     }, []);
 
+    // Only create sensors on client side
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
-                distance: 8, // 8px movement required before drag starts
+                distance: 8,
             },
         }),
         useSensor(TouchSensor, {
             activationConstraint: {
-                delay: 250, // 250ms hold before drag starts on touch
+                delay: 250,
                 tolerance: 5,
             },
         }),
