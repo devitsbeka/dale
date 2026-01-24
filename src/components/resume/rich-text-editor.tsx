@@ -168,3 +168,5 @@ export function RichTextEditor({
 
 // Export memoized version
 export const MemoizedRichTextEditor = React.memo(RichTextEditor);
+
+// Force rebuild timestamp: 2026-01-24
