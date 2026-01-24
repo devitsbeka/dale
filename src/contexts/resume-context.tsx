@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useCallback } from 'react';
 import type { ResumeData, WizardStep, PersonalInfo, WorkExperience, Education, Skill, ResumeCustomization } from '@/types/resume';
 import { useResume as useResumeHook } from '@/hooks/resume';
+import { sanitizeResumeData } from '@/utils/sanitize-resume-data';
 
 interface ResumeContextType {
     resumeData: Partial<ResumeData>;
@@ -53,7 +54,9 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
         if (saved && !resume.resumeId) {
             try {
                 const parsed = JSON.parse(saved);
-                resume.setResumeData(parsed);
+                // Sanitize data to remove HTML markup from old Tiptap data
+                const sanitized = sanitizeResumeData(parsed);
+                resume.setResumeData(sanitized);
             } catch (e) {
                 console.error('Failed to parse saved resume data', e);
             }
@@ -71,14 +74,18 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
     const loadResume = useCallback(async (id: string) => {
         try {
             const data = await resume.fetchResume(id);
-            resume.setResumeData(data);
+            // Sanitize data to remove HTML markup from old Tiptap data
+            const sanitized = sanitizeResumeData(data);
+            resume.setResumeData(sanitized);
             resume.setResumeId(id);
         } catch (error) {
             console.error('Failed to load resume:', error);
             // Fallback to localStorage
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
-                resume.setResumeData(JSON.parse(saved));
+                const parsed = JSON.parse(saved);
+                const sanitized = sanitizeResumeData(parsed);
+                resume.setResumeData(sanitized);
             }
         }
     }, [resume]);

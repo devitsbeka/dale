@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clear Old Resume Data</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .box {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+            width: 100%;
+        }
+        button:hover {
+            background: #1d4ed8;
+        }
+        .success {
+            background: #10b981;
+            color: white;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 10px 0;
+            display: none;
+        }
+        pre {
+            background: #f3f4f6;
+            padding: 12px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1>🧹 Clear Old Resume Data</h1>
+        <p>This will remove old resume data that might contain HTML markup causing hydration errors.</p>
+
+        <button onclick="clearAll()">Clear All Storage</button>
+        <button onclick="stripHTML()">Strip HTML from Achievements</button>
+        <button onclick="showData()">Show Current Data</button>
+
+        <div id="success" class="success"></div>
+        <div id="output"></div>
+    </div>
+
+    <script>
+        function clearAll() {
+            localStorage.clear();
+            sessionStorage.clear();
+            showSuccess('All storage cleared! Reloading...');
+            setTimeout(() => location.reload(), 1500);
+        }
+
+        function stripHTML() {
+            const key = 'resumeData';
+            const data = localStorage.getItem(key);
+
+            if (!data) {
+                alert('No resume data found');
+                return;
+            }
+
+            try {
+                const resume = JSON.parse(data);
+
+                // Strip HTML from achievements
+                if (resume.experience && Array.isArray(resume.experience)) {
+                    resume.experience = resume.experience.map(exp => {
+                        if (exp.achievements && Array.isArray(exp.achievements)) {
+                            exp.achievements = exp.achievements.map(ach => {
+                                // Remove HTML tags
+                                return ach.replace(/<[^>]*>/g, '').trim();
+                            });
+                        }
+                        return exp;
+                    });
+                }
+
+                localStorage.setItem(key, JSON.stringify(resume));
+                showSuccess('HTML stripped from achievements!');
+                showData();
+            } catch (e) {
+                alert('Error: ' + e.message);
+            }
+        }
+
+        function showData() {
+            const data = localStorage.getItem('resumeData');
+            if (data) {
+                document.getElementById('output').innerHTML = '<h3>Current Data:</h3><pre>' +
+                    JSON.stringify(JSON.parse(data), null, 2) + '</pre>';
+            } else {
+                document.getElementById('output').innerHTML = '<p>No data found</p>';
+            }
+        }
+
+        function showSuccess(msg) {
+            const el = document.getElementById('success');
+            el.textContent = msg;
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 3000);
+        }
+    </script>
+</body>
+</html>

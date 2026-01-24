@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import type { Key } from 'react';
 import { Tabs, TabList, Tab, TabPanel } from '@/components/application/tabs/tabs';
 import { ResumeProvider, useResume } from '@/contexts/resume-context';
+import { sanitizeResumeData } from '@/utils/sanitize-resume-data';
 import { PersonalInfoStep } from '@/components/resume/steps/personal-info-step';
 import { ExperienceStep } from '@/components/resume/steps/experience-step';
 import { EducationStep } from '@/components/resume/steps/education-step';
@@ -45,7 +46,9 @@ function ResumeBuilderContent() {
             if (importedData) {
                 try {
                     const data = JSON.parse(importedData);
-                    setResumeData(data);
+                    // Sanitize imported data to remove HTML markup
+                    const sanitized = sanitizeResumeData(data);
+                    setResumeData(sanitized);
                     localStorage.removeItem('dale_imported_resume');
                 } catch (error) {
                     console.error('Failed to load imported resume:', error);
