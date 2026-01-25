@@ -2,7 +2,7 @@
 
 import type { PropsWithChildren } from "react";
 import { useRouter } from "next/navigation";
-import { RouterProvider } from "react-aria-components";
+import { RouterProvider, SSRProvider } from "react-aria-components";
 
 declare module "react-aria-components" {
     interface RouterConfig {
@@ -13,5 +13,9 @@ declare module "react-aria-components" {
 export const RouteProvider = ({ children }: PropsWithChildren) => {
     const router = useRouter();
 
-    return <RouterProvider navigate={router.push}>{children}</RouterProvider>;
+    return (
+        <SSRProvider>
+            <RouterProvider navigate={router.push}>{children}</RouterProvider>
+        </SSRProvider>
+    );
 };
