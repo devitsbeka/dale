@@ -12,6 +12,7 @@ import { Button } from "@/components/base/buttons/button";
 import { RadioButtonBase } from "@/components/base/radio-buttons/radio-buttons";
 import { useBreakpoint } from "@/hooks/use-breakpoint";
 import { cx } from "@/utils/cx";
+import { useAuth } from "@/contexts/auth-context";
 
 type NavAccountType = {
     /** Unique identifier for the nav item. */
@@ -165,22 +166,21 @@ export const NavAccountCard = ({
 }) => {
     const triggerRef = useRef<HTMLDivElement>(null);
     const isDesktop = useBreakpoint("lg");
+    const { user } = useAuth();
 
-    const selectedAccount = placeholderAccounts.find((account) => account.id === selectedAccountId);
-
-    if (!selectedAccount) {
-        console.warn(`Account with ID ${selectedAccountId} not found in <NavAccountCard />`);
-        return null;
-    }
+    // Use real user data if available, otherwise fall back to placeholder
+    const userDisplayName = user?.name || user?.email?.split('@')[0] || 'User';
+    const userEmail = user?.email || 'user@example.com';
+    const userAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(userDisplayName)}&background=E9684B&color=fff`;
 
     return (
         <div ref={triggerRef} className="relative flex items-center gap-3 rounded-xl p-3 ring-1 ring-secondary ring-inset">
             <AvatarLabelGroup
                 size="md"
-                src={selectedAccount.avatar}
-                title={selectedAccount.name}
-                subtitle={selectedAccount.email}
-                status={selectedAccount.status}
+                src={userAvatar}
+                title={userDisplayName}
+                subtitle={userEmail}
+                status="online"
             />
 
             <div className="absolute top-1.5 right-1.5">
