@@ -1,8 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { AVAILABLE_TEMPLATES } from '@/lib/template-engine/types';
+import { TemplateRenderer } from '@/lib/template-engine/template-renderer';
+import type { ResumeData } from '@/types/resume';
 
-interface ResumeData {
+interface FormData {
     firstName: string;
     lastName: string;
     email: string;
@@ -13,16 +16,11 @@ interface ResumeData {
     font: string;
 }
 
-const TEMPLATES = [
-    { id: 'modern', name: 'Modern', color: '#3B82F6' },
-    { id: 'classic', name: 'Classic', color: '#1F2937' },
-    { id: 'minimal', name: 'Minimal', color: '#000000' },
-    { id: 'creative', name: 'Creative', color: '#8B5CF6' },
-];
-
 const COLORS = [
-    { id: 'blue', name: 'Blue', value: '#3B82F6' },
-    { id: 'green', name: 'Green', value: '#059669' },
+    { id: 'coral', name: 'Coral', value: '#E9684B' },
+    { id: 'azure', name: 'Azure', value: '#3B82F6' },
+    { id: 'emerald', name: 'Emerald', value: '#059669' },
+    { id: 'indigo', name: 'Indigo', value: '#6366F1' },
     { id: 'purple', name: 'Purple', value: '#8B5CF6' },
     { id: 'slate', name: 'Slate', value: '#334155' },
 ];
@@ -30,24 +28,50 @@ const COLORS = [
 const FONTS = [
     { id: 'inter', name: 'Inter', value: 'Inter, sans-serif' },
     { id: 'roboto', name: 'Roboto', value: 'Roboto, sans-serif' },
+    { id: 'lato', name: 'Lato', value: 'Lato, sans-serif' },
+    { id: 'opensans', name: 'Open Sans', value: 'Open Sans, sans-serif' },
     { id: 'georgia', name: 'Georgia', value: 'Georgia, serif' },
+    { id: 'merriweather', name: 'Merriweather', value: 'Merriweather, serif' },
 ];
 
 export default function ResumeV2Page() {
     const [activeTab, setActiveTab] = useState<'info' | 'customize'>('info');
-    const [data, setData] = useState<ResumeData>({
+    const [data, setData] = useState<FormData>({
         firstName: 'John',
         lastName: 'Doe',
         email: 'john@example.com',
         phone: '555-1234',
-        summary: 'Experienced professional...',
+        summary: 'Experienced professional with 5+ years building scalable applications.',
         template: 'modern',
         color: '#3B82F6',
-        font: 'Inter, sans-serif',
+        font: 'inter',
     });
 
-    const updateField = (field: keyof ResumeData, value: string) => {
+    const updateField = (field: keyof FormData, value: string) => {
         setData(prev => ({ ...prev, [field]: value }));
+    };
+
+    // Convert form data to ResumeData format for templates
+    const resumeData: Partial<ResumeData> = {
+        personalInfo: {
+            firstName: data.firstName,
+            lastName: data.lastName,
+            email: data.email,
+            phone: data.phone,
+            location: '',
+            linkedin: '',
+            website: '',
+            summary: data.summary,
+        },
+        customization: {
+            template: data.template,
+            primaryColor: data.color,
+            font: data.font,
+            sectionOrder: ['experience', 'education', 'skills'],
+        },
+        experience: [],
+        education: [],
+        skills: [],
     };
 
     return (
@@ -163,25 +187,28 @@ export default function ResumeV2Page() {
                                     Choose Template
                                 </h3>
                                 <div className="grid grid-cols-2 gap-3">
-                                    {TEMPLATES.map((template) => (
+                                    {AVAILABLE_TEMPLATES.map((template) => (
                                         <button
                                             key={template.id}
                                             onClick={() => {
                                                 updateField('template', template.id);
-                                                updateField('color', template.color);
+                                                updateField('color', template.accentColor);
                                             }}
-                                            className={`p-4 border-2 rounded-lg text-left transition-all ${
+                                            className={`p-3 border-2 rounded-lg text-left transition-all ${
                                                 data.template === template.id
                                                     ? 'border-blue-500 bg-blue-50'
                                                     : 'border-gray-200 hover:border-gray-300'
                                             }`}
                                         >
-                                            <div className="font-semibold text-gray-900">
+                                            <div className="font-semibold text-gray-900 text-sm">
                                                 {template.name}
+                                            </div>
+                                            <div className="text-xs text-gray-500 mt-0.5">
+                                                {template.description.substring(0, 30)}...
                                             </div>
                                             <div
                                                 className="mt-2 h-1 rounded"
-                                                style={{ backgroundColor: template.color }}
+                                                style={{ backgroundColor: template.accentColor }}
                                             />
                                         </button>
                                     ))}
@@ -223,9 +250,9 @@ export default function ResumeV2Page() {
                                     {FONTS.map((font) => (
                                         <button
                                             key={font.id}
-                                            onClick={() => updateField('font', font.value)}
+                                            onClick={() => updateField('font', font.id)}
                                             className={`w-full p-3 border-2 rounded-lg text-left transition-all ${
-                                                data.font === font.value
+                                                data.font === font.id
                                                     ? 'border-blue-500 bg-blue-50'
                                                     : 'border-gray-200 hover:border-gray-300'
                                             }`}
@@ -249,39 +276,8 @@ export default function ResumeV2Page() {
             <div className="flex-1 bg-gray-100 p-8 overflow-y-auto">
                 <div className="max-w-[800px] mx-auto">
                     <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-                        {/* Resume Preview */}
-                        <div className="p-12" style={{ fontFamily: data.font }}>
-                            {/* Header */}
-                            <div className="border-b-2 pb-6" style={{ borderColor: data.color }}>
-                                <h1 className="text-4xl font-bold text-gray-900">
-                                    {data.firstName} {data.lastName}
-                                </h1>
-                                <div className="mt-2 text-sm text-gray-600">
-                                    {data.email} • {data.phone}
-                                </div>
-                            </div>
-
-                            {/* Summary */}
-                            <div className="mt-6">
-                                <h2
-                                    className="text-xl font-bold mb-2"
-                                    style={{ color: data.color }}
-                                >
-                                    Professional Summary
-                                </h2>
-                                <p className="text-gray-700 leading-relaxed">{data.summary}</p>
-                            </div>
-
-                            {/* Template indicator */}
-                            <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-                                <div className="text-sm text-gray-600">
-                                    Template: <span className="font-semibold">{data.template}</span>
-                                </div>
-                                <div className="text-sm text-gray-600 mt-1">
-                                    Color: <span className="font-semibold">{data.color}</span>
-                                </div>
-                            </div>
-                        </div>
+                        {/* Live Template Preview */}
+                        <TemplateRenderer templateId={data.template} data={resumeData} />
                     </div>
                 </div>
             </div>
