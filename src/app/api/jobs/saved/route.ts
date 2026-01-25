@@ -20,6 +20,17 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit;
 
+    // Ensure demo user exists
+    await prisma.user.upsert({
+      where: { id: DEMO_USER_ID },
+      update: {},
+      create: {
+        id: DEMO_USER_ID,
+        email: 'demo@careeros.com',
+        name: 'Demo User',
+      },
+    });
+
     // Fetch saved jobs with job data
     const [savedJobs, total] = await Promise.all([
       prisma.savedJob.findMany({
@@ -81,6 +92,17 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Ensure demo user exists
+    await prisma.user.upsert({
+      where: { id: DEMO_USER_ID },
+      update: {},
+      create: {
+        id: DEMO_USER_ID,
+        email: 'demo@careeros.com',
+        name: 'Demo User',
+      },
+    });
 
     // First, ensure the job exists in our database
     // If jobData is provided, upsert the job
@@ -215,6 +237,17 @@ export async function DELETE(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Ensure demo user exists
+    await prisma.user.upsert({
+      where: { id: DEMO_USER_ID },
+      update: {},
+      create: {
+        id: DEMO_USER_ID,
+        email: 'demo@careeros.com',
+        name: 'Demo User',
+      },
+    });
 
     // Delete saved job
     await prisma.savedJob.deleteMany({
