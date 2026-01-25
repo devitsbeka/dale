@@ -1,21 +1,21 @@
 "use client";
 
 import type { SVGProps } from "react";
-import { useId } from "react";
 import { cx } from "@/utils/cx";
 
-export const UntitledLogoMinimal = (props: SVGProps<SVGSVGElement>) => {
-    const id = useId();
+// Use a stable ID to avoid hydration mismatches
+const GRADIENT_ID = "dale-logo-gradient";
 
+export const UntitledLogoMinimal = (props: SVGProps<SVGSVGElement>) => {
     return (
         <svg viewBox="0 0 32 32" fill="none" {...props} className={cx("size-8", props.className)}>
             <defs>
-                <linearGradient id={`dale-gradient-${id}`} x1="0" y1="32" x2="32" y2="0" gradientUnits="userSpaceOnUse">
+                <linearGradient id={GRADIENT_ID} x1="0" y1="32" x2="32" y2="0" gradientUnits="userSpaceOnUse">
                     <stop stopColor="#9E523A" />
                     <stop offset="1" stopColor="#CC785C" />
                 </linearGradient>
             </defs>
-            <rect width="32" height="32" rx="8" fill={`url(#dale-gradient-${id})`} />
+            <rect width="32" height="32" rx="8" fill={`url(#${GRADIENT_ID})`} />
             <text
                 x="16"
                 y="23"

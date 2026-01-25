@@ -3,6 +3,7 @@
 import type { FC, ReactNode } from "react";
 import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
+import { useAuth } from "@/contexts/auth-context";
 import { ChevronLeft, ChevronRight, LifeBuoy01, LogOut01, Settings01 } from "@untitledui/icons";
 import { motion } from "motion/react";
 import { Button as AriaButton, DialogTrigger as AriaDialogTrigger, Popover as AriaPopover } from "react-aria-components";
@@ -59,12 +60,17 @@ export const SidebarCollapsible = ({
 }: SidebarCollapsibleProps) => {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const { resolvedTheme, setTheme } = useTheme();
+    const { user } = useAuth();
 
     const EXPANDED_WIDTH = 292;
     const COLLAPSED_WIDTH = 68;
     const COLLAPSE_BREAKPOINT = 1240;
 
     const isDarkMode = resolvedTheme === "dark";
+
+    // Get user display info
+    const userDisplayName = user?.name || user?.email?.split('@')[0] || 'User';
+    const userEmail = user?.email || 'user@example.com';
 
     // Auto-collapse sidebar when screen width is below breakpoint
     useEffect(() => {
@@ -153,9 +159,9 @@ export const SidebarCollapsible = ({
                     <AvatarLabelGroup
                         status="online"
                         size="md"
-                        src="https://www.untitledui.com/images/avatars/olivia-rhye?fm=webp&q=80"
-                        title="Olivia Rhye"
-                        subtitle="olivia@untitledui.com"
+                        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(userDisplayName)}&background=E9684B&color=fff`}
+                        title={userDisplayName}
+                        subtitle={userEmail}
                     />
                     <div className="absolute top-1/2 right-0 -translate-y-1/2">
                         <Button
@@ -315,7 +321,12 @@ export const SidebarCollapsible = ({
                                         cx("group relative inline-flex rounded-full", (isPressed || isFocused) && "outline-2 outline-offset-2 outline-focus-ring")
                                     }
                                 >
-                                    <Avatar status="online" src="https://www.untitledui.com/images/avatars/olivia-rhye?fm=webp&q=80" size="md" alt="Olivia Rhye" />
+                                    <Avatar
+                                        status="online"
+                                        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(userDisplayName)}&background=E9684B&color=fff`}
+                                        size="md"
+                                        alt={userDisplayName}
+                                    />
                                 </AriaButton>
                                 <AriaPopover
                                     placement="right bottom"
