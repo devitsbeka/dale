@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserIdFromRequest } from '@/lib/auth/get-user-from-request';
+import { aggregateJobs } from '@/lib/jobs/aggregator';
 
 export async function GET(request: NextRequest) {
   try {
@@ -38,10 +39,9 @@ export async function GET(request: NextRequest) {
       previousSavedJobs,
       allApplications,
       allSavedJobs,
-      allJobs,
-      totalJobsCount,
       profileViews,
       previousProfileViews,
+      availableJobsResult,
     ] = await Promise.all([
       prisma.jobApplication.findMany({
         where: { userId, appliedAt: { gte: startDate } },
@@ -66,20 +66,18 @@ export async function GET(request: NextRequest) {
         where: { userId },
         select: { createdAt: true },
       }),
-      prisma.job.findMany({
-        select: { fetchedAt: true },
-      }),
-      // DIRECT COUNT - FASTEST WAY
-      prisma.job.count(),
       prisma.resumeAnalytics.count({
         where: { resume: { userId }, eventType: 'view', timestamp: { gte: startDate } },
       }),
       prisma.resumeAnalytics.count({
         where: { resume: { userId }, eventType: 'view', timestamp: { gte: previousPeriodStart, lt: startDate } },
       }),
+      // Get total available jobs from aggregator (external APIs)
+      aggregateJobs({ limit: 1000 }),
     ]);
 
-    console.log('TOTAL JOBS IN DATABASE:', totalJobsCount);
+    const totalJobsCount = availableJobsResult.total;
+    console.log('TOTAL JOBS FROM AGGREGATOR:', totalJobsCount);
 
     const applicationsCount = applications.length;
     const previousApplicationsCount = previousApplications.length;
@@ -152,10 +150,9 @@ export async function GET(request: NextRequest) {
         return jobDate >= date && jobDate < nextDate;
       }).length;
 
-      const available = allJobs.filter(job => {
-        const jobDate = new Date(job.fetchedAt);
-        return jobDate >= date && jobDate < nextDate;
-      }).length;
+      // Available jobs: show current total as flat line
+      // (no historical data - jobs are fetched from external APIs, not persisted)
+      const available = Math.floor(totalJobsCount / dataPoints);
 
       chartData.push({
         date: date.toISOString(),
