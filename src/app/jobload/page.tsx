@@ -6,7 +6,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Loader2, CheckCircle2, XCircle, Clock, Zap, Settings, AlertTriangle } from 'lucide-react';
+import { Loader2, CheckCircle2, XCircle, Clock, Zap, Settings, AlertTriangle, ChevronRight } from 'lucide-react';
 
 interface LoadStatus {
   runId: string;
@@ -45,17 +45,37 @@ interface StatusResponse {
   loads: LoadStatus[];
 }
 
+interface ActorInfo {
+  id: string;
+  name: string;
+  maxResults: number;
+  estimatedCost: number;
+}
+
+interface ActorConfig extends ActorInfo {
+  enabled: boolean;
+  customMaxResults: number;
+}
+
+interface AvailableActorsResponse {
+  actors: ActorInfo[];
+  totalEstimatedCost: number;
+}
+
 export default function JobLoadPage() {
   const [status, setStatus] = useState<StatusResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [logs, setLogs] = useState<string[]>([]);
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
+  const [settingsTab, setSettingsTab] = useState<'api-key' | 'actors'>('api-key');
   const [apiKey, setApiKey] = useState('');
   const [apiKeyInput, setApiKeyInput] = useState('');
   const [hasApiKey, setHasApiKey] = useState(false);
+  const [actorConfigs, setActorConfigs] = useState<ActorConfig[]>([]);
+  const [availableActors, setAvailableActors] = useState<ActorInfo[]>([]);
 
-  // Load API key from localStorage on mount
+  // Load API key and actor configs from localStorage on mount
   useEffect(() => {
     const savedKey = localStorage.getItem('apify_api_token');
     if (savedKey) {
@@ -63,7 +83,43 @@ export default function JobLoadPage() {
       setApiKeyInput(savedKey);
       setHasApiKey(true);
     }
+
+    // Load actor configs
+    const savedConfigs = localStorage.getItem('apify_actor_configs');
+    if (savedConfigs) {
+      try {
+        setActorConfigs(JSON.parse(savedConfigs));
+      } catch (error) {
+        console.error('Failed to load actor configs:', error);
+      }
+    }
+
+    // Fetch available actors
+    fetchAvailableActors();
   }, []);
+
+  // Fetch available actors from API
+  const fetchAvailableActors = async () => {
+    try {
+      const response = await fetch('/api/jobload/trigger');
+      if (response.ok) {
+        const data: AvailableActorsResponse = await response.json();
+        setAvailableActors(data.actors);
+
+        // Initialize actor configs if not already set
+        if (actorConfigs.length === 0) {
+          const initialConfigs: ActorConfig[] = data.actors.map((actor) => ({
+            ...actor,
+            enabled: true,
+            customMaxResults: actor.maxResults,
+          }));
+          setActorConfigs(initialConfigs);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch available actors:', error);
+    }
+  };
 
   // Fetch status
   const fetchStatus = async () => {
@@ -74,6 +130,19 @@ export default function JobLoadPage() {
       }
 
       const response = await fetch('/api/jobload/status', { headers });
+
+      // Check if response is OK and is JSON
+      if (!response.ok) {
+        console.error('Status request failed:', response.status, response.statusText);
+        return;
+      }
+
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('Expected JSON response but got:', contentType);
+        return;
+      }
+
       const data = await response.json();
 
       if (data.error) {
@@ -127,11 +196,64 @@ export default function JobLoadPage() {
     }
   };
 
+  // Save actor configurations
+  const saveActorConfigs = () => {
+    localStorage.setItem('apify_actor_configs', JSON.stringify(actorConfigs));
+    alert('Actor configurations saved!');
+    setShowSettings(false);
+  };
+
+  // Update actor config
+  const updateActorConfig = (actorId: string, updates: Partial<ActorConfig>) => {
+    setActorConfigs((prev) =>
+      prev.map((config) =>
+        config.id === actorId ? { ...config, ...updates } : config
+      )
+    );
+  };
+
+  // Calculate total estimated cost
+  const calculateTotalCost = () => {
+    return actorConfigs
+      .filter((config) => config.enabled)
+      .reduce((sum, config) => {
+        // Calculate cost based on customMaxResults
+        const costPerUnit = config.estimatedCost / config.maxResults;
+        return sum + costPerUnit * config.customMaxResults;
+      }, 0);
+  };
+
   // Start job load
   const startJobLoad = async () => {
     if (!hasApiKey) {
       alert('Please configure your Apify API token first!');
       setShowSettings(true);
+      return;
+    }
+
+    // Get enabled actors
+    const enabledActors = actorConfigs.filter((config) => config.enabled);
+
+    if (enabledActors.length === 0) {
+      alert('Please enable at least one actor in the settings!');
+      setShowSettings(true);
+      setSettingsTab('actors');
+      return;
+    }
+
+    const totalCost = calculateTotalCost();
+
+    // Confirm before starting
+    if (
+      !confirm(
+        `Start loading jobs from ${enabledActors.length} actor(s)?\n\n` +
+          `Total estimated cost: $${totalCost.toFixed(2)}\n` +
+          `Estimated jobs: ${enabledActors
+            .reduce((sum, actor) => sum + actor.customMaxResults, 0)
+            .toLocaleString()}\n\n` +
+          `This will use your Apify credits. Continue?`
+      )
+    ) {
       return;
     }
 
@@ -143,7 +265,30 @@ export default function JobLoadPage() {
           'Content-Type': 'application/json',
           'X-Apify-Token': apiKey,
         },
+        body: JSON.stringify({
+          actorConfigs: enabledActors.map((config) => ({
+            actorId: config.id,
+            maxResults: config.customMaxResults,
+          })),
+        }),
       });
+
+      // Check if response is OK and is JSON
+      if (!response.ok) {
+        const text = await response.text();
+        console.error('Trigger request failed:', response.status, text);
+        alert(`Request failed (${response.status}): ${response.statusText}\n\nPlease check:\n1. Your API key is correct\n2. You have sufficient Apify credits\n3. The server is running properly`);
+        return;
+      }
+
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('Expected JSON response but got:', contentType, text);
+        alert('Server returned an unexpected response. Check console for details.');
+        return;
+      }
+
       const data = await response.json();
 
       if (data.success) {
@@ -430,66 +575,238 @@ export default function JobLoadPage() {
 
       {/* Settings Modal */}
       {showSettings && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-              Apify API Settings
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-4xl w-full my-8">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+              Apify Settings
             </h2>
 
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                API Token
-              </label>
-              <input
-                type="password"
-                value={apiKeyInput}
-                onChange={(e) => setApiKeyInput(e.target.value)}
-                placeholder="apify_api_..."
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              />
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Get your API token from:{' '}
-                <a
-                  href="https://console.apify.com/account/integrations"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 dark:text-blue-400 hover:underline"
-                >
-                  Apify Console
-                </a>
-              </p>
-            </div>
-
-            <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded border border-blue-200 dark:border-blue-800">
-              <p className="text-sm text-blue-800 dark:text-blue-200">
-                <strong>Free Tier:</strong> $5 monthly credits (no credit card required)
-                <br />
-                <strong>Estimated:</strong> ~8,500 jobs total from 3 actors
-              </p>
-            </div>
-
-            <div className="flex gap-3">
+            {/* Tabs */}
+            <div className="flex gap-4 mb-6 border-b border-gray-200 dark:border-gray-700">
               <button
-                onClick={saveApiKey}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                onClick={() => setSettingsTab('api-key')}
+                className={`pb-2 px-4 font-medium transition-colors ${
+                  settingsTab === 'api-key'
+                    ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                }`}
               >
-                Save API Key
+                API Key
               </button>
-              {hasApiKey && (
-                <button
-                  onClick={clearApiKey}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                >
-                  Clear
-                </button>
-              )}
               <button
-                onClick={() => setShowSettings(false)}
-                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600"
+                onClick={() => setSettingsTab('actors')}
+                className={`pb-2 px-4 font-medium transition-colors ${
+                  settingsTab === 'actors'
+                    ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                }`}
               >
-                Cancel
+                Actor Configuration
               </button>
             </div>
+
+            {/* API Key Tab */}
+            {settingsTab === 'api-key' && (
+              <div>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    API Token
+                  </label>
+                  <input
+                    type="password"
+                    value={apiKeyInput}
+                    onChange={(e) => setApiKeyInput(e.target.value)}
+                    placeholder="apify_api_..."
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Get your API token from:{' '}
+                    <a
+                      href="https://console.apify.com/account/integrations"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 dark:text-blue-400 hover:underline"
+                    >
+                      Apify Console
+                    </a>
+                  </p>
+                </div>
+
+                <div className="mb-6 p-3 bg-blue-50 dark:bg-blue-900/20 rounded border border-blue-200 dark:border-blue-800">
+                  <p className="text-sm text-blue-800 dark:text-blue-200">
+                    <strong>Free Tier:</strong> $5 monthly credits (no credit card required)
+                    <br />
+                    <strong>Current Balance:</strong>{' '}
+                    {status?.usage.creditsRemaining !== undefined
+                      ? `$${status.usage.creditsRemaining.toFixed(2)}`
+                      : 'Configure API key to see balance'}
+                  </p>
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={saveApiKey}
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  >
+                    Save API Key
+                  </button>
+                  {hasApiKey && (
+                    <button
+                      onClick={clearApiKey}
+                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                    >
+                      Clear
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setShowSettings(false)}
+                    className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Actor Configuration Tab */}
+            {settingsTab === 'actors' && (
+              <div>
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                    Configure Actors
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Enable/disable actors and set custom job limits for each source.
+                  </p>
+                </div>
+
+                {/* Total Cost Preview */}
+                <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        Estimated Total Cost
+                      </div>
+                      <div className="text-3xl font-bold text-gray-900 dark:text-white">
+                        ${calculateTotalCost().toFixed(2)}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        Enabled Actors
+                      </div>
+                      <div className="text-2xl font-semibold text-gray-900 dark:text-white">
+                        {actorConfigs.filter((c) => c.enabled).length} / {actorConfigs.length}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Actor Cards */}
+                <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
+                  {actorConfigs.map((config) => (
+                    <div
+                      key={config.id}
+                      className={`p-4 rounded-lg border-2 transition-all ${
+                        config.enabled
+                          ? 'border-blue-200 dark:border-blue-800 bg-white dark:bg-gray-900'
+                          : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 opacity-60'
+                      }`}
+                    >
+                      {/* Header with Toggle */}
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                            {config.name}
+                            {config.enabled && (
+                              <span className="px-2 py-0.5 text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded">
+                                Active
+                              </span>
+                            )}
+                          </h4>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            {config.id}
+                          </p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={config.enabled}
+                            onChange={(e) =>
+                              updateActorConfig(config.id, { enabled: e.target.checked })
+                            }
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                        </label>
+                      </div>
+
+                      {/* Max Results Slider */}
+                      {config.enabled && (
+                        <div className="space-y-3">
+                          <div>
+                            <div className="flex justify-between items-center mb-2">
+                              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Max Results
+                              </label>
+                              <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">
+                                {config.customMaxResults.toLocaleString()} jobs
+                              </span>
+                            </div>
+                            <input
+                              type="range"
+                              min="100"
+                              max={config.maxResults}
+                              step="100"
+                              value={config.customMaxResults}
+                              onChange={(e) =>
+                                updateActorConfig(config.id, {
+                                  customMaxResults: parseInt(e.target.value),
+                                })
+                              }
+                              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                            />
+                            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+                              <span>100</span>
+                              <span>{config.maxResults.toLocaleString()} (max)</span>
+                            </div>
+                          </div>
+
+                          {/* Cost Estimate */}
+                          <div className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-800 rounded">
+                            <span className="text-sm text-gray-600 dark:text-gray-400">
+                              Estimated Cost
+                            </span>
+                            <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                              $
+                              {(
+                                (config.estimatedCost / config.maxResults) *
+                                config.customMaxResults
+                              ).toFixed(2)}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={saveActorConfigs}
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  >
+                    Save Configuration
+                  </button>
+                  <button
+                    onClick={() => setShowSettings(false)}
+                    className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
