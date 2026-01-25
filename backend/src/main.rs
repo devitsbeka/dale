@@ -1,5 +1,5 @@
 use axum::{
-    http::{HeaderName, Method},
+    http::{header, Method},
     routing::{get, post},
     Router,
 };
@@ -49,8 +49,16 @@ async fn main() {
     let auth_service = services::auth::AuthService::new(config.jwt_secret.clone());
     let stripe_service = services::stripe::StripeService::new(config.stripe_secret_key.clone());
 
-    // Configure CORS - permissive for development
-    let cors = CorsLayer::permissive();
+    // Configure CORS - allow specific origins with credentials
+    let cors = CorsLayer::new()
+        .allow_origin([
+            "http://localhost:3000".parse::<axum::http::HeaderValue>().unwrap(),
+            "http://localhost:3001".parse::<axum::http::HeaderValue>().unwrap(),
+            "https://dale-eta.vercel.app".parse::<axum::http::HeaderValue>().unwrap(),
+        ])
+        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE, Method::OPTIONS])
+        .allow_headers([header::CONTENT_TYPE, header::AUTHORIZATION, header::ACCEPT])
+        .allow_credentials(true);
 
     // Create auth routes with their own state
     let auth_routes = Router::new()
