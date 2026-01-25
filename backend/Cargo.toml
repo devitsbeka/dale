@@ -41,8 +41,8 @@ tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 thiserror = "2"
 anyhow = "1"
 
-# Payments
-async-stripe = { version = "0.40", features = ["runtime-tokio-hyper-rustls"] }
+# Payments - using direct REST API via reqwest for now
+# async-stripe has build issues, will add proper SDK later
 
 # AI - using reqwest directly for Anthropic API
 # anthropic SDK not stable yet, will use reqwest for API calls

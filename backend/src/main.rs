@@ -47,6 +47,7 @@ async fn main() {
 
     // Initialize services
     let auth_service = services::auth::AuthService::new(config.jwt_secret.clone());
+    let stripe_service = services::stripe::StripeService::new(config.stripe_secret_key.clone());
 
     // Configure CORS - permissive for development
     let cors = CorsLayer::permissive();
@@ -60,11 +61,21 @@ async fn main() {
             auth_service: auth_service.clone(),
         });
 
+    // Create webhook routes with their own state
+    let webhook_routes = Router::new()
+        .route("/stripe", post(routes::webhooks::handle_stripe_webhook))
+        .with_state(routes::webhooks::WebhookState {
+            db: db.clone(),
+            stripe_service: stripe_service.clone(),
+            webhook_secret: config.stripe_webhook_secret.clone(),
+        });
+
     // Build our application with routes
     let app = Router::new()
         // Public routes
         .route("/health", get(routes::health::health_check))
         .nest("/auth", auth_routes)
+        .nest("/webhooks", webhook_routes)
         // Protected routes
         // .route("/auth/me", get(routes::auth::me))
         //     .layer(axum::middleware::from_fn_with_state(
