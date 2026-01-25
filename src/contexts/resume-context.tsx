@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useCallback, useMemo } from 'react';
 import type { ResumeData, WizardStep, PersonalInfo, WorkExperience, Education, Skill, ResumeCustomization } from '@/types/resume';
 import { useResume as useResumeHook } from '@/hooks/resume';
 import { sanitizeResumeData } from '@/utils/sanitize-resume-data';
@@ -64,7 +64,8 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
                 console.error('Failed to parse saved resume data', e);
             }
         }
-    }, [resume]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // Only run once on mount
 
     const saveResume = useCallback(async () => {
         try {
@@ -72,7 +73,7 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
         } catch (error) {
             console.error('Failed to save resume:', error);
         }
-    }, [resume]);
+    }, [resume.saveNow]);
 
     const loadResume = useCallback(async (id: string) => {
         try {
@@ -91,15 +92,15 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
                 resume.setResumeData(sanitized);
             }
         }
-    }, [resume]);
+    }, [resume.fetchResume, resume.setResumeData, resume.setResumeId]);
 
     const resetResume = useCallback(() => {
         resume.resetData();
         resume.resetWizard();
         localStorage.removeItem(STORAGE_KEY);
-    }, [resume]);
+    }, [resume.resetData, resume.resetWizard]);
 
-    const value: ResumeContextType = {
+    const value: ResumeContextType = useMemo(() => ({
         resumeData: resume.resumeData,
         resumeId: resume.resumeId,
         currentStep: resume.currentStep,
@@ -129,7 +130,37 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
         isSaving: resume.isSaving,
         lastSaved: resume.lastSaved,
         saveError: resume.saveError,
-    };
+    }), [
+        resume.resumeData,
+        resume.resumeId,
+        resume.currentStep,
+        resume.completedSteps,
+        resume.isOnboardingEnabled,
+        resume.setResumeData,
+        resume.updatePersonalInfo,
+        resume.addExperience,
+        resume.updateExperience,
+        resume.removeExperience,
+        resume.setExperiences,
+        resume.addEducation,
+        resume.updateEducation,
+        resume.removeEducation,
+        resume.setEducation,
+        resume.addSkill,
+        resume.removeSkill,
+        resume.updateCustomization,
+        resume.setCurrentStep,
+        resume.markStepComplete,
+        resume.toggleOnboarding,
+        saveResume,
+        resume.saveNow,
+        resume.createResume,
+        loadResume,
+        resetResume,
+        resume.isSaving,
+        resume.lastSaved,
+        resume.saveError,
+    ]);
 
     return (
         <ResumeContext.Provider value={value}>
