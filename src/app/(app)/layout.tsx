@@ -31,31 +31,14 @@ const expandedNavItems: Array<{ label: string; items: NavItemType[] }> = [
                 icon: BarChartSquare02,
             },
             {
-                label: 'Resume v2',
+                label: 'Resume',
                 href: '/resume-v2',
                 icon: Edit04,
-                badge: <Badge size="sm" color="success">Working</Badge>,
             },
             {
                 label: 'Jobs',
                 href: '/jobs',
                 icon: Briefcase02,
-                badge: <Badge size="sm" color="success">Live</Badge>,
-            },
-            {
-                label: 'Projects',
-                href: '/projects',
-                icon: Rows01,
-            },
-            {
-                label: 'Documents',
-                href: '/documents',
-                icon: File05,
-            },
-            {
-                label: 'Calendar',
-                href: '/calendar',
-                icon: Calendar,
             },
         ],
     },
@@ -89,7 +72,7 @@ const collapsedNavItems: (NavItemType & { icon: React.FC<{ className?: string }>
         icon: BarChartSquare02,
     },
     {
-        label: 'Resume v2',
+        label: 'Resume',
         href: '/resume-v2',
         icon: Edit04,
     },
@@ -97,11 +80,6 @@ const collapsedNavItems: (NavItemType & { icon: React.FC<{ className?: string }>
         label: 'Jobs',
         href: '/jobs',
         icon: Briefcase02,
-    },
-    {
-        label: 'Projects',
-        href: '/projects',
-        icon: Rows01,
     },
     {
         label: 'Tasks',
