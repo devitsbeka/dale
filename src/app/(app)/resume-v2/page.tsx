@@ -160,9 +160,9 @@ const RONALD_DUMP_DATA: FormData = {
 };
 
 export default function ResumeV2Page() {
-    const [activeTab, setActiveTab] = useState<'info' | 'experience' | 'education' | 'skills' | 'customize'>('info');
+    const [activeTab, setActiveTab] = useState<'info' | 'experience' | 'skills' | 'customize'>('info');
     const [data, setData] = useState<FormData>(RONALD_DUMP_DATA);
-    const [leftPanelWidth, setLeftPanelWidth] = useState(600); // 20% wider than original 500px
+    const [leftPanelWidth, setLeftPanelWidth] = useState(540); // 10% narrower than previous 600px
     const [isResizing, setIsResizing] = useState(false);
 
     const handleFormInteraction = () => {
@@ -303,16 +303,6 @@ export default function ResumeV2Page() {
                         Experience
                     </button>
                     <button
-                        onClick={() => setActiveTab('education')}
-                        className={`px-6 py-3 font-medium transition-colors whitespace-nowrap ${
-                            activeTab === 'education'
-                                ? 'text-blue-600 border-b-2 border-blue-600'
-                                : 'text-gray-600 hover:text-gray-900'
-                        }`}
-                    >
-                        Education
-                    </button>
-                    <button
                         onClick={() => setActiveTab('skills')}
                         className={`px-6 py-3 font-medium transition-colors whitespace-nowrap ${
                             activeTab === 'skills'
@@ -417,6 +407,15 @@ export default function ResumeV2Page() {
                                     placeholder="Brief professional summary..."
                                 />
                             </div>
+
+                            {/* Education Section */}
+                            <div className="pt-6 mt-6 border-t border-gray-200">
+                                <EducationTab
+                                    data={data.education}
+                                    onChange={(education) => setData(prev => ({ ...prev, education }))}
+                                    onInteraction={handleFormInteraction}
+                                />
+                            </div>
                         </div>
                     )}
 
@@ -424,14 +423,6 @@ export default function ResumeV2Page() {
                         <ExperienceTab
                             data={data.experience}
                             onChange={(experience) => setData(prev => ({ ...prev, experience }))}
-                            onInteraction={handleFormInteraction}
-                        />
-                    )}
-
-                    {activeTab === 'education' && (
-                        <EducationTab
-                            data={data.education}
-                            onChange={(education) => setData(prev => ({ ...prev, education }))}
                             onInteraction={handleFormInteraction}
                         />
                     )}

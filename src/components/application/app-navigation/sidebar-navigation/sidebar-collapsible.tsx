@@ -1,7 +1,7 @@
 "use client";
 
 import type { FC, ReactNode } from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { ChevronLeft, ChevronRight, LifeBuoy01, LogOut01, Settings01 } from "@untitledui/icons";
 import { motion } from "motion/react";
@@ -59,11 +59,30 @@ export const SidebarCollapsible = ({
 }: SidebarCollapsibleProps) => {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const { resolvedTheme, setTheme } = useTheme();
-    
+
     const EXPANDED_WIDTH = 292;
     const COLLAPSED_WIDTH = 68;
+    const COLLAPSE_BREAKPOINT = 1240;
 
     const isDarkMode = resolvedTheme === "dark";
+
+    // Auto-collapse sidebar when screen width is below breakpoint
+    useEffect(() => {
+        const handleResize = () => {
+            if (typeof window !== 'undefined') {
+                const shouldCollapse = window.innerWidth < COLLAPSE_BREAKPOINT;
+                setIsCollapsed(shouldCollapse);
+            }
+        };
+
+        // Check on mount
+        handleResize();
+
+        // Listen for resize events
+        window.addEventListener('resize', handleResize);
+
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const handleThemeToggle = (isSelected: boolean) => {
         setTheme(isSelected ? "dark" : "light");
