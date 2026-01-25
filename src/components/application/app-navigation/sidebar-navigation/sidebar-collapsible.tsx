@@ -62,7 +62,7 @@ export const SidebarCollapsible = ({
     const { resolvedTheme, setTheme } = useTheme();
     const { user, isLoading: authLoading } = useAuth();
 
-    const EXPANDED_WIDTH = 292;
+    const EXPANDED_WIDTH = 240;
     const COLLAPSED_WIDTH = 68;
     const COLLAPSE_BREAKPOINT = 1240;
 
@@ -101,7 +101,7 @@ export const SidebarCollapsible = ({
     const mobileContent = (
         <aside className={cx("group flex h-full max-h-full w-full max-w-full flex-col justify-between overflow-y-auto bg-primary pt-4", scrollbarHiddenClass)}>
             <div className="px-4">
-                <UntitledLogo className="h-8" />
+                <img src="/logo.svg" alt="Dale" className="h-8 w-auto" />
             </div>
 
             <ul className="mt-6">
@@ -210,15 +210,21 @@ export const SidebarCollapsible = ({
                         isCollapsed ? "flex-col gap-4 px-2" : "justify-between px-4 lg:px-5"
                     )}>
                         <motion.div
-                            initial={false}
+                            key={activeUrl}
+                            initial={{ opacity: 0.3 }}
                             animate={{ opacity: 1 }}
+                            transition={{ duration: 0.4, ease: "easeOut" }}
                             className="flex items-center"
                         >
-                            {isCollapsed ? (
-                                <UntitledLogoMinimal className="size-8" />
-                            ) : (
-                                <UntitledLogo className="h-8" />
-                            )}
+                            <motion.img
+                                src="/logo.svg"
+                                alt="Dale"
+                                className={isCollapsed ? "h-8 w-auto" : "h-8 w-auto"}
+                                style={{ width: isCollapsed ? "32px" : "80px" }}
+                                initial={{ scale: 0.95 }}
+                                animate={{ scale: 1 }}
+                                transition={{ duration: 0.3 }}
+                            />
                         </motion.div>
                         <Button
                             size="sm"
