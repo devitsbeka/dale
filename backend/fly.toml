@@ -1,0 +1,40 @@
+# Fly.io configuration for CareerOS Rust Backend
+# https://fly.io/docs/reference/configuration/
+
+app = "careeros-backend-prod"
+primary_region = "iad" # US East (Virginia) - close to Neon DB
+
+# Build configuration will use Dockerfile automatically
+
+[env]
+  # Rust logging level
+  RUST_LOG = "info"
+  # Server port (Fly.io provides PORT env var automatically)
+  PORT = "8080"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0 # Scale to zero when idle
+  processes = ["app"]
+
+  # Health check endpoint
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "30s"
+    method = "GET"
+    timeout = "5s"
+    path = "/health"
+
+# VM resources
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1
+
+# Metrics for monitoring
+[[metrics]]
+  port = 9091
+  path = "/metrics"
