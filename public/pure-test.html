@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pure Click Test</title>
+    <style>
+        body {
+            padding: 50px;
+            background: white;
+            font-family: sans-serif;
+        }
+        button {
+            padding: 20px 40px;
+            font-size: 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px 0;
+            display: block;
+        }
+        .btn1 { background: blue; color: white; }
+        .btn2 { background: green; color: white; position: relative; z-index: 99999; }
+        input {
+            padding: 10px;
+            font-size: 18px;
+            width: 300px;
+            margin: 20px 0;
+            display: block;
+            border: 2px solid black;
+            color: black;
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Pure HTML Click Test (No React, No Next.js)</h1>
+
+    <button class="btn1" onclick="alert('Button 1 works!')">Click Me - Button 1</button>
+
+    <button class="btn2" onclick="console.log('Button 2 clicked'); this.textContent = 'CLICKED! ' + new Date().toISOString()">
+        Click Me - Button 2 (z-99999)
+    </button>
+
+    <input type="text" placeholder="Type here..." onkeyup="console.log('Input:', this.value)" />
+
+    <p id="status">Status: Waiting for interaction...</p>
+
+    <script>
+        document.querySelector('.btn1').addEventListener('click', function() {
+            document.getElementById('status').textContent = 'Status: Button 1 clicked at ' + new Date().toLocaleTimeString();
+        });
+
+        document.querySelector('.btn2').addEventListener('click', function() {
+            document.getElementById('status').textContent = 'Status: Button 2 clicked at ' + new Date().toLocaleTimeString();
+        });
+
+        document.querySelector('input').addEventListener('input', function(e) {
+            document.getElementById('status').textContent = 'Status: Typed "' + e.target.value + '"';
+        });
+    </script>
+</body>
+</html>
