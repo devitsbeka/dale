@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { RouteProvider } from "@/providers/router-provider";
 import { Theme } from "@/providers/theme";
+import { AuthProvider } from "@/contexts/auth-context";
 import "@/styles/globals.css";
 
 export const metadata: Metadata = {
@@ -21,9 +22,11 @@ export default function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning>
             <body className="bg-primary antialiased">
-                <RouteProvider>
-                    <Theme>{children}</Theme>
-                </RouteProvider>
+                <AuthProvider>
+                    <RouteProvider>
+                        <Theme>{children}</Theme>
+                    </RouteProvider>
+                </AuthProvider>
             </body>
         </html>
     );
