@@ -34,7 +34,12 @@ const expandedNavItems: Array<{ label: string; items: NavItemType[] }> = [
                 label: 'Resume Builder',
                 href: '/resume-builder',
                 icon: Edit04,
-                badge: <Badge size="sm" color="brand">New</Badge>,
+            },
+            {
+                label: 'Resume v2',
+                href: '/resume-v2',
+                icon: Edit04,
+                badge: <Badge size="sm" color="success">Working</Badge>,
             },
             {
                 label: 'Jobs',
@@ -91,6 +96,11 @@ const collapsedNavItems: (NavItemType & { icon: React.FC<{ className?: string }>
     {
         label: 'Resume Builder',
         href: '/resume-builder',
+        icon: Edit04,
+    },
+    {
+        label: 'Resume v2',
+        href: '/resume-v2',
         icon: Edit04,
     },
     {
