@@ -7,11 +7,13 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
-
-const DEMO_USER_ID = 'demo-user';
+import { getUserIdFromRequest } from '@/lib/auth/get-user-from-request';
 
 export async function GET(request: NextRequest) {
   try {
+    // Get authenticated user ID
+    const userId = await getUserIdFromRequest(request);
+
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1', 10);
     const limit = Math.min(parseInt(searchParams.get('limit') || '20', 10), 100);
@@ -20,21 +22,10 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit;
 
-    // Ensure demo user exists
-    await prisma.user.upsert({
-      where: { id: DEMO_USER_ID },
-      update: {},
-      create: {
-        id: DEMO_USER_ID,
-        email: 'demo@careeros.com',
-        name: 'Demo User',
-      },
-    });
-
     // Fetch saved jobs with job data
     const [savedJobs, total] = await Promise.all([
       prisma.savedJob.findMany({
-        where: { userId: DEMO_USER_ID },
+        where: { userId },
         include: {
           job: true,
         },
@@ -45,7 +36,7 @@ export async function GET(request: NextRequest) {
         take: limit,
       }),
       prisma.savedJob.count({
-        where: { userId: DEMO_USER_ID },
+        where: { userId },
       }),
     ]);
 
@@ -83,6 +74,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Get authenticated user ID
+    const userId = await getUserIdFromRequest(request);
+
     const body = await request.json();
     const { jobId, jobData, notes, priority = 0 } = body;
 
@@ -92,17 +86,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
-    // Ensure demo user exists
-    await prisma.user.upsert({
-      where: { id: DEMO_USER_ID },
-      update: {},
-      create: {
-        id: DEMO_USER_ID,
-        email: 'demo@careeros.com',
-        name: 'Demo User',
-      },
-    });
 
     // First, ensure the job exists in our database
     // If jobData is provided, upsert the job
@@ -178,7 +161,7 @@ export async function POST(request: NextRequest) {
     const existing = await prisma.savedJob.findUnique({
       where: {
         userId_jobId: {
-          userId: DEMO_USER_ID,
+          userId,
           jobId,
         },
       },
@@ -204,7 +187,7 @@ export async function POST(request: NextRequest) {
     // Create new saved job
     const savedJob = await prisma.savedJob.create({
       data: {
-        userId: DEMO_USER_ID,
+        userId,
         jobId,
         notes,
         priority,
@@ -228,6 +211,9 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+    // Get authenticated user ID
+    const userId = await getUserIdFromRequest(request);
+
     const { searchParams } = new URL(request.url);
     const jobId = searchParams.get('jobId');
 
@@ -238,21 +224,10 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Ensure demo user exists
-    await prisma.user.upsert({
-      where: { id: DEMO_USER_ID },
-      update: {},
-      create: {
-        id: DEMO_USER_ID,
-        email: 'demo@careeros.com',
-        name: 'Demo User',
-      },
-    });
-
     // Delete saved job
     await prisma.savedJob.deleteMany({
       where: {
-        userId: DEMO_USER_ID,
+        userId,
         jobId,
       },
     });
