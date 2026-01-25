@@ -69,8 +69,11 @@ export const SidebarCollapsible = ({
     const isDarkMode = resolvedTheme === "dark";
 
     // Get user display info
-    const userDisplayName = user?.name || user?.email?.split('@')[0] || 'User';
-    const userEmail = user?.email || 'user@example.com';
+    const userDisplayName = user?.name || user?.email?.split('@')[0] || 'Guest User';
+    const userEmail = user?.email || 'Please log in';
+
+    // Debug logging
+    console.log('Sidebar user:', user);
 
     // Auto-collapse sidebar when screen width is below breakpoint
     useEffect(() => {
