@@ -24,11 +24,13 @@ export default function LoginPage() {
     try {
       if (mode === 'login') {
         await login({ email, password });
+        // Existing users go to dashboard
+        router.push('/dashboard');
       } else {
         await signup({ email, password, name: name || undefined });
+        // New users go to onboarding
+        router.push('/onboarding');
       }
-      // Redirect to dashboard on success
-      router.push('/dashboard');
     } catch (err) {
       const errorMessage =
         err instanceof ApiError ? err.message : 'An error occurred';
