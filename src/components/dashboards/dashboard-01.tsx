@@ -406,7 +406,7 @@ export const Dashboard01 = () => {
                                 </ButtonGroupItem>
                             </ButtonGroup>
 
-                            <div className="hidden gap-3 lg:flex">
+                            <div className="hidden gap-3 lg:flex" suppressHydrationWarning>
                                 <DateRangePicker />
 
                                 <Button color="secondary" size="md" iconLeading={FilterLines}>
@@ -414,7 +414,7 @@ export const Dashboard01 = () => {
                                 </Button>
                             </div>
 
-                            <div className="lg:hidden">
+                            <div className="lg:hidden" suppressHydrationWarning>
                                 <Button color="secondary" size="md" iconLeading={FilterLines} />
                             </div>
                         </div>
