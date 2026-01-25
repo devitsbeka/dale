@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AVAILABLE_TEMPLATES } from '@/lib/template-engine/types';
 import { TemplateRenderer } from '@/lib/template-engine/template-renderer';
 import type { ResumeData } from '@/types/resume';
@@ -162,6 +162,8 @@ const RONALD_DUMP_DATA: FormData = {
 export default function ResumeV2Page() {
     const [activeTab, setActiveTab] = useState<'info' | 'experience' | 'education' | 'skills' | 'customize'>('info');
     const [data, setData] = useState<FormData>(RONALD_DUMP_DATA);
+    const [leftPanelWidth, setLeftPanelWidth] = useState(600); // 20% wider than original 500px
+    const [isResizing, setIsResizing] = useState(false);
 
     const handleFormInteraction = () => {
         if (data.isDummyData) {
@@ -183,6 +185,46 @@ export default function ResumeV2Page() {
     const updateField = (field: keyof FormData, value: string) => {
         setData(prev => ({ ...prev, [field]: value }));
     };
+
+    const startResizing = () => {
+        setIsResizing(true);
+    };
+
+    const stopResizing = () => {
+        setIsResizing(false);
+    };
+
+    const resize = (e: MouseEvent) => {
+        const newWidth = e.clientX;
+        if (newWidth >= 400 && newWidth <= 800) {
+            setLeftPanelWidth(newWidth);
+        }
+    };
+
+    // Add and remove mouse event listeners
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            if (isResizing) {
+                resize(e);
+            }
+        };
+
+        const handleMouseUp = () => {
+            if (isResizing) {
+                stopResizing();
+            }
+        };
+
+        if (isResizing) {
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+        }
+
+        return () => {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [isResizing]);
 
     // Convert form data to ResumeData format for templates
     const resumeData: Partial<ResumeData> = {
@@ -228,7 +270,10 @@ export default function ResumeV2Page() {
     return (
         <div className="flex h-screen bg-gray-50">
             {/* Left Panel - Form */}
-            <div className="w-[500px] bg-white border-r border-gray-200 flex flex-col">
+            <div
+                className="bg-white border-r border-gray-200 flex flex-col"
+                style={{ width: `${leftPanelWidth}px` }}
+            >
                 {/* Header */}
                 <div className="p-6 border-b border-gray-200">
                     <h1 className="text-2xl font-bold text-gray-900">Resume Builder v2</h1>
@@ -491,6 +536,13 @@ export default function ResumeV2Page() {
                     )}
                 </div>
             </div>
+
+            {/* Resize Handle */}
+            <div
+                onMouseDown={startResizing}
+                className="w-1 bg-gray-200 hover:bg-blue-500 cursor-col-resize transition-colors"
+                style={{ userSelect: 'none' }}
+            />
 
             {/* Right Panel - Preview */}
             <div className="flex-1 bg-gray-100 p-8 overflow-y-auto">
