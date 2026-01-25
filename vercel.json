@@ -1,5 +1,15 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "npx prisma generate && next build",
-  "installCommand": "npm install && npx prisma generate"
+  "installCommand": "npm install && npx prisma generate",
+  "crons": [
+    {
+      "path": "/api/cron/sync-jobs-daily",
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/sync-jobs-hourly",
+      "schedule": "0 * * * *"
+    }
+  ]
 }

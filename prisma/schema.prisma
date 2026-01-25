@@ -265,6 +265,12 @@ model Job {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
+  // Sync management
+  lastSyncedAt    DateTime @default(now())
+  syncStatus      String   @default("active") // active, stale, expired
+  isActive        Boolean  @default(true)
+  viewCount       Int      @default(0)
+
   // Relations
   savedBy         SavedJob[]
   applications    JobApplication[]
@@ -276,7 +282,45 @@ model Job {
   @@index([publishedAt])
   @@index([title])
   @@index([company])
+  @@index([isActive, publishedAt(sort: Desc)])
+  @@index([company, title])
+  @@index([lastSyncedAt])
+  @@index([syncStatus])
   @@map("jobs")
+}
+
+// Sync log for tracking background job synchronization
+model SyncLog {
+  id            String   @id @default(cuid())
+  syncType      String   // daily, hourly, manual
+  status        String   // pending, running, completed, failed
+
+  // Progress tracking
+  sourcesTotal      Int      @default(0)
+  sourcesCompleted  Int      @default(0)
+  sourcesSkipped    Int      @default(0)
+
+  // Results
+  jobsCreated   Int      @default(0)
+  jobsUpdated   Int      @default(0)
+  jobsStaled    Int      @default(0)
+  jobsDeleted   Int      @default(0)
+
+  // Error tracking
+  errors        String?  @db.Text // JSON array of errors
+
+  // Timing
+  startedAt     DateTime @default(now())
+  completedAt   DateTime?
+  duration      Int?     // Duration in milliseconds
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([syncType])
+  @@index([status])
+  @@index([startedAt])
+  @@map("sync_logs")
 }
 
 // User's saved/bookmarked jobs
