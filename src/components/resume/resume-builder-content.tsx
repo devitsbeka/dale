@@ -260,9 +260,9 @@ export function ResumeBuilderContent() {
 
     return (
         <>
-            <div className="flex h-screen overflow-hidden bg-primary">
+            <div className="flex h-screen overflow-hidden bg-primary" style={{ isolation: 'isolate' }}>
                 {/* Left Panel - Form */}
-                <div className="flex w-[700px] flex-col border-r border-secondary">
+                <div className="flex w-[700px] flex-col border-r border-secondary relative z-10">
                     {/* Header */}
                     <div className="border-b border-secondary bg-primary px-8 py-6">
                         <div className="flex items-center justify-between">
@@ -389,7 +389,7 @@ export function ResumeBuilderContent() {
 
                 {/* Right Panel - Live Preview */}
                 <div className="flex flex-1 flex-col bg-gradient-to-br from-gray-50 to-gray-100">
-                    <div className="border-b border-secondary bg-white/80 backdrop-blur-sm px-8 py-6">
+                    <div className="border-b border-secondary bg-white px-8 py-6">
                         <div className="flex items-center justify-between">
                             <div>
                                 <h2 className="text-lg font-semibold text-primary">Live Preview</h2>
