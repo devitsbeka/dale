@@ -85,7 +85,8 @@ export async function POST(request: NextRequest) {
     // First, ensure the job exists in our database
     // If jobData is provided, upsert the job
     if (jobData) {
-      await prisma.job.upsert({
+      try {
+        await prisma.job.upsert({
         where: {
           source_externalId: {
             source: jobData.source,
@@ -145,6 +146,10 @@ export async function POST(request: NextRequest) {
           expiresAt: jobData.expiresAt ? new Date(jobData.expiresAt) : null,
         },
       });
+      } catch (upsertError) {
+        console.error('Error upserting job:', upsertError);
+        throw new Error(`Failed to upsert job: ${upsertError instanceof Error ? upsertError.message : 'Unknown error'}`);
+      }
     }
 
     // Check if already saved
@@ -191,8 +196,9 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error saving job:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to save job';
     return NextResponse.json(
-      { error: 'Failed to save job' },
+      { error: errorMessage, details: error },
       { status: 500 }
     );
   }
