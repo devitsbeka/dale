@@ -140,19 +140,21 @@ export class ApifyJobLoader {
   private normalizeJobs(actorId: string, items: any[]): Job[] {
     const jobs: Job[] = [];
 
+    // Map API IDs to normalizers
+    const actorMap: Record<string, (item: any) => Job | null> = {
+      'hKByXkMQaC5Qt9UMN': normalizeLinkedInJob, // LinkedIn
+      'N5bHfOymnV2CDodyf': normalizeGreenhouseJob, // Greenhouse
+      'hMvNSpz3JnHgl5jkh': normalizeIndeedJob, // Indeed
+    };
+
+    const normalizer = actorMap[actorId];
+
     for (const item of items) {
-      let job: Job | null = null;
-
-      if (actorId.includes('linkedin')) {
-        job = normalizeLinkedInJob(item);
-      } else if (actorId.includes('greenhouse')) {
-        job = normalizeGreenhouseJob(item);
-      } else if (actorId.includes('indeed')) {
-        job = normalizeIndeedJob(item);
-      }
-
-      if (job) {
-        jobs.push(job);
+      if (normalizer) {
+        const job = normalizer(item);
+        if (job) {
+          jobs.push(job);
+        }
       }
     }
 

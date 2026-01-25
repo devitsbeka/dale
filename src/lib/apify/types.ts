@@ -43,41 +43,49 @@ export interface ApifyDatasetItem {
 
 export const APIFY_ACTORS: ApifyActorConfig[] = [
   {
-    actorId: 'curious_coder/linkedin-jobs-scraper',
+    actorId: 'hKByXkMQaC5Qt9UMN', // curious_coder/linkedin-jobs-scraper
     name: 'LinkedIn Jobs',
     maxResults: 5000,
     estimatedCost: 5.0, // $1 per 1000 results
     input: {
-      maxItems: 5000,
-      searchQuery: 'software engineer remote',
-      location: 'Worldwide',
-      datePosted: 'week',
-    },
-  },
-  {
-    actorId: 'bytepulselabs/greenhouse-job-scraper',
-    name: 'Greenhouse Jobs',
-    maxResults: 2500,
-    estimatedCost: 5.0, // $2 per 1000 results
-    input: {
-      maxResults: 2500,
-      startUrls: [
-        { url: 'https://boards.greenhouse.io/embed/job_board?for=airbnb' },
-        { url: 'https://boards.greenhouse.io/embed/job_board?for=stripe' },
-        { url: 'https://boards.greenhouse.io/embed/job_board?for=gitlab' },
+      count: 5000,
+      scrapeCompany: true,
+      urls: [
+        'https://www.linkedin.com/jobs/search/?keywords=software%20engineer&location=Remote',
+        'https://www.linkedin.com/jobs/search/?keywords=developer&location=Remote',
       ],
     },
   },
   {
-    actorId: 'misceres/indeed-scraper',
+    actorId: 'N5bHfOymnV2CDodyf', // bytepulselabs/greenhouse-job-scraper
+    name: 'Greenhouse Jobs',
+    maxResults: 2500,
+    estimatedCost: 5.0, // $2 per 1000 results
+    input: {
+      proxy: {
+        useApifyProxy: true,
+      },
+      urls: [
+        { url: 'https://job-boards.greenhouse.io/stripe' },
+        { url: 'https://job-boards.greenhouse.io/notion' },
+        { url: 'https://job-boards.greenhouse.io/gitlab' },
+        { url: 'https://job-boards.greenhouse.io/airbnb' },
+      ],
+    },
+  },
+  {
+    actorId: 'hMvNSpz3JnHgl5jkh', // misceres/indeed-scraper
     name: 'Indeed Jobs',
     maxResults: 1000,
     estimatedCost: 2.0, // Estimated based on compute units
     input: {
-      position: 'software engineer',
-      location: 'remote',
-      maxItems: 1000,
       country: 'US',
+      location: 'Remote',
+      position: 'software engineer',
+      maxItemsPerSearch: 1000,
+      followApplyRedirects: true,
+      parseCompanyDetails: true,
+      saveOnlyUniqueItems: true,
     },
   },
 ];
