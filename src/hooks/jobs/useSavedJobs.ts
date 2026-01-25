@@ -51,7 +51,16 @@ export function useSavedJobs(): UseSavedJobsReturn {
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const response = await fetch('/api/jobs/saved?limit=100');
+      // Get auth token from localStorage
+      const token = localStorage.getItem('auth_token');
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch('/api/jobs/saved?limit=100', {
+        headers,
+      });
 
       if (!response.ok) {
         throw new Error('Failed to fetch saved jobs');
@@ -79,9 +88,18 @@ export function useSavedJobs(): UseSavedJobsReturn {
   const saveJob = useCallback(
     async (job: Job, notes?: string, priority: number = 0): Promise<boolean> => {
       try {
+        // Get auth token from localStorage
+        const token = localStorage.getItem('auth_token');
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+        };
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+
         const response = await fetch('/api/jobs/saved', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({
             jobId: job.id,
             jobData: job,
@@ -121,8 +139,16 @@ export function useSavedJobs(): UseSavedJobsReturn {
 
   const unsaveJob = useCallback(async (jobId: string): Promise<boolean> => {
     try {
+      // Get auth token from localStorage
+      const token = localStorage.getItem('auth_token');
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`/api/jobs/saved?jobId=${jobId}`, {
         method: 'DELETE',
+        headers,
       });
 
       if (!response.ok) {

@@ -12,12 +12,20 @@ export interface JWTPayload {
 }
 
 /**
- * Extract and verify user ID from JWT token in request cookies
+ * Extract and verify user ID from JWT token in request cookies or Authorization header
  * Returns the user ID or throws an error if not authenticated
  */
 export async function getUserIdFromRequest(request: NextRequest): Promise<string> {
-  // Get token from cookie
-  const token = request.cookies.get('auth_token')?.value;
+  // Try to get token from cookie first (Rust backend sets this)
+  let token = request.cookies.get('auth_token')?.value;
+
+  // If not in cookie, try Authorization header (for Next.js API routes)
+  if (!token) {
+    const authHeader = request.headers.get('Authorization');
+    if (authHeader?.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
+  }
 
   if (!token) {
     throw new Error('Not authenticated - no token found');
