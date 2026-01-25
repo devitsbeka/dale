@@ -12,7 +12,10 @@ export type JobSource =
   | 'jobicy'
   | 'usajobs'
   | 'adzuna'
-  | 'findwork';
+  | 'findwork'
+  | 'linkedin'
+  | 'greenhouse'
+  | 'indeed';
 
 // Location types
 export type LocationType = 'remote' | 'onsite' | 'hybrid';
