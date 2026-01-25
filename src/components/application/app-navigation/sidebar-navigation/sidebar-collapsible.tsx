@@ -60,7 +60,7 @@ export const SidebarCollapsible = ({
 }: SidebarCollapsibleProps) => {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const { resolvedTheme, setTheme } = useTheme();
-    const { user } = useAuth();
+    const { user, isLoading: authLoading } = useAuth();
 
     const EXPANDED_WIDTH = 292;
     const COLLAPSED_WIDTH = 68;
@@ -68,12 +68,9 @@ export const SidebarCollapsible = ({
 
     const isDarkMode = resolvedTheme === "dark";
 
-    // Get user display info
-    const userDisplayName = user?.name || user?.email?.split('@')[0] || 'Guest User';
-    const userEmail = user?.email || 'Please log in';
-
-    // Debug logging
-    console.log('Sidebar user:', user);
+    // Get user display info - only if loaded
+    const userDisplayName = user?.name || user?.email?.split('@')[0] || '';
+    const userEmail = user?.email || '';
 
     // Auto-collapse sidebar when screen width is below breakpoint
     useEffect(() => {
@@ -159,21 +156,33 @@ export const SidebarCollapsible = ({
                 </div>
 
                 <div className="relative flex items-center gap-3 border-t border-secondary pt-6 pr-8 pl-2">
-                    <AvatarLabelGroup
-                        status="online"
-                        size="md"
-                        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(userDisplayName)}&background=E9684B&color=fff`}
-                        title={userDisplayName}
-                        subtitle={userEmail}
-                    />
-                    <div className="absolute top-1/2 right-0 -translate-y-1/2">
-                        <Button
-                            size="sm"
-                            color="tertiary"
-                            iconLeading={<LogOut01 className="size-5 text-fg-quaternary transition-inherit-all group-hover:text-fg-quaternary_hover" />}
-                            className="p-1.5!"
-                        />
-                    </div>
+                    {authLoading ? (
+                        <div className="flex items-center gap-3 w-full">
+                            <div className="size-10 rounded-full bg-secondary animate-pulse" />
+                            <div className="flex-1 space-y-2">
+                                <div className="h-4 bg-secondary rounded animate-pulse w-24" />
+                                <div className="h-3 bg-secondary rounded animate-pulse w-32" />
+                            </div>
+                        </div>
+                    ) : user ? (
+                        <>
+                            <AvatarLabelGroup
+                                status="online"
+                                size="md"
+                                src={`https://ui-avatars.com/api/?name=${encodeURIComponent(userDisplayName)}&background=E9684B&color=fff`}
+                                title={userDisplayName}
+                                subtitle={userEmail}
+                            />
+                            <div className="absolute top-1/2 right-0 -translate-y-1/2">
+                                <Button
+                                    size="sm"
+                                    color="tertiary"
+                                    iconLeading={<LogOut01 className="size-5 text-fg-quaternary transition-inherit-all group-hover:text-fg-quaternary_hover" />}
+                                    className="p-1.5!"
+                                />
+                            </div>
+                        </>
+                    ) : null}
                 </div>
             </div>
         </aside>
@@ -317,40 +326,49 @@ export const SidebarCollapsible = ({
                         )}
 
                         {/* Account */}
-                        {isCollapsed ? (
-                            <AriaDialogTrigger>
-                                <AriaButton
-                                    className={({ isPressed, isFocused }) =>
-                                        cx("group relative inline-flex rounded-full", (isPressed || isFocused) && "outline-2 outline-offset-2 outline-focus-ring")
-                                    }
-                                >
-                                    <Avatar
-                                        status="online"
-                                        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(userDisplayName)}&background=E9684B&color=fff`}
-                                        size="md"
-                                        alt={userDisplayName}
-                                    />
-                                </AriaButton>
-                                <AriaPopover
-                                    placement="right bottom"
-                                    offset={8}
-                                    crossOffset={6}
-                                    className={({ isEntering, isExiting }) =>
-                                        cx(
-                                            "will-change-transform",
-                                            isEntering &&
-                                                "duration-300 ease-out animate-in fade-in placement-right:slide-in-from-left-2 placement-top:slide-in-from-bottom-2 placement-bottom:slide-in-from-top-2",
-                                            isExiting &&
-                                                "duration-150 ease-in animate-out fade-out placement-right:slide-out-to-left-2 placement-top:slide-out-to-bottom-2 placement-bottom:slide-out-to-top-2",
-                                        )
-                                    }
-                                >
-                                    <NavAccountMenu />
-                                </AriaPopover>
-                            </AriaDialogTrigger>
-                        ) : (
-                            <NavAccountCard />
-                        )}
+                        {authLoading ? (
+                            <div className={cx(isCollapsed ? "flex justify-center" : "")}>
+                                <div className={cx(
+                                    "rounded-full bg-secondary animate-pulse",
+                                    isCollapsed ? "size-10" : "h-14 w-full"
+                                )} />
+                            </div>
+                        ) : user ? (
+                            isCollapsed ? (
+                                <AriaDialogTrigger>
+                                    <AriaButton
+                                        className={({ isPressed, isFocused }) =>
+                                            cx("group relative inline-flex rounded-full", (isPressed || isFocused) && "outline-2 outline-offset-2 outline-focus-ring")
+                                        }
+                                    >
+                                        <Avatar
+                                            status="online"
+                                            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(userDisplayName)}&background=E9684B&color=fff`}
+                                            size="md"
+                                            alt={userDisplayName}
+                                        />
+                                    </AriaButton>
+                                    <AriaPopover
+                                        placement="right bottom"
+                                        offset={8}
+                                        crossOffset={6}
+                                        className={({ isEntering, isExiting }) =>
+                                            cx(
+                                                "will-change-transform",
+                                                isEntering &&
+                                                    "duration-300 ease-out animate-in fade-in placement-right:slide-in-from-left-2 placement-top:slide-in-from-bottom-2 placement-bottom:slide-in-from-top-2",
+                                                isExiting &&
+                                                    "duration-150 ease-in animate-out fade-out placement-right:slide-out-to-left-2 placement-top:slide-out-to-bottom-2 placement-bottom:slide-out-to-top-2",
+                                            )
+                                        }
+                                    >
+                                        <NavAccountMenu />
+                                    </AriaPopover>
+                                </AriaDialogTrigger>
+                            ) : (
+                                <NavAccountCard />
+                            )
+                        ) : null}
                     </div>
                 </motion.aside>
             </div>

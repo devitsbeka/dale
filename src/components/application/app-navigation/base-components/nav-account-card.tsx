@@ -166,12 +166,30 @@ export const NavAccountCard = ({
 }) => {
     const triggerRef = useRef<HTMLDivElement>(null);
     const isDesktop = useBreakpoint("lg");
-    const { user } = useAuth();
+    const { user, isLoading: authLoading } = useAuth();
 
-    // Use real user data if available, otherwise fall back to placeholder
-    const userDisplayName = user?.name || user?.email?.split('@')[0] || 'User';
-    const userEmail = user?.email || 'user@example.com';
-    const userAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(userDisplayName)}&background=E9684B&color=fff`;
+    // Only use real user data when loaded
+    const userDisplayName = user?.name || user?.email?.split('@')[0] || '';
+    const userEmail = user?.email || '';
+    const userAvatar = userDisplayName ? `https://ui-avatars.com/api/?name=${encodeURIComponent(userDisplayName)}&background=E9684B&color=fff` : '';
+
+    if (authLoading) {
+        return (
+            <div className="relative flex items-center gap-3 rounded-xl p-3 ring-1 ring-secondary ring-inset">
+                <div className="flex items-center gap-3 w-full">
+                    <div className="size-10 rounded-full bg-secondary animate-pulse" />
+                    <div className="flex-1 space-y-2">
+                        <div className="h-4 bg-secondary rounded animate-pulse w-20" />
+                        <div className="h-3 bg-secondary rounded animate-pulse w-28" />
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (!user) {
+        return null;
+    }
 
     return (
         <div ref={triggerRef} className="relative flex items-center gap-3 rounded-xl p-3 ring-1 ring-secondary ring-inset">
