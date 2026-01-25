@@ -77,49 +77,55 @@ export default function JobLoadPage() {
 
   // Load API key and actor configs from localStorage on mount
   useEffect(() => {
-    const savedKey = localStorage.getItem('apify_api_token');
-    if (savedKey) {
-      setApiKey(savedKey);
-      setApiKeyInput(savedKey);
-      setHasApiKey(true);
-    }
-
-    // Load actor configs
-    const savedConfigs = localStorage.getItem('apify_actor_configs');
-    if (savedConfigs) {
-      try {
-        setActorConfigs(JSON.parse(savedConfigs));
-      } catch (error) {
-        console.error('Failed to load actor configs:', error);
+    const initializeData = async () => {
+      // Load API key
+      const savedKey = localStorage.getItem('apify_api_token');
+      if (savedKey) {
+        setApiKey(savedKey);
+        setApiKeyInput(savedKey);
+        setHasApiKey(true);
       }
-    }
 
-    // Fetch available actors
-    fetchAvailableActors();
-  }, []);
+      // Load actor configs from localStorage
+      const savedConfigs = localStorage.getItem('apify_actor_configs');
+      let hasStoredConfigs = false;
 
-  // Fetch available actors from API
-  const fetchAvailableActors = async () => {
-    try {
-      const response = await fetch('/api/jobload/trigger');
-      if (response.ok) {
-        const data: AvailableActorsResponse = await response.json();
-        setAvailableActors(data.actors);
-
-        // Initialize actor configs if not already set
-        if (actorConfigs.length === 0) {
-          const initialConfigs: ActorConfig[] = data.actors.map((actor) => ({
-            ...actor,
-            enabled: true,
-            customMaxResults: actor.maxResults,
-          }));
-          setActorConfigs(initialConfigs);
+      if (savedConfigs) {
+        try {
+          const parsedConfigs = JSON.parse(savedConfigs);
+          if (parsedConfigs && parsedConfigs.length > 0) {
+            setActorConfigs(parsedConfigs);
+            hasStoredConfigs = true;
+          }
+        } catch (error) {
+          console.error('Failed to load actor configs:', error);
         }
       }
-    } catch (error) {
-      console.error('Failed to fetch available actors:', error);
-    }
-  };
+
+      // Fetch available actors from API
+      try {
+        const response = await fetch('/api/jobload/trigger');
+        if (response.ok) {
+          const data: AvailableActorsResponse = await response.json();
+          setAvailableActors(data.actors);
+
+          // Initialize actor configs if not already loaded from localStorage
+          if (!hasStoredConfigs) {
+            const initialConfigs: ActorConfig[] = data.actors.map((actor) => ({
+              ...actor,
+              enabled: true,
+              customMaxResults: actor.maxResults,
+            }));
+            setActorConfigs(initialConfigs);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch available actors:', error);
+      }
+    };
+
+    initializeData();
+  }, []);
 
   // Fetch status
   const fetchStatus = async () => {
