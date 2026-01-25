@@ -4,7 +4,7 @@
  */
 
 import { PrismaClient } from '@prisma/client';
-import { apifyClient } from './client';
+import { ApifyClient } from './client';
 import { APIFY_ACTORS, ApifyJobLoadStatus } from './types';
 import {
   normalizeLinkedInJob,
@@ -20,6 +20,12 @@ const prisma = new PrismaClient();
 const loadStatuses = new Map<string, ApifyJobLoadStatus>();
 
 export class ApifyJobLoader {
+  private client: ApifyClient;
+
+  constructor(apiToken?: string) {
+    this.client = new ApifyClient(apiToken);
+  }
+
   /**
    * Start loading jobs from all configured actors
    */
@@ -44,7 +50,7 @@ export class ApifyJobLoader {
     }
 
     // Start the actor run
-    const run = await apifyClient.startActor(actorId, input);
+    const run = await this.client.startActor(actorId, input);
 
     // Initialize status tracking
     const status: ApifyJobLoadStatus = {
@@ -84,7 +90,7 @@ export class ApifyJobLoader {
     try {
       // Wait for actor to complete
       status.progress = 30;
-      const completedRun = await apifyClient.waitForRun(actorId, runId, {
+      const completedRun = await this.client.waitForRun(actorId, runId, {
         maxWaitTime: 600000, // 10 minutes
         checkInterval: 10000, // 10 seconds
       });
@@ -96,7 +102,7 @@ export class ApifyJobLoader {
       // Fetch results
       status.status = 'processing';
       status.progress = 50;
-      const items = await apifyClient.getAllDatasetItems(
+      const items = await this.client.getAllDatasetItems(
         completedRun.defaultDatasetId
       );
 
@@ -189,6 +195,18 @@ export class ApifyJobLoader {
       0
     );
   }
-}
 
-export const apifyJobLoader = new ApifyJobLoader();
+  /**
+   * Static method to get status of a specific load
+   */
+  static getLoadStatus(runId: string): ApifyJobLoadStatus | null {
+    return loadStatuses.get(runId) || null;
+  }
+
+  /**
+   * Static method to get all load statuses
+   */
+  static getAllLoadStatuses(): ApifyJobLoadStatus[] {
+    return Array.from(loadStatuses.values());
+  }
+}

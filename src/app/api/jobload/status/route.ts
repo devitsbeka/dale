@@ -3,23 +3,35 @@
  * GET /api/jobload/status - Get current status of all job loads
  */
 
-import { NextResponse } from 'next/server';
-import { apifyJobLoader } from '@/lib/apify';
-import { apifyClient } from '@/lib/apify/client';
+import { NextRequest, NextResponse } from 'next/server';
+import { ApifyJobLoader } from '@/lib/apify';
+import { ApifyClient } from '@/lib/apify/client';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     // Get all load statuses
-    const statuses = apifyJobLoader.getAllLoadStatuses();
+    const statuses = ApifyJobLoader.getAllLoadStatuses();
 
-    // Get Apify usage stats
-    const usageStats = await apifyClient.getUsageStats().catch(() => ({
+    // Get API token from header
+    const apiToken = request.headers.get('X-Apify-Token') || process.env.APIFY_API_TOKEN;
+
+    // Get Apify usage stats (only if token is available)
+    let usageStats = {
       creditsUsed: 0,
-      creditsRemaining: 5,
+      creditsRemaining: 0,
       computeUnits: 0,
-    }));
+    };
+
+    if (apiToken) {
+      const client = new ApifyClient(apiToken);
+      usageStats = await client.getUsageStats().catch(() => ({
+        creditsUsed: 0,
+        creditsRemaining: 0,
+        computeUnits: 0,
+      }));
+    }
 
     // Calculate totals
     const totalJobsFetched = statuses.reduce((sum, s) => sum + s.jobsFetched, 0);

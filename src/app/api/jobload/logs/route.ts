@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { apifyJobLoader } from '@/lib/apify';
+import { ApifyJobLoader } from '@/lib/apify';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
 
     if (runId) {
       // Get logs for specific run
-      const status = apifyJobLoader.getLoadStatus(runId);
+      const status = ApifyJobLoader.getLoadStatus(runId);
 
       if (!status) {
         return NextResponse.json(
@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get all logs
-    const allStatuses = apifyJobLoader.getAllLoadStatuses();
+    const allStatuses = ApifyJobLoader.getAllLoadStatuses();
     const allLogs = allStatuses.map((status) => ({
       runId: status.runId,
       actorName: status.actorName,

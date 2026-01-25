@@ -4,15 +4,48 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { apifyJobLoader, APIFY_ACTORS } from '@/lib/apify';
+import { ApifyClient } from '@/lib/apify/client';
+import { ApifyJobLoader, APIFY_ACTORS } from '@/lib/apify';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
   try {
+    // Get API token from header
+    const apiToken = request.headers.get('X-Apify-Token') || process.env.APIFY_API_TOKEN;
+
+    if (!apiToken) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'API token required. Please configure your Apify API token in settings.',
+        },
+        { status: 401 }
+      );
+    }
+
+    // Create client with token
+    const client = new ApifyClient(apiToken);
+
+    // Test API token by getting usage stats
+    try {
+      await client.getUsageStats();
+    } catch (error) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Invalid API token. Please check your Apify API token.',
+        },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json().catch(() => ({}));
     const { actorId } = body;
+
+    // Create job loader with the API token
+    const jobLoader = new ApifyJobLoader(apiToken);
 
     // If specific actor requested, start just that one
     if (actorId) {
@@ -24,7 +57,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const runId = await apifyJobLoader.startLoad(actorId, actor.input);
+      const runId = await jobLoader.startLoad(actorId, actor.input);
 
       return NextResponse.json({
         success: true,
@@ -40,7 +73,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Start all actors
-    const runIds = await apifyJobLoader.startAllLoads();
+    const runIds = await jobLoader.startAllLoads();
 
     return NextResponse.json({
       success: true,
