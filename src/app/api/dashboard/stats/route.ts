@@ -5,12 +5,9 @@ import { getUserIdFromRequest } from '@/lib/auth/get-user-from-request';
 export async function GET(request: NextRequest) {
   try {
     const userId = await getUserIdFromRequest(request);
-
-    // Get date range from query params
     const searchParams = request.nextUrl.searchParams;
     const period = searchParams.get('period') || '12-months';
 
-    // Calculate date range based on period
     const now = new Date();
     let startDate = new Date();
 
@@ -33,7 +30,7 @@ export async function GET(request: NextRequest) {
     const previousPeriodStart = new Date(startDate);
     previousPeriodStart.setTime(startDate.getTime() - (now.getTime() - startDate.getTime()));
 
-    // FETCH ALL DATA AT ONCE - NO LOOPS
+    // INSTANT PARALLEL QUERIES
     const [
       applications,
       previousApplications,
@@ -42,91 +39,48 @@ export async function GET(request: NextRequest) {
       allApplications,
       allSavedJobs,
       allJobs,
+      totalJobsCount,
       profileViews,
       previousProfileViews,
     ] = await Promise.all([
-      // Current period applications
       prisma.jobApplication.findMany({
-        where: {
-          userId,
-          appliedAt: { gte: startDate },
-        },
-        select: {
-          status: true,
-          appliedAt: true,
-        },
+        where: { userId, appliedAt: { gte: startDate } },
+        select: { status: true, appliedAt: true },
       }),
-      // Previous period applications
       prisma.jobApplication.findMany({
-        where: {
-          userId,
-          appliedAt: {
-            gte: previousPeriodStart,
-            lt: startDate,
-          },
-        },
-        select: {
-          status: true,
-        },
+        where: { userId, appliedAt: { gte: previousPeriodStart, lt: startDate } },
+        select: { status: true },
       }),
-      // Current period saved jobs
       prisma.savedJob.findMany({
-        where: {
-          userId,
-          createdAt: { gte: startDate },
-        },
-        select: {
-          createdAt: true,
-        },
+        where: { userId, createdAt: { gte: startDate } },
+        select: { createdAt: true },
       }),
-      // Previous period saved jobs
       prisma.savedJob.findMany({
-        where: {
-          userId,
-          createdAt: {
-            gte: previousPeriodStart,
-            lt: startDate,
-          },
-        },
+        where: { userId, createdAt: { gte: previousPeriodStart, lt: startDate } },
       }),
-      // All applications for chart
       prisma.jobApplication.findMany({
         where: { userId },
         select: { appliedAt: true },
       }),
-      // All saved jobs for chart
       prisma.savedJob.findMany({
         where: { userId },
         select: { createdAt: true },
       }),
-      // ALL jobs in system
       prisma.job.findMany({
-        select: {
-          fetchedAt: true,
-        },
+        select: { fetchedAt: true },
       }),
-      // Profile views current
+      // DIRECT COUNT - FASTEST WAY
+      prisma.job.count(),
       prisma.resumeAnalytics.count({
-        where: {
-          resume: { userId },
-          eventType: 'view',
-          timestamp: { gte: startDate },
-        },
+        where: { resume: { userId }, eventType: 'view', timestamp: { gte: startDate } },
       }),
-      // Profile views previous
       prisma.resumeAnalytics.count({
-        where: {
-          resume: { userId },
-          eventType: 'view',
-          timestamp: {
-            gte: previousPeriodStart,
-            lt: startDate,
-          },
-        },
+        where: { resume: { userId }, eventType: 'view', timestamp: { gte: previousPeriodStart, lt: startDate } },
       }),
     ]);
 
-    // Calculate stats
+    console.log('TOTAL JOBS IN DATABASE:', totalJobsCount);
+
     const applicationsCount = applications.length;
     const previousApplicationsCount = previousApplications.length;
     const applicationsChange = previousApplicationsCount > 0
@@ -162,7 +116,7 @@ export async function GET(request: NextRequest) {
       ? ((totalSaved - previousTotalSaved) / previousTotalSaved) * 100
       : 0;
 
-    // Generate chart data - process in memory (FAST)
+    // Chart data - in-memory processing
     const dataPoints = period === '12-months' ? 12 : period === '30-days' ? 30 : period === '7-days' ? 7 : 24;
     const chartData = [];
 
@@ -217,7 +171,7 @@ export async function GET(request: NextRequest) {
         applicationsChange: Math.round(applicationsChange * 10) / 10,
         savedCount: totalSaved,
         savedChange: Math.round(savedChange * 10) / 10,
-        availableCount: allJobs.length,
+        availableCount: totalJobsCount,
         responseRate: Math.round(responseRate * 10) / 10,
         responseRateChange: Math.round(responseRateChange * 10) / 10,
         interviewsCount,
