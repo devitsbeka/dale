@@ -236,20 +236,20 @@ export default function ResumeV2Page() {
                 </div>
 
                 {/* Tabs */}
-                <div className="flex border-b border-gray-200">
+                <div className="flex overflow-x-auto border-b border-gray-200 scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
                     <button
                         onClick={() => setActiveTab('info')}
-                        className={`px-6 py-3 font-medium transition-colors ${
+                        className={`px-6 py-3 font-medium transition-colors whitespace-nowrap ${
                             activeTab === 'info'
                                 ? 'text-blue-600 border-b-2 border-blue-600'
                                 : 'text-gray-600 hover:text-gray-900'
                         }`}
                     >
-                        Personal Info
+                        Personal
                     </button>
                     <button
                         onClick={() => setActiveTab('experience')}
-                        className={`px-6 py-3 font-medium transition-colors ${
+                        className={`px-6 py-3 font-medium transition-colors whitespace-nowrap ${
                             activeTab === 'experience'
                                 ? 'text-blue-600 border-b-2 border-blue-600'
                                 : 'text-gray-600 hover:text-gray-900'
@@ -259,7 +259,7 @@ export default function ResumeV2Page() {
                     </button>
                     <button
                         onClick={() => setActiveTab('education')}
-                        className={`px-6 py-3 font-medium transition-colors ${
+                        className={`px-6 py-3 font-medium transition-colors whitespace-nowrap ${
                             activeTab === 'education'
                                 ? 'text-blue-600 border-b-2 border-blue-600'
                                 : 'text-gray-600 hover:text-gray-900'
@@ -269,7 +269,7 @@ export default function ResumeV2Page() {
                     </button>
                     <button
                         onClick={() => setActiveTab('skills')}
-                        className={`px-6 py-3 font-medium transition-colors ${
+                        className={`px-6 py-3 font-medium transition-colors whitespace-nowrap ${
                             activeTab === 'skills'
                                 ? 'text-blue-600 border-b-2 border-blue-600'
                                 : 'text-gray-600 hover:text-gray-900'
@@ -279,7 +279,7 @@ export default function ResumeV2Page() {
                     </button>
                     <button
                         onClick={() => setActiveTab('customize')}
-                        className={`px-6 py-3 font-medium transition-colors ${
+                        className={`px-6 py-3 font-medium transition-colors whitespace-nowrap ${
                             activeTab === 'customize'
                                 ? 'text-blue-600 border-b-2 border-blue-600'
                                 : 'text-gray-600 hover:text-gray-900'
