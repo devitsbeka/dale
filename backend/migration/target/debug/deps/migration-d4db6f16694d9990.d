@@ -1,11 +1,12 @@
-/Users/mako/dale/backend/migration/target/debug/deps/migration-d4db6f16694d9990.d: src/lib.rs src/m20260125_172256_create_subscriptions.rs src/m20260125_172256_create_agent_conversations.rs src/m20260125_172257_create_autopilot_configs.rs src/m20260125_172257_create_usage_metrics.rs
+/Users/mako/dale/backend/migration/target/debug/deps/migration-d4db6f16694d9990.d: src/lib.rs src/m20260125_172256_create_subscriptions.rs src/m20260125_172256_create_agent_conversations.rs src/m20260125_172257_create_autopilot_configs.rs src/m20260125_172257_create_usage_metrics.rs src/m20260125_174834_add_password_to_users.rs
 
-/Users/mako/dale/backend/migration/target/debug/deps/libmigration-d4db6f16694d9990.rlib: src/lib.rs src/m20260125_172256_create_subscriptions.rs src/m20260125_172256_create_agent_conversations.rs src/m20260125_172257_create_autopilot_configs.rs src/m20260125_172257_create_usage_metrics.rs
+/Users/mako/dale/backend/migration/target/debug/deps/libmigration-d4db6f16694d9990.rlib: src/lib.rs src/m20260125_172256_create_subscriptions.rs src/m20260125_172256_create_agent_conversations.rs src/m20260125_172257_create_autopilot_configs.rs src/m20260125_172257_create_usage_metrics.rs src/m20260125_174834_add_password_to_users.rs
 
-/Users/mako/dale/backend/migration/target/debug/deps/libmigration-d4db6f16694d9990.rmeta: src/lib.rs src/m20260125_172256_create_subscriptions.rs src/m20260125_172256_create_agent_conversations.rs src/m20260125_172257_create_autopilot_configs.rs src/m20260125_172257_create_usage_metrics.rs
+/Users/mako/dale/backend/migration/target/debug/deps/libmigration-d4db6f16694d9990.rmeta: src/lib.rs src/m20260125_172256_create_subscriptions.rs src/m20260125_172256_create_agent_conversations.rs src/m20260125_172257_create_autopilot_configs.rs src/m20260125_172257_create_usage_metrics.rs src/m20260125_174834_add_password_to_users.rs
 
 src/lib.rs:
 src/m20260125_172256_create_subscriptions.rs:
 src/m20260125_172256_create_agent_conversations.rs:
 src/m20260125_172257_create_autopilot_configs.rs:
 src/m20260125_172257_create_usage_metrics.rs:
+src/m20260125_174834_add_password_to_users.rs:

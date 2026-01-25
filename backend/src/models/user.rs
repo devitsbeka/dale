@@ -9,7 +9,10 @@ pub struct Model {
     pub id: String,
     pub email: String,
     pub name: Option<String>,
+    pub password_hash: Option<String>,
+    #[sea_orm(column_name = "createdAt")]
     pub created_at: DateTime,
+    #[sea_orm(column_name = "updatedAt")]
     pub updated_at: DateTime,
 }
 

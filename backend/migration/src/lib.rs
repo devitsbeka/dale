@@ -4,6 +4,7 @@ mod m20260125_172256_create_subscriptions;
 mod m20260125_172256_create_agent_conversations;
 mod m20260125_172257_create_autopilot_configs;
 mod m20260125_172257_create_usage_metrics;
+mod m20260125_174834_add_password_to_users;
 
 pub struct Migrator;
 
@@ -15,6 +16,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20260125_172256_create_agent_conversations::Migration),
             Box::new(m20260125_172257_create_autopilot_configs::Migration),
             Box::new(m20260125_172257_create_usage_metrics::Migration),
+            Box::new(m20260125_174834_add_password_to_users::Migration),
         ]
     }
 }

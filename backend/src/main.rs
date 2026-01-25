@@ -1,6 +1,6 @@
 use axum::{
     http::{HeaderName, Method},
-    routing::get,
+    routing::{get, post},
     Router,
 };
 use sea_orm::Database;
@@ -12,8 +12,10 @@ use tower_http::{
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 mod config;
+mod middleware;
 mod models;
 mod routes;
+mod services;
 mod utils;
 
 #[tokio::main]
@@ -43,12 +45,32 @@ async fn main() {
 
     tracing::info!("Database connected successfully");
 
+    // Initialize services
+    let auth_service = services::auth::AuthService::new(config.jwt_secret.clone());
+
     // Configure CORS - permissive for development
     let cors = CorsLayer::permissive();
 
+    // Create auth routes with their own state
+    let auth_routes = Router::new()
+        .route("/signup", post(routes::auth::signup))
+        .route("/login", post(routes::auth::login))
+        .with_state(routes::auth::AuthState {
+            db: db.clone(),
+            auth_service: auth_service.clone(),
+        });
+
     // Build our application with routes
     let app = Router::new()
+        // Public routes
         .route("/health", get(routes::health::health_check))
+        .nest("/auth", auth_routes)
+        // Protected routes
+        // .route("/auth/me", get(routes::auth::me))
+        //     .layer(axum::middleware::from_fn_with_state(
+        //         auth_service.clone(),
+        //         middleware::auth::auth_middleware,
+        //     ))
         .layer(cors)
         .layer(TraceLayer::new_for_http())
         .with_state(db);
