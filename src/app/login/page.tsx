@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
 import { ApiError } from '@/lib/api-client';
@@ -13,8 +13,15 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const { login, signup } = useAuth();
+  const { login, signup, isAuthenticated, isLoading: authLoading } = useAuth();
   const router = useRouter();
+
+  // Redirect to dashboard if already logged in
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      router.push('/dashboard');
+    }
+  }, [isAuthenticated, authLoading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,18 +31,23 @@ export default function LoginPage() {
     try {
       if (mode === 'login') {
         await login({ email, password });
-        // Existing users go to dashboard
-        router.push('/dashboard');
+        // Wait a moment for auth state to update
+        setTimeout(() => {
+          router.push('/dashboard');
+          router.refresh();
+        }, 100);
       } else {
         await signup({ email, password, name: name || undefined });
-        // New users go to onboarding
-        router.push('/onboarding');
+        // Wait a moment for auth state to update
+        setTimeout(() => {
+          router.push('/onboarding');
+          router.refresh();
+        }, 100);
       }
     } catch (err) {
       const errorMessage =
         err instanceof ApiError ? err.message : 'An error occurred';
       setError(errorMessage);
-    } finally {
       setIsLoading(false);
     }
   };
