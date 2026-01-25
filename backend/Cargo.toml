@@ -1,0 +1,63 @@
+[package]
+name = "careeros-backend"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Web framework
+axum = "0.7"
+tower = "0.5"
+tower-http = { version = "0.6", features = ["cors", "trace", "compression-gzip"] }
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Database
+sea-orm = { version = "1.1", features = ["sqlx-postgres", "runtime-tokio-rustls", "macros"] }
+
+# Authentication
+jsonwebtoken = "9"
+bcrypt = "0.15"
+oauth2 = "4"
+
+# HTTP client
+reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
+
+# Validation
+validator = { version = "0.19", features = ["derive"] }
+
+# Environment variables
+dotenvy = "0.15"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+# Error handling
+thiserror = "2"
+anyhow = "1"
+
+# Payments
+async-stripe = { version = "0.40", features = ["runtime-tokio-hyper-rustls"] }
+
+# AI - using reqwest directly for Anthropic API
+# anthropic SDK not stable yet, will use reqwest for API calls
+
+# Email
+resend-rs = "0.11"
+
+# Date/Time
+chrono = { version = "0.4", features = ["serde"] }
+
+# UUID
+uuid = { version = "1", features = ["v4", "serde"] }
+
+# Job scheduling
+tokio-cron-scheduler = "0.14"
+
+[dev-dependencies]
+criterion = "0.5"
