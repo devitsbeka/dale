@@ -3,44 +3,33 @@
 import { useState, useEffect, type FC } from "react";
 import { useAuth } from "@/contexts/auth-context";
 import {
-    ArrowUpRight,
     BarChartSquare02,
-    Calendar,
-    CheckDone01,
-    ChevronRight,
     Edit04,
     File05,
     FilterLines,
-    HomeLine,
     LifeBuoy01,
-    PieChart03,
     Rows01,
     Settings01,
-    Users01,
 } from "@untitledui/icons";
 import { Area, AreaChart, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, XAxis } from "recharts";
 import type { FeedItemType } from "@/components/application/activity-feed/activity-feed";
 import { FeedItem } from "@/components/application/activity-feed/activity-feed";
-import { FeaturedCardImage } from "@/components/application/app-navigation/base-components/featured-cards";
 import type { NavItemType } from "@/components/application/app-navigation/config";
-import { SidebarCollapsible } from "@/components/application/app-navigation/sidebar-navigation/sidebar-collapsible";
 import { ChartTooltipContent } from "@/components/application/charts/charts-base";
 import { DateRangePicker } from "@/components/application/date-picker/date-range-picker";
 import { MetricChangeIndicator } from "@/components/application/metrics/metrics";
 import { SectionHeader } from "@/components/application/section-headers/section-headers";
-import { TableRowActionsDropdown } from "@/components/application/table/table";
-import { Avatar } from "@/components/base/avatar/avatar";
-import { Badge } from "@/components/base/badges/badges";
-import type { BadgeColor } from "@/components/base/badges/badges";
 import { ButtonGroup, ButtonGroupItem } from "@/components/base/button-group/button-group";
 import { Button } from "@/components/base/buttons/button";
 import { FeaturedIcon } from "@/components/foundations/featured-icon/featured-icon";
-import { cx } from "@/utils/cx";
 import { WelcomeHero } from "./welcome-hero";
 
 interface DashboardStats {
     applicationsCount: number;
     applicationsChange: number;
+    savedCount: number;
+    savedChange: number;
+    availableCount: number;
     responseRate: number;
     responseRateChange: number;
     interviewsCount: number;
@@ -51,7 +40,9 @@ interface DashboardStats {
 
 interface ChartDataPoint {
     date: string;
-    applications: number;
+    applied: number;
+    saved: number;
+    available: number;
 }
 
 
@@ -119,6 +110,9 @@ export const Dashboard01 = () => {
     const [stats, setStats] = useState<DashboardStats>({
         applicationsCount: 0,
         applicationsChange: 0,
+        savedCount: 0,
+        savedChange: 0,
+        availableCount: 0,
         responseRate: 0,
         responseRateChange: 0,
         interviewsCount: 0,
@@ -229,41 +223,95 @@ export const Dashboard01 = () => {
                         </div>
                     </div>
 
+                    {/* Main Stats Cards */}
+                    <div className="grid grid-cols-1 gap-6 px-4 lg:grid-cols-3 lg:px-0">
+                        <div className="flex flex-col gap-2 rounded-xl bg-primary p-5 shadow-xs ring-1 ring-secondary">
+                            <p className="text-sm font-medium text-tertiary">Jobs Available</p>
+                            <div className="flex items-start gap-2">
+                                <span className="text-display-md font-semibold text-primary">
+                                    {isLoading ? '-' : stats.availableCount.toLocaleString()}
+                                </span>
+                            </div>
+                            <p className="text-xs text-quaternary">Total jobs in system</p>
+                        </div>
+
+                        <div className="flex flex-col gap-2 rounded-xl bg-primary p-5 shadow-xs ring-1 ring-secondary">
+                            <p className="text-sm font-medium text-tertiary">Jobs Saved</p>
+                            <div className="flex items-start gap-2">
+                                <span className="text-display-md font-semibold text-primary">
+                                    {isLoading ? '-' : stats.savedCount}
+                                </span>
+                                {!isLoading && stats.savedChange !== 0 && (
+                                    <MetricChangeIndicator
+                                        type="trend"
+                                        trend={stats.savedChange >= 0 ? "positive" : "negative"}
+                                        value={`${Math.abs(stats.savedChange)}%`}
+                                    />
+                                )}
+                            </div>
+                            <p className="text-xs text-quaternary">Shortlisted opportunities</p>
+                        </div>
+
+                        <div className="flex flex-col gap-2 rounded-xl bg-primary p-5 shadow-xs ring-1 ring-secondary">
+                            <p className="text-sm font-medium text-tertiary">Jobs Applied</p>
+                            <div className="flex items-start gap-2">
+                                <span className="text-display-md font-semibold text-primary">
+                                    {isLoading ? '-' : stats.applicationsCount}
+                                </span>
+                                {!isLoading && stats.applicationsChange !== 0 && (
+                                    <MetricChangeIndicator
+                                        type="trend"
+                                        trend={stats.applicationsChange >= 0 ? "positive" : "negative"}
+                                        value={`${Math.abs(stats.applicationsChange)}%`}
+                                    />
+                                )}
+                            </div>
+                            <p className="text-xs text-quaternary">Total applications submitted</p>
+                        </div>
+                    </div>
+
                     <div className="flex flex-col gap-6 px-4 lg:flex-row lg:gap-8 lg:px-0">
                         <div className="flex flex-1 flex-col gap-6 lg:flex-row lg:flex-wrap lg:gap-x-8 lg:gap-y-4">
-                            <div className="flex flex-col gap-2">
-                                <p className="text-sm font-medium text-tertiary">Applications sent</p>
-
-                                <div className="flex items-start gap-2">
-                                    <div className="flex items-start gap-0.5">
-                                        <span className="text-display-md font-semibold text-primary">
-                                            {isLoading ? '-' : stats.applicationsCount}
-                                        </span>
-                                    </div>
-
-                                    {!isLoading && stats.applicationsChange !== 0 && (
-                                        <MetricChangeIndicator
-                                            type="trend"
-                                            trend={stats.applicationsChange >= 0 ? "positive" : "negative"}
-                                            value={`${Math.abs(stats.applicationsChange)}%`}
-                                        />
-                                    )}
-                                </div>
-                            </div>
 
                             <div className="flex h-50 w-full flex-col gap-2 lg:h-60 lg:min-w-[480px] lg:flex-1 xl:min-w-[560px]">
+                                {/* Chart Legend */}
+                                <div className="flex gap-4 text-xs">
+                                    <div className="flex items-center gap-1.5">
+                                        <div className="size-2.5 rounded-full bg-utility-brand-600" />
+                                        <span className="text-tertiary">Applied</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                        <div className="size-2.5 rounded-full bg-utility-success-600" />
+                                        <span className="text-tertiary">Saved</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                        <div className="size-2.5 rounded-full bg-utility-gray-400" />
+                                        <span className="text-tertiary">Available</span>
+                                    </div>
+                                </div>
+
                                 <ResponsiveContainer className="h-full">
                                     <AreaChart
                                         data={chartData.map(d => ({
                                             date: new Date(d.date),
-                                            A: d.applications
+                                            Applied: d.applied,
+                                            Saved: d.saved,
+                                            Available: d.available,
                                         }))}
                                         className="text-tertiary [&_.recharts-text]:text-xs"
                                     >
                                         <defs>
-                                            <linearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
+                                            <linearGradient id="gradientApplied" x1="0" y1="0" x2="0" y2="1">
                                                 <stop offset="5%" stopColor="currentColor" className="text-utility-brand-700" stopOpacity="0.7" />
                                                 <stop offset="95%" stopColor="currentColor" className="text-utility-brand-700" stopOpacity="0" />
+                                            </linearGradient>
+                                            <linearGradient id="gradientSaved" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="currentColor" className="text-utility-success-600" stopOpacity="0.6" />
+                                                <stop offset="95%" stopColor="currentColor" className="text-utility-success-600" stopOpacity="0" />
+                                            </linearGradient>
+                                            <linearGradient id="gradientAvailable" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="currentColor" className="text-utility-gray-400" stopOpacity="0.4" />
+                                                <stop offset="95%" stopColor="currentColor" className="text-utility-gray-400" stopOpacity="0" />
                                             </linearGradient>
                                         </defs>
 
@@ -289,15 +337,40 @@ export const Dashboard01 = () => {
                                             }}
                                         />
 
+                                        {/* Available jobs - bottom layer */}
+                                        <Area
+                                            isAnimationActive={false}
+                                            className="text-utility-gray-400"
+                                            dataKey="Available"
+                                            type="monotone"
+                                            stroke="currentColor"
+                                            strokeWidth={2}
+                                            fill="url(#gradientAvailable)"
+                                            fillOpacity={0.1}
+                                        />
+
+                                        {/* Saved jobs - middle layer */}
+                                        <Area
+                                            isAnimationActive={false}
+                                            className="text-utility-success-600"
+                                            dataKey="Saved"
+                                            type="monotone"
+                                            stroke="currentColor"
+                                            strokeWidth={2}
+                                            fill="url(#gradientSaved)"
+                                            fillOpacity={0.15}
+                                        />
+
+                                        {/* Applied jobs - top layer */}
                                         <Area
                                             isAnimationActive={false}
                                             className="text-utility-brand-600 [&_.recharts-area-area]:translate-y-[6px] [&_.recharts-area-area]:[clip-path:inset(0_0_6px_0)]"
-                                            dataKey="A"
-                                            type="linear"
+                                            dataKey="Applied"
+                                            type="monotone"
                                             stroke="currentColor"
                                             strokeWidth={2}
-                                            fill="url(#gradient)"
-                                            fillOpacity={0.1}
+                                            fill="url(#gradientApplied)"
+                                            fillOpacity={0.2}
                                             activeDot={{
                                                 className: "fill-bg-primary stroke-utility-brand-600 stroke-2",
                                             }}
@@ -361,10 +434,6 @@ export const Dashboard01 = () => {
                             <SectionHeader.Group>
                                 <div className="flex flex-1 flex-col justify-center gap-0.5 self-stretch">
                                     <SectionHeader.Heading>Quick actions</SectionHeader.Heading>
-                                </div>
-
-                                <div className="absolute top-0 right-0 md:static">
-                                    <TableRowActionsDropdown />
                                 </div>
                             </SectionHeader.Group>
                         </SectionHeader.Root>
