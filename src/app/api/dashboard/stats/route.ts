@@ -30,172 +30,141 @@ export async function GET(request: NextRequest) {
         break;
     }
 
-    // Fetch job applications count
-    const applicationsCount = await prisma.jobApplication.count({
-      where: {
-        userId,
-        appliedAt: {
-          gte: startDate,
-        },
-      },
-    });
-
-    // Fetch previous period count for comparison
     const previousPeriodStart = new Date(startDate);
     previousPeriodStart.setTime(startDate.getTime() - (now.getTime() - startDate.getTime()));
 
-    const previousApplicationsCount = await prisma.jobApplication.count({
-      where: {
-        userId,
-        appliedAt: {
-          gte: previousPeriodStart,
-          lt: startDate,
+    // FETCH ALL DATA AT ONCE - NO LOOPS
+    const [
+      applications,
+      previousApplications,
+      savedJobs,
+      previousSavedJobs,
+      allApplications,
+      allSavedJobs,
+      allJobs,
+      profileViews,
+      previousProfileViews,
+    ] = await Promise.all([
+      // Current period applications
+      prisma.jobApplication.findMany({
+        where: {
+          userId,
+          appliedAt: { gte: startDate },
         },
-      },
-    });
+        select: {
+          status: true,
+          appliedAt: true,
+        },
+      }),
+      // Previous period applications
+      prisma.jobApplication.findMany({
+        where: {
+          userId,
+          appliedAt: {
+            gte: previousPeriodStart,
+            lt: startDate,
+          },
+        },
+        select: {
+          status: true,
+        },
+      }),
+      // Current period saved jobs
+      prisma.savedJob.findMany({
+        where: {
+          userId,
+          createdAt: { gte: startDate },
+        },
+        select: {
+          createdAt: true,
+        },
+      }),
+      // Previous period saved jobs
+      prisma.savedJob.findMany({
+        where: {
+          userId,
+          createdAt: {
+            gte: previousPeriodStart,
+            lt: startDate,
+          },
+        },
+      }),
+      // All applications for chart
+      prisma.jobApplication.findMany({
+        where: { userId },
+        select: { appliedAt: true },
+      }),
+      // All saved jobs for chart
+      prisma.savedJob.findMany({
+        where: { userId },
+        select: { createdAt: true },
+      }),
+      // ALL jobs in system
+      prisma.job.findMany({
+        select: {
+          fetchedAt: true,
+        },
+      }),
+      // Profile views current
+      prisma.resumeAnalytics.count({
+        where: {
+          resume: { userId },
+          eventType: 'view',
+          timestamp: { gte: startDate },
+        },
+      }),
+      // Profile views previous
+      prisma.resumeAnalytics.count({
+        where: {
+          resume: { userId },
+          eventType: 'view',
+          timestamp: {
+            gte: previousPeriodStart,
+            lt: startDate,
+          },
+        },
+      }),
+    ]);
 
-    // Calculate percentage change
+    // Calculate stats
+    const applicationsCount = applications.length;
+    const previousApplicationsCount = previousApplications.length;
     const applicationsChange = previousApplicationsCount > 0
       ? ((applicationsCount - previousApplicationsCount) / previousApplicationsCount) * 100
       : 0;
 
-    // Fetch applications by status (for response rate)
-    const applications = await prisma.jobApplication.findMany({
-      where: {
-        userId,
-        appliedAt: {
-          gte: startDate,
-        },
-      },
-      select: {
-        status: true,
-      },
-    });
-
     const respondedCount = applications.filter(app =>
       ['screening', 'interviewing', 'offer', 'accepted', 'rejected'].includes(app.status)
     ).length;
-
-    const responseRate = applicationsCount > 0
-      ? (respondedCount / applicationsCount) * 100
-      : 0;
-
-    // Calculate previous period response rate
-    const previousApplications = await prisma.jobApplication.findMany({
-      where: {
-        userId,
-        appliedAt: {
-          gte: previousPeriodStart,
-          lt: startDate,
-        },
-      },
-      select: {
-        status: true,
-      },
-    });
+    const responseRate = applicationsCount > 0 ? (respondedCount / applicationsCount) * 100 : 0;
 
     const previousRespondedCount = previousApplications.filter(app =>
       ['screening', 'interviewing', 'offer', 'accepted', 'rejected'].includes(app.status)
     ).length;
-
     const previousResponseRate = previousApplications.length > 0
       ? (previousRespondedCount / previousApplications.length) * 100
       : 0;
+    const responseRateChange = previousResponseRate > 0 ? responseRate - previousResponseRate : 0;
 
-    const responseRateChange = previousResponseRate > 0
-      ? responseRate - previousResponseRate
-      : 0;
-
-    // Count interviews
-    const interviewsCount = applications.filter(app =>
-      app.status === 'interviewing'
-    ).length;
-
-    const previousInterviewsCount = previousApplications.filter(app =>
-      app.status === 'interviewing'
-    ).length;
-
+    const interviewsCount = applications.filter(app => app.status === 'interviewing').length;
+    const previousInterviewsCount = previousApplications.filter(app => app.status === 'interviewing').length;
     const interviewsChange = previousInterviewsCount > 0
       ? ((interviewsCount - previousInterviewsCount) / previousInterviewsCount) * 100
       : 0;
-
-    // Count profile views (from resume analytics)
-    const profileViews = await prisma.resumeAnalytics.count({
-      where: {
-        resume: {
-          userId,
-        },
-        eventType: 'view',
-        timestamp: {
-          gte: startDate,
-        },
-      },
-    });
-
-    const previousProfileViews = await prisma.resumeAnalytics.count({
-      where: {
-        resume: {
-          userId,
-        },
-        eventType: 'view',
-        timestamp: {
-          gte: previousPeriodStart,
-          lt: startDate,
-        },
-      },
-    });
 
     const profileViewsChange = previousProfileViews > 0
       ? ((profileViews - previousProfileViews) / previousProfileViews) * 100
       : 0;
 
-    // Get user's skills/interests to match jobs
-    const userResumes = await prisma.resume.findMany({
-      where: { userId },
-      include: {
-        skills: {
-          select: {
-            name: true,
-            category: true,
-          },
-        },
-      },
-      take: 1,
-      orderBy: {
-        updatedAt: 'desc',
-      },
-    });
+    const totalSaved = savedJobs.length;
+    const previousTotalSaved = previousSavedJobs.length;
+    const savedChange = previousTotalSaved > 0
+      ? ((totalSaved - previousTotalSaved) / previousTotalSaved) * 100
+      : 0;
 
-    // Extract user's technical skills for matching
-    const userSkills = userResumes[0]?.skills
-      .filter(s => s.category === 'technical')
-      .map(s => s.name.toLowerCase()) || [];
-
-    // Get saved jobs categories/tags
-    const savedJobs = await prisma.savedJob.findMany({
-      where: { userId },
-      include: {
-        job: {
-          select: {
-            tags: true,
-            category: true,
-          },
-        },
-      },
-    });
-
-    const userInterests = new Set<string>();
-    savedJobs.forEach(saved => {
-      if (saved.job.category) userInterests.add(saved.job.category.toLowerCase());
-      saved.job.tags.forEach(tag => userInterests.add(tag.toLowerCase()));
-    });
-
-    // Combine skills and interests for job matching
-    const matchKeywords = [...userSkills, ...Array.from(userInterests)];
-
-    // Generate chart data (3 metrics over time)
-    const chartData = [];
+    // Generate chart data - process in memory (FAST)
     const dataPoints = period === '12-months' ? 12 : period === '30-days' ? 30 : period === '7-days' ? 7 : 24;
+    const chartData = [];
 
     for (let i = dataPoints - 1; i >= 0; i--) {
       const date = new Date();
@@ -219,98 +188,28 @@ export async function GET(request: NextRequest) {
         nextDate.setDate(date.getDate() + 1);
       }
 
-      // Count applications in this period
-      const applicationsCount = await prisma.jobApplication.count({
-        where: {
-          userId,
-          appliedAt: {
-            gte: date,
-            lt: nextDate,
-          },
-        },
-      });
+      const applied = allApplications.filter(app => {
+        const appDate = new Date(app.appliedAt);
+        return appDate >= date && appDate < nextDate;
+      }).length;
 
-      // Count saved jobs in this period
-      const savedCount = await prisma.savedJob.count({
-        where: {
-          userId,
-          createdAt: {
-            gte: date,
-            lt: nextDate,
-          },
-        },
-      });
+      const saved = allSavedJobs.filter(job => {
+        const jobDate = new Date(job.createdAt);
+        return jobDate >= date && jobDate < nextDate;
+      }).length;
 
-      // Count available matching jobs in this period
-      let matchingJobsCount = 0;
-      if (matchKeywords.length > 0) {
-        matchingJobsCount = await prisma.job.count({
-          where: {
-            fetchedAt: {
-              gte: date,
-              lt: nextDate,
-            },
-            OR: [
-              {
-                tags: {
-                  hasSome: matchKeywords,
-                },
-              },
-              {
-                category: {
-                  in: Array.from(userInterests),
-                  mode: 'insensitive',
-                },
-              },
-            ],
-          },
-        });
-      } else {
-        // If no user preferences, count all jobs
-        matchingJobsCount = await prisma.job.count({
-          where: {
-            fetchedAt: {
-              gte: date,
-              lt: nextDate,
-            },
-          },
-        });
-      }
+      const available = allJobs.filter(job => {
+        const jobDate = new Date(job.fetchedAt);
+        return jobDate >= date && jobDate < nextDate;
+      }).length;
 
       chartData.push({
         date: date.toISOString(),
-        applied: applicationsCount,
-        saved: savedCount,
-        available: matchingJobsCount,
+        applied,
+        saved,
+        available,
       });
     }
-
-    // Total counts for the current period
-    const totalSaved = await prisma.savedJob.count({
-      where: {
-        userId,
-        createdAt: {
-          gte: startDate,
-        },
-      },
-    });
-
-    const previousTotalSaved = await prisma.savedJob.count({
-      where: {
-        userId,
-        createdAt: {
-          gte: previousPeriodStart,
-          lt: startDate,
-        },
-      },
-    });
-
-    const savedChange = previousTotalSaved > 0
-      ? ((totalSaved - previousTotalSaved) / previousTotalSaved) * 100
-      : 0;
-
-    // Current total jobs available in the system (all jobs, not filtered)
-    const currentAllJobs = await prisma.job.count();
 
     return NextResponse.json({
       stats: {
@@ -318,7 +217,7 @@ export async function GET(request: NextRequest) {
         applicationsChange: Math.round(applicationsChange * 10) / 10,
         savedCount: totalSaved,
         savedChange: Math.round(savedChange * 10) / 10,
-        availableCount: currentAllJobs,
+        availableCount: allJobs.length,
         responseRate: Math.round(responseRate * 10) / 10,
         responseRateChange: Math.round(responseRateChange * 10) / 10,
         interviewsCount,
