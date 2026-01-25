@@ -1,0 +1,13 @@
+/Users/mako/dale/backend/migration/target/debug/deps/url-e319f04b633a6cf0.d: /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/url-2.5.8/src/lib.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/url-2.5.8/src/host.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/url-2.5.8/src/origin.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/url-2.5.8/src/parser.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/url-2.5.8/src/path_segments.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/url-2.5.8/src/slicing.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/url-2.5.8/src/quirks.rs
+
+/Users/mako/dale/backend/migration/target/debug/deps/liburl-e319f04b633a6cf0.rlib: /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/url-2.5.8/src/lib.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/url-2.5.8/src/host.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/url-2.5.8/src/origin.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/url-2.5.8/src/parser.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/url-2.5.8/src/path_segments.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/url-2.5.8/src/slicing.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/url-2.5.8/src/quirks.rs
+
+/Users/mako/dale/backend/migration/target/debug/deps/liburl-e319f04b633a6cf0.rmeta: /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/url-2.5.8/src/lib.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/url-2.5.8/src/host.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/url-2.5.8/src/origin.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/url-2.5.8/src/parser.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/url-2.5.8/src/path_segments.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/url-2.5.8/src/slicing.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/url-2.5.8/src/quirks.rs
+
+/Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/url-2.5.8/src/lib.rs:
+/Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/url-2.5.8/src/host.rs:
+/Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/url-2.5.8/src/origin.rs:
+/Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/url-2.5.8/src/parser.rs:
+/Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/url-2.5.8/src/path_segments.rs:
+/Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/url-2.5.8/src/slicing.rs:
+/Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/url-2.5.8/src/quirks.rs:

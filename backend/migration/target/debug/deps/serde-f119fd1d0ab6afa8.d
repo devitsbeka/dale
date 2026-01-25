@@ -1,0 +1,14 @@
+/Users/mako/dale/backend/migration/target/debug/deps/serde-f119fd1d0ab6afa8.d: /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /Users/mako/dale/backend/migration/target/debug/build/serde-8b65f3d89392c4f4/out/private.rs
+
+/Users/mako/dale/backend/migration/target/debug/deps/libserde-f119fd1d0ab6afa8.rlib: /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /Users/mako/dale/backend/migration/target/debug/build/serde-8b65f3d89392c4f4/out/private.rs
+
+/Users/mako/dale/backend/migration/target/debug/deps/libserde-f119fd1d0ab6afa8.rmeta: /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /Users/mako/dale/backend/migration/target/debug/build/serde-8b65f3d89392c4f4/out/private.rs
+
+/Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs:
+/Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs:
+/Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs:
+/Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs:
+/Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs:
+/Users/mako/dale/backend/migration/target/debug/build/serde-8b65f3d89392c4f4/out/private.rs:
+
+# env-dep:OUT_DIR=/Users/mako/dale/backend/migration/target/debug/build/serde-8b65f3d89392c4f4/out

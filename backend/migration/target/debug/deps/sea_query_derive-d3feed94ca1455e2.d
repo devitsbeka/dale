@@ -1,0 +1,10 @@
+/Users/mako/dale/backend/migration/target/debug/deps/sea_query_derive-d3feed94ca1455e2.d: /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sea-query-derive-0.4.3/src/lib.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sea-query-derive-0.4.3/src/iden/mod.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sea-query-derive-0.4.3/src/iden/attr.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sea-query-derive-0.4.3/src/iden/error.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sea-query-derive-0.4.3/src/iden/path.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sea-query-derive-0.4.3/src/iden/write_arm.rs
+
+/Users/mako/dale/backend/migration/target/debug/deps/libsea_query_derive-d3feed94ca1455e2.dylib: /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sea-query-derive-0.4.3/src/lib.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sea-query-derive-0.4.3/src/iden/mod.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sea-query-derive-0.4.3/src/iden/attr.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sea-query-derive-0.4.3/src/iden/error.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sea-query-derive-0.4.3/src/iden/path.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sea-query-derive-0.4.3/src/iden/write_arm.rs
+
+/Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sea-query-derive-0.4.3/src/lib.rs:
+/Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sea-query-derive-0.4.3/src/iden/mod.rs:
+/Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sea-query-derive-0.4.3/src/iden/attr.rs:
+/Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sea-query-derive-0.4.3/src/iden/error.rs:
+/Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sea-query-derive-0.4.3/src/iden/path.rs:
+/Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sea-query-derive-0.4.3/src/iden/write_arm.rs:

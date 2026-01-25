@@ -1,0 +1,11 @@
+/Users/mako/dale/backend/migration/target/debug/deps/migration-7720532c56e39222.d: src/lib.rs src/m20260125_172256_create_subscriptions.rs src/m20260125_172256_create_agent_conversations.rs src/m20260125_172257_create_autopilot_configs.rs src/m20260125_172257_create_usage_metrics.rs
+
+/Users/mako/dale/backend/migration/target/debug/deps/libmigration-7720532c56e39222.rlib: src/lib.rs src/m20260125_172256_create_subscriptions.rs src/m20260125_172256_create_agent_conversations.rs src/m20260125_172257_create_autopilot_configs.rs src/m20260125_172257_create_usage_metrics.rs
+
+/Users/mako/dale/backend/migration/target/debug/deps/libmigration-7720532c56e39222.rmeta: src/lib.rs src/m20260125_172256_create_subscriptions.rs src/m20260125_172256_create_agent_conversations.rs src/m20260125_172257_create_autopilot_configs.rs src/m20260125_172257_create_usage_metrics.rs
+
+src/lib.rs:
+src/m20260125_172256_create_subscriptions.rs:
+src/m20260125_172256_create_agent_conversations.rs:
+src/m20260125_172257_create_autopilot_configs.rs:
+src/m20260125_172257_create_usage_metrics.rs:

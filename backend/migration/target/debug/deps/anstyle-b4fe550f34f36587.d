@@ -1,0 +1,12 @@
+/Users/mako/dale/backend/migration/target/debug/deps/anstyle-b4fe550f34f36587.d: /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/lib.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/macros.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/color.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/effect.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/reset.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/style.rs
+
+/Users/mako/dale/backend/migration/target/debug/deps/libanstyle-b4fe550f34f36587.rlib: /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/lib.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/macros.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/color.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/effect.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/reset.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/style.rs
+
+/Users/mako/dale/backend/migration/target/debug/deps/libanstyle-b4fe550f34f36587.rmeta: /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/lib.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/macros.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/color.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/effect.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/reset.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/style.rs
+
+/Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/lib.rs:
+/Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/macros.rs:
+/Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/color.rs:
+/Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/effect.rs:
+/Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/reset.rs:
+/Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/style.rs:

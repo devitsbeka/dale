@@ -1,0 +1,11 @@
+/Users/mako/dale/backend/migration/target/debug/deps/futures_lite-94469b95c8886aa3.d: /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-2.6.1/src/lib.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-2.6.1/src/future.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-2.6.1/src/prelude.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-2.6.1/src/stream.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-2.6.1/src/io.rs
+
+/Users/mako/dale/backend/migration/target/debug/deps/libfutures_lite-94469b95c8886aa3.rlib: /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-2.6.1/src/lib.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-2.6.1/src/future.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-2.6.1/src/prelude.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-2.6.1/src/stream.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-2.6.1/src/io.rs
+
+/Users/mako/dale/backend/migration/target/debug/deps/libfutures_lite-94469b95c8886aa3.rmeta: /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-2.6.1/src/lib.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-2.6.1/src/future.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-2.6.1/src/prelude.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-2.6.1/src/stream.rs /Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-2.6.1/src/io.rs
+
+/Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-2.6.1/src/lib.rs:
+/Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-2.6.1/src/future.rs:
+/Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-2.6.1/src/prelude.rs:
+/Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-2.6.1/src/stream.rs:
+/Users/mako/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-lite-2.6.1/src/io.rs:
