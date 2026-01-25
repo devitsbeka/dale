@@ -413,10 +413,12 @@ export function ResumeBuilderContent() {
             </div>
 
             {/* Modals - only render when needed */}
+            {/* TEMPORARILY DISABLED - WelcomeModal was blocking all interactions
             <WelcomeModal
                 onStartFromScratch={handleStartFromScratch}
                 onImportResume={handleImportResume}
             />
+            */}
 
             {showTemplatePreview && (
                 <TemplatePreviewModal
