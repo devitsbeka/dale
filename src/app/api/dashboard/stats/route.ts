@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserIdFromRequest } from '@/lib/auth/get-user-from-request';
-import { aggregateJobs } from '@/lib/jobs/aggregator';
 
 export async function GET(request: NextRequest) {
   try {
@@ -31,6 +30,12 @@ export async function GET(request: NextRequest) {
     const previousPeriodStart = new Date(startDate);
     previousPeriodStart.setTime(startDate.getTime() - (now.getTime() - startDate.getTime()));
 
+    // Fetch total available jobs from same endpoint as jobs page (for consistency)
+    const jobsApiUrl = `${request.nextUrl.origin}/api/jobs?limit=1`;
+    const jobsResponse = await fetch(jobsApiUrl);
+    const jobsData = await jobsResponse.json();
+    const totalJobsCount = jobsData.pagination?.total || 0;
+
     // INSTANT PARALLEL QUERIES
     const [
       applications,
@@ -41,7 +46,6 @@ export async function GET(request: NextRequest) {
       allSavedJobs,
       profileViews,
       previousProfileViews,
-      availableJobsResult,
     ] = await Promise.all([
       prisma.jobApplication.findMany({
         where: { userId, appliedAt: { gte: startDate } },
@@ -72,12 +76,9 @@ export async function GET(request: NextRequest) {
       prisma.resumeAnalytics.count({
         where: { resume: { userId }, eventType: 'view', timestamp: { gte: previousPeriodStart, lt: startDate } },
       }),
-      // Get total available jobs from aggregator (external APIs)
-      aggregateJobs({ limit: 1000 }),
     ]);
 
-    const totalJobsCount = availableJobsResult.total;
-    console.log('TOTAL JOBS FROM AGGREGATOR:', totalJobsCount);
+    console.log('TOTAL JOBS (synced with jobs page):', totalJobsCount);
 
     const applicationsCount = applications.length;
     const previousApplicationsCount = previousApplications.length;
