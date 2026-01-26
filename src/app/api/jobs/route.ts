@@ -4,11 +4,9 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { aggregateJobs, calculateJobStats } from '@/lib/jobs';
 import type { JobCategory, LocationType, ExperienceLevel, EmploymentType, JobSource } from '@/types/job';
-
-const prisma = new PrismaClient();
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -135,8 +133,6 @@ export async function GET(request: NextRequest) {
         error: 'Failed to fetch jobs',
       }, { status: 500 });
     }
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
