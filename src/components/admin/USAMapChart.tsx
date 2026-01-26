@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import * as echarts from 'echarts';
-import { stateData, getCostOfLivingLabel } from '@/lib/state-data';
+import { stateData, getCostOfLivingLabel, stateNameToAbbr } from '@/lib/state-data';
 
 const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
 
@@ -70,7 +70,9 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
 
   const handleStateClick = (params: any) => {
     if (params.name) {
-      setSelectedState(params.name);
+      // Convert full state name to abbreviation
+      const stateAbbr = stateNameToAbbr[params.name] || params.name;
+      setSelectedState(stateAbbr);
     }
   };
 
