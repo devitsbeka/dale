@@ -129,8 +129,37 @@ export const Dashboard01 = () => {
 
     useEffect(() => {
         const fetchDashboardData = async () => {
-            try {
+            // Load cached stats immediately
+            const getCachedStats = () => {
+                if (typeof window === 'undefined') return null;
+                try {
+                    const cached = localStorage.getItem(`dashboard_stats_cache_${selectedPeriod}`);
+                    if (cached) {
+                        const { stats, chartData, timestamp } = JSON.parse(cached);
+                        // Return cached stats if less than 5 minutes old
+                        if (Date.now() - timestamp < 5 * 60 * 1000) {
+                            return { stats, chartData };
+                        }
+                    }
+                } catch (error) {
+                    console.error('Failed to load cached dashboard stats:', error);
+                }
+                return null;
+            };
+
+            const cachedData = getCachedStats();
+
+            // If we have cached data, show it immediately
+            if (cachedData) {
+                setStats(cachedData.stats);
+                setChartData(cachedData.chartData);
+                setIsLoading(false);
+            } else {
                 setIsLoading(true);
+            }
+
+            try {
+
                 const token = localStorage.getItem('auth_token');
                 const headers: Record<string, string> = {
                     'Content-Type': 'application/json',
@@ -148,6 +177,20 @@ export const Dashboard01 = () => {
                 if (statsData.stats) {
                     setStats(statsData.stats);
                     setChartData(statsData.chartData || []);
+
+                    // Cache the stats
+                    try {
+                        localStorage.setItem(
+                            `dashboard_stats_cache_${selectedPeriod}`,
+                            JSON.stringify({
+                                stats: statsData.stats,
+                                chartData: statsData.chartData || [],
+                                timestamp: Date.now(),
+                            })
+                        );
+                    } catch (error) {
+                        console.error('Failed to cache dashboard stats:', error);
+                    }
                 }
 
                 // Fetch recent activity
