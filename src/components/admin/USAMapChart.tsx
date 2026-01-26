@@ -490,14 +490,37 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
                 </div>
               </div>
 
-              {/* Top Employers */}
-              {stateTopEmployers.length > 0 && (
-                <div className="mb-4">
-                  <h4 className={`text-xs font-medium mb-3 ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>
-                    Top Employers
-                  </h4>
-                  <div className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'thin' }}>
-                    {stateTopEmployers.map((employer, idx) => (
+              {/* Companies */}
+              {(() => {
+                // Filter companies based on selected employment type
+                const filteredCompanies = stateTopEmployers.filter(employer => {
+                  return stateJobs.some((job: StateJob) =>
+                    job.company === employer.company &&
+                    job.employmentType?.toLowerCase() === selectedEmploymentType
+                  );
+                });
+
+                return filteredCompanies.length > 0 && (
+                  <div className="mb-4">
+                    <h4 className={`text-xs font-medium mb-3 ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>
+                      Companies ({filteredCompanies.length})
+                    </h4>
+                    <div
+                      className="flex gap-2 overflow-x-auto pb-2"
+                      style={{
+                        scrollbarWidth: 'none',
+                        msOverflowStyle: 'none',
+                        WebkitOverflowScrolling: 'touch'
+                      }}
+                    >
+                      <style dangerouslySetInnerHTML={{
+                        __html: `
+                          .flex.gap-2.overflow-x-auto::-webkit-scrollbar {
+                            display: none;
+                          }
+                        `
+                      }} />
+                      {filteredCompanies.map((employer, idx) => (
                       <div
                         key={idx}
                         className={`relative group flex-shrink-0`}
@@ -529,11 +552,12 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
                         >
                           {employer.company.charAt(0).toUpperCase()}
                         </div>
-                      </div>
-                    ))}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
 
               {/* Jobs List */}
               <div>
