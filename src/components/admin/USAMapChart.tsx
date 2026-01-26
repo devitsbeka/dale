@@ -60,41 +60,37 @@ export default function USAMapChart({ data, style }: USAMapChartProps) {
         color: ['#e0f2fe', '#38bdf8', '#0284c7', '#0369a1', '#075985']
       }
     },
-    geo: {
-      map: 'USA',
-      roam: true,
-      scaleLimit: {
-        min: 1,
-        max: 5
-      },
-      zoom: 1.1,
-      label: {
-        show: false,
-        emphasis: {
-          show: true,
-          color: '#fff'
-        }
-      },
-      itemStyle: {
-        borderColor: '#fff',
-        borderWidth: 1,
-        areaColor: '#e5e7eb',
-        emphasis: {
-          areaColor: '#0ea5e9',
-          shadowOffsetX: 0,
-          shadowOffsetY: 0,
-          shadowBlur: 20,
-          borderWidth: 0,
-          shadowColor: 'rgba(0, 0, 0, 0.5)'
-        }
-      }
-    },
     series: [
       {
         name: 'Onsite Jobs',
         type: 'map',
         map: 'USA',
         roam: true,
+        scaleLimit: {
+          min: 1,
+          max: 5
+        },
+        zoom: 1.1,
+        label: {
+          show: false,
+          emphasis: {
+            show: true,
+            color: '#fff'
+          }
+        },
+        itemStyle: {
+          borderColor: '#fff',
+          borderWidth: 1,
+          areaColor: '#e5e7eb',
+          emphasis: {
+            areaColor: '#0ea5e9',
+            shadowOffsetX: 0,
+            shadowOffsetY: 0,
+            shadowBlur: 20,
+            borderWidth: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+          }
+        },
         emphasis: {
           label: {
             show: true
