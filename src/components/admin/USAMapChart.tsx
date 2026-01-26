@@ -48,6 +48,7 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
   const [stateAvgSalary, setStateAvgSalary] = useState<number | null>(null);
   const [stateTopCity, setStateTopCity] = useState<string | null>(null);
   const [stateTopEmployers, setStateTopEmployers] = useState<Array<{ company: string; logo: string | null; jobCount: number }>>([]);
+  const [selectedEmploymentType, setSelectedEmploymentType] = useState<'full-time' | 'part-time' | 'internship'>('full-time');
   const jobsCache = useRef<Record<string, { jobs: StateJob[]; avgSalary: number | null; topCity: string | null; topEmployers: Array<{ company: string; logo: string | null; jobCount: number }> }>>({});
 
   useEffect(() => {
@@ -67,6 +68,7 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
 
   useEffect(() => {
     if (selectedState) {
+      setSelectedEmploymentType('full-time');
       fetchStateJobs(selectedState);
     }
   }, [selectedState]);
@@ -81,10 +83,13 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
       setStateTopEmployers(cached.topEmployers);
       setDisplayedJobsCount(0);
 
-      // Progressively reveal cached jobs (faster)
-      if (cached.jobs.length > 0) {
+      // Progressively reveal cached jobs (faster) - filter by employment type
+      const filteredJobs = cached.jobs.filter((job: StateJob) =>
+        job.employmentType?.toLowerCase() === 'full-time'
+      );
+      if (filteredJobs.length > 0) {
         const revealJobs = async () => {
-          for (let i = 1; i <= cached.jobs.length; i++) {
+          for (let i = 1; i <= filteredJobs.length; i++) {
             await new Promise(resolve => setTimeout(resolve, 15));
             setDisplayedJobsCount(i);
           }
@@ -113,10 +118,13 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
       setStateTopCity(result.topCity);
       setStateTopEmployers(result.topEmployers || []);
 
-      // Progressively reveal jobs with staggered animation
-      if (jobs.length > 0) {
+      // Progressively reveal jobs with staggered animation - filter by employment type
+      const filteredJobs = jobs.filter((job: StateJob) =>
+        job.employmentType?.toLowerCase() === 'full-time'
+      );
+      if (filteredJobs.length > 0) {
         const revealJobs = async () => {
-          for (let i = 1; i <= jobs.length; i++) {
+          for (let i = 1; i <= filteredJobs.length; i++) {
             await new Promise(resolve => setTimeout(resolve, 30));
             setDisplayedJobsCount(i);
           }
@@ -488,11 +496,11 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
                   <h4 className={`text-xs font-medium mb-3 ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>
                     Top Employers
                   </h4>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'thin' }}>
                     {stateTopEmployers.map((employer, idx) => (
                       <div
                         key={idx}
-                        className={`relative group`}
+                        className={`relative group flex-shrink-0`}
                         title={`${employer.company} (${employer.jobCount} job${employer.jobCount > 1 ? 's' : ''})`}
                       >
                         {employer.logo ? (
@@ -529,14 +537,71 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
 
               {/* Jobs List */}
               <div>
-                <h4 className={`text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>
-                  Jobs in {stateInfo.name} ({stateJobs.length})
-                </h4>
-                {stateJobs.length === 0 && !loadingJobs ? (
-                  <div className={`text-xs py-4 ${isDark ? 'text-gray-600' : 'text-gray-500'}`}>No jobs found in this state</div>
-                ) : (
-                  <div className="space-y-2">
-                    {stateJobs.slice(0, displayedJobsCount).map((job, idx) => (
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className={`text-xs font-medium ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>
+                    Jobs in {stateInfo.name}
+                  </h4>
+                </div>
+
+                {/* Employment Type Tabs */}
+                <div className={`flex gap-1 mb-3 border-b ${isDark ? 'border-gray-800' : 'border-gray-200'}`}>
+                  {[
+                    { key: 'full-time', label: 'Full Time' },
+                    { key: 'part-time', label: 'Part Time' },
+                    { key: 'internship', label: 'Internship' }
+                  ].map((tab) => {
+                    const tabKey = tab.key as 'full-time' | 'part-time' | 'internship';
+                    const count = stateJobs.filter((job: StateJob) =>
+                      job.employmentType?.toLowerCase() === tabKey
+                    ).length;
+                    return (
+                      <button
+                        key={tab.key}
+                        onClick={() => {
+                          setSelectedEmploymentType(tabKey);
+                          setDisplayedJobsCount(0);
+                          // Re-reveal jobs with animation
+                          const filteredJobs = stateJobs.filter((job: StateJob) =>
+                            job.employmentType?.toLowerCase() === tabKey
+                          );
+                          if (filteredJobs.length > 0) {
+                            const revealJobs = async () => {
+                              for (let i = 1; i <= filteredJobs.length; i++) {
+                                await new Promise(resolve => setTimeout(resolve, 20));
+                                setDisplayedJobsCount(i);
+                              }
+                            };
+                            revealJobs();
+                          }
+                        }}
+                        className={`text-[10px] px-3 py-1.5 font-medium transition-colors border-b-2 ${
+                          selectedEmploymentType === tabKey
+                            ? isDark
+                              ? 'text-blue-400 border-blue-400'
+                              : 'text-blue-600 border-blue-600'
+                            : isDark
+                            ? 'text-gray-500 border-transparent hover:text-gray-300'
+                            : 'text-gray-600 border-transparent hover:text-gray-900'
+                        }`}
+                      >
+                        {tab.label} ({count})
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {(() => {
+                  const filteredJobs = stateJobs.filter((job: StateJob) =>
+                    job.employmentType?.toLowerCase() === selectedEmploymentType
+                  );
+
+                  return filteredJobs.length === 0 && !loadingJobs ? (
+                    <div className={`text-xs py-4 ${isDark ? 'text-gray-600' : 'text-gray-500'}`}>
+                      No {selectedEmploymentType} jobs found in this state
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {filteredJobs.slice(0, displayedJobsCount).map((job, idx) => (
                       <div
                         key={job.id}
                         onClick={() => setSelectedJob(job)}
@@ -580,10 +645,11 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
                             )}
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
             </>
           )}
