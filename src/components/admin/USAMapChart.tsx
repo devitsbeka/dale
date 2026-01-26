@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import * as echarts from 'echarts';
 import { stateData, getCostOfLivingLabel, stateNameToAbbr } from '@/lib/state-data';
+import { extractCity } from '@/lib/location-utils';
 
 const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
 
@@ -267,9 +268,14 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
                   <div className={`text-xs font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                     {selectedJob.company}
                   </div>
-                  <div className={`text-[10px] ${isDark ? 'text-gray-600' : 'text-gray-500'}`}>
-                    {selectedJob.location}
-                  </div>
+                  {extractCity(selectedJob.location) && (
+                    <div className={`text-[10px] flex items-center gap-1 ${isDark ? 'text-gray-600' : 'text-gray-500'}`}>
+                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                      </svg>
+                      <span>{extractCity(selectedJob.location)}</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -429,6 +435,14 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
                           <div className="flex-1 min-w-0">
                             <div className={`text-xs font-medium mb-1 ${isDark ? 'text-gray-200' : 'text-gray-900'}`}>{job.title}</div>
                             <div className={`text-[10px] ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>{job.company}</div>
+                            {extractCity(job.location) && (
+                              <div className={`text-[10px] mt-1 flex items-center gap-1 ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
+                                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                                </svg>
+                                <span>{extractCity(job.location)}</span>
+                              </div>
+                            )}
                             {(job.salaryMin || job.salaryMax) && (
                               <div className={`text-[10px] mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                                 {job.salaryMin && job.salaryMax
@@ -437,9 +451,6 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
                                   ? `From $${job.salaryMin.toLocaleString()}`
                                   : `Up to $${job.salaryMax?.toLocaleString()}`}
                               </div>
-                            )}
-                            {job.category && (
-                              <div className="text-[10px] text-blue-500 mt-1">{job.category}</div>
                             )}
                           </div>
                         </div>
