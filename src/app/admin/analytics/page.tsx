@@ -7,6 +7,7 @@
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import USAMapChart from '@/components/admin/USAMapChart';
+import { Select } from '@/components/base/select/select';
 
 const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
 
@@ -71,18 +72,21 @@ export default function AdminAnalyticsPage() {
           <p className="text-gray-500 mt-1">Real-time insights from {data?.overview?.totalJobs?.toLocaleString() || 0} job listings</p>
         </div>
 
-        <div className="flex gap-4 items-center">
-          <select
-            value={dateRange}
-            onChange={(e) => setDateRange(Number(e.target.value))}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        <div className="w-48">
+          <Select
+            selectedKey={String(dateRange)}
+            onSelectionChange={(key) => setDateRange(Number(key))}
+            items={[
+              { id: '7', label: 'Last 7 days' },
+              { id: '30', label: 'Last 30 days' },
+              { id: '90', label: 'Last 90 days' },
+              { id: '180', label: 'Last 6 months' },
+              { id: '365', label: 'Last year' },
+            ]}
+            size="md"
           >
-            <option value={7}>Last 7 days</option>
-            <option value={30}>Last 30 days</option>
-            <option value={90}>Last 90 days</option>
-            <option value={180}>Last 6 months</option>
-            <option value={365}>Last year</option>
-          </select>
+            {(item) => <Select.Item id={item.id}>{item.label}</Select.Item>}
+          </Select>
         </div>
       </div>
 

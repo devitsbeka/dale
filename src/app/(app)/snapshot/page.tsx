@@ -7,6 +7,7 @@
 
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
+import { Select } from '@/components/base/select/select';
 
 const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
 
@@ -67,15 +68,20 @@ export default function SnapshotPage() {
                 Real-time insights from {data?.overview?.totalJobs?.toLocaleString() || 0} job listings
               </p>
             </div>
-            <select
-              value={dateRange}
-              onChange={(e) => setDateRange(Number(e.target.value))}
-              className="px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white w-full sm:w-auto"
-            >
-              <option value={7}>Last 7 days</option>
-              <option value={30}>Last 30 days</option>
-              <option value={90}>Last 90 days</option>
-            </select>
+            <div className="w-full sm:w-48">
+              <Select
+                selectedKey={String(dateRange)}
+                onSelectionChange={(key) => setDateRange(Number(key))}
+                items={[
+                  { id: '7', label: 'Last 7 days' },
+                  { id: '30', label: 'Last 30 days' },
+                  { id: '90', label: 'Last 90 days' },
+                ]}
+                size="md"
+              >
+                {(item) => <Select.Item id={item.id}>{item.label}</Select.Item>}
+              </Select>
+            </div>
           </div>
 
           {/* KPI Grid */}
