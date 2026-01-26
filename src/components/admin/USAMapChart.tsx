@@ -376,27 +376,24 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
         },
         zoom: 4.2,
         label: {
-          show: false,
-          emphasis: {
-            show: true,
-            color: '#fff'
-          }
+          show: false
         },
         itemStyle: {
           borderColor: isDark ? '#374151' : '#d1d5db',
-          borderWidth: 1,
-          emphasis: {
+          borderWidth: 1
+        },
+        emphasis: {
+          label: {
+            show: true,
+            color: '#fff'
+          },
+          itemStyle: {
             areaColor: isDark ? '#2d5a3f' : '#c8e6d3',
             shadowOffsetX: 0,
             shadowOffsetY: 0,
             shadowBlur: 20,
             borderWidth: 0,
             shadowColor: 'rgba(0, 0, 0, 0.5)'
-          }
-        },
-        emphasis: {
-          label: {
-            show: true
           }
         },
         data: data.data

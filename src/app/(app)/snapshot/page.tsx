@@ -74,6 +74,7 @@ export default function SnapshotPage() {
             </div>
             <div className="w-full sm:w-48">
               <Select
+                aria-label="Select date range"
                 selectedKey={String(dateRange)}
                 onSelectionChange={(key) => setDateRange(Number(key))}
                 items={[
