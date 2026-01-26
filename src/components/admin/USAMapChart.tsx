@@ -49,6 +49,7 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
   const [stateTopCity, setStateTopCity] = useState<string | null>(null);
   const [stateTopEmployers, setStateTopEmployers] = useState<Array<{ company: string; logo: string | null; jobCount: number }>>([]);
   const [selectedEmploymentType, setSelectedEmploymentType] = useState<'full-time' | 'part-time' | 'internship'>('full-time');
+  const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
   const jobsCache = useRef<Record<string, { jobs: StateJob[]; avgSalary: number | null; topCity: string | null; topEmployers: Array<{ company: string; logo: string | null; jobCount: number }> }>>({});
 
   useEffect(() => {
@@ -69,6 +70,7 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
   useEffect(() => {
     if (selectedState) {
       setSelectedEmploymentType('full-time');
+      setSelectedCompany(null);
       fetchStateJobs(selectedState);
     }
   }, [selectedState]);
@@ -520,40 +522,73 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
                           }
                         `
                       }} />
-                      {filteredCompanies.map((employer, idx) => (
-                      <div
-                        key={idx}
-                        className={`relative group flex-shrink-0`}
-                        title={`${employer.company} (${employer.jobCount} job${employer.jobCount > 1 ? 's' : ''})`}
-                      >
-                        {employer.logo ? (
-                          <img
-                            src={employer.logo}
-                            alt={employer.company}
-                            className={`w-10 h-10 object-contain border-2 rounded-lg ${
-                              isDark
-                                ? 'border-gray-800 bg-gray-900 hover:border-blue-500'
-                                : 'border-gray-200 bg-white hover:border-blue-400'
-                            } transition-all cursor-pointer`}
-                            onError={(e) => {
-                              // Fallback to company initial if logo fails
-                              e.currentTarget.style.display = 'none';
-                              const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                              if (fallback) fallback.style.display = 'flex';
+                      {filteredCompanies.map((employer, idx) => {
+                        const isSelected = selectedCompany === employer.company;
+                        return (
+                          <div
+                            key={idx}
+                            className={`relative group flex-shrink-0`}
+                            title={`${employer.company} (${employer.jobCount} job${employer.jobCount > 1 ? 's' : ''})`}
+                            onClick={() => {
+                              if (selectedCompany === employer.company) {
+                                setSelectedCompany(null); // Deselect if clicking same company
+                              } else {
+                                setSelectedCompany(employer.company);
+                              }
+                              setDisplayedJobsCount(0);
+                              // Re-reveal jobs with animation
+                              const filteredJobs = stateJobs.filter((job: StateJob) =>
+                                job.employmentType?.toLowerCase() === selectedEmploymentType &&
+                                (selectedCompany === employer.company ? true : job.company === employer.company)
+                              );
+                              if (filteredJobs.length > 0) {
+                                const revealJobs = async () => {
+                                  for (let i = 1; i <= filteredJobs.length; i++) {
+                                    await new Promise(resolve => setTimeout(resolve, 20));
+                                    setDisplayedJobsCount(i);
+                                  }
+                                };
+                                revealJobs();
+                              }
                             }}
-                          />
-                        ) : null}
-                        <div
-                          className={`w-10 h-10 rounded-lg border-2 flex items-center justify-center text-xs font-semibold ${
-                            isDark
-                              ? 'border-gray-800 bg-gray-900 text-gray-400 hover:border-blue-500'
-                              : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-blue-400'
-                          } transition-all cursor-pointer ${employer.logo ? 'hidden' : 'flex'}`}
-                        >
-                          {employer.company.charAt(0).toUpperCase()}
-                        </div>
-                        </div>
-                      ))}
+                          >
+                            {employer.logo ? (
+                              <img
+                                src={employer.logo}
+                                alt={employer.company}
+                                className={`w-10 h-10 object-contain border-2 rounded-lg ${
+                                  isSelected
+                                    ? isDark
+                                      ? 'border-blue-500 bg-gray-900'
+                                      : 'border-blue-600 bg-white'
+                                    : isDark
+                                    ? 'border-gray-800 bg-gray-900 hover:border-blue-500'
+                                    : 'border-gray-200 bg-white hover:border-blue-400'
+                                } transition-all cursor-pointer`}
+                                onError={(e) => {
+                                  // Fallback to company initial if logo fails
+                                  e.currentTarget.style.display = 'none';
+                                  const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                                  if (fallback) fallback.style.display = 'flex';
+                                }}
+                              />
+                            ) : null}
+                            <div
+                              className={`w-10 h-10 rounded-lg border-2 flex items-center justify-center text-xs font-semibold ${
+                                isSelected
+                                  ? isDark
+                                    ? 'border-blue-500 bg-gray-900 text-blue-400'
+                                    : 'border-blue-600 bg-white text-blue-600'
+                                  : isDark
+                                  ? 'border-gray-800 bg-gray-900 text-gray-400 hover:border-blue-500'
+                                  : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-blue-400'
+                              } transition-all cursor-pointer ${employer.logo ? 'hidden' : 'flex'}`}
+                            >
+                              {employer.company.charAt(0).toUpperCase()}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 );
@@ -583,6 +618,7 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
                         key={tab.key}
                         onClick={() => {
                           setSelectedEmploymentType(tabKey);
+                          setSelectedCompany(null); // Reset company filter when switching tabs
                           setDisplayedJobsCount(0);
                           // Re-reveal jobs with animation
                           const filteredJobs = stateJobs.filter((job: StateJob) =>
@@ -616,7 +652,8 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
 
                 {(() => {
                   const filteredJobs = stateJobs.filter((job: StateJob) =>
-                    job.employmentType?.toLowerCase() === selectedEmploymentType
+                    job.employmentType?.toLowerCase() === selectedEmploymentType &&
+                    (!selectedCompany || job.company === selectedCompany)
                   );
 
                   return filteredJobs.length === 0 && !loadingJobs ? (
