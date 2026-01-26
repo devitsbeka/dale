@@ -60,20 +60,58 @@ const DEFAULT_FILTERS: JobFilters = {
 };
 
 export function useJobs(initialFilters?: Partial<JobFilters>): UseJobsReturn {
+  // Load cached stats from localStorage
+  const getCachedStats = () => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const cached = localStorage.getItem('jobs_stats_cache');
+      if (cached) {
+        const { stats, timestamp } = JSON.parse(cached);
+        // Return cached stats if less than 5 minutes old
+        if (Date.now() - timestamp < 5 * 60 * 1000) {
+          return stats;
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load cached stats:', error);
+    }
+    return null;
+  };
+
+  const getCachedPagination = () => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const cached = localStorage.getItem('jobs_pagination_cache');
+      if (cached) {
+        const { pagination, timestamp } = JSON.parse(cached);
+        // Return cached pagination if less than 5 minutes old
+        if (Date.now() - timestamp < 5 * 60 * 1000) {
+          return pagination;
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load cached pagination:', error);
+    }
+    return null;
+  };
+
+  const cachedStats = getCachedStats();
+  const cachedPagination = getCachedPagination();
+
   const [state, setState] = useState<UseJobsState>({
     jobs: [],
-    isLoading: true,
+    isLoading: !cachedStats, // Don't show loading if we have cache
     isLoadingMore: false,
     error: null,
-    pagination: {
+    pagination: cachedPagination || {
       page: 1,
       limit: 20,
       total: 0,
       totalPages: 0,
     },
     filters: { ...DEFAULT_FILTERS, ...initialFilters },
-    fromCache: false,
-    stats: null,
+    fromCache: !!cachedStats,
+    stats: cachedStats,
     filterOptions: {
       availableCategories: [],
       availableLocations: [],
@@ -153,6 +191,35 @@ export function useJobs(initialFilters?: Partial<JobFilters>): UseJobsReturn {
         }
 
         const data = await response.json();
+
+        // Cache stats and pagination in localStorage
+        if (data.stats) {
+          try {
+            localStorage.setItem(
+              'jobs_stats_cache',
+              JSON.stringify({
+                stats: data.stats,
+                timestamp: Date.now(),
+              })
+            );
+          } catch (error) {
+            console.error('Failed to cache stats:', error);
+          }
+        }
+
+        if (data.pagination) {
+          try {
+            localStorage.setItem(
+              'jobs_pagination_cache',
+              JSON.stringify({
+                pagination: data.pagination,
+                timestamp: Date.now(),
+              })
+            );
+          } catch (error) {
+            console.error('Failed to cache pagination:', error);
+          }
+        }
 
         setState((prev) => ({
           ...prev,

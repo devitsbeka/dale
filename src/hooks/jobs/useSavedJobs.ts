@@ -34,16 +34,36 @@ interface UseSavedJobsActions {
 interface UseSavedJobsReturn extends UseSavedJobsState, UseSavedJobsActions {}
 
 export function useSavedJobs(): UseSavedJobsReturn {
+  // Load cached count from localStorage
+  const getCachedCount = () => {
+    if (typeof window === 'undefined') return 0;
+    try {
+      const cached = localStorage.getItem('saved_jobs_count_cache');
+      if (cached) {
+        const { count, timestamp } = JSON.parse(cached);
+        // Return cached count if less than 2 minutes old
+        if (Date.now() - timestamp < 2 * 60 * 1000) {
+          return count;
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load cached saved jobs count:', error);
+    }
+    return 0;
+  };
+
+  const cachedCount = getCachedCount();
+
   const [state, setState] = useState<UseSavedJobsState>({
     savedJobs: [],
     savedJobIds: new Set(),
-    isLoading: true,
+    isLoading: cachedCount === 0, // Don't show loading if we have cache
     error: null,
     pagination: {
       page: 1,
       limit: 50,
-      total: 0,
-      totalPages: 0,
+      total: cachedCount,
+      totalPages: Math.ceil(cachedCount / 50),
     },
   });
 
@@ -68,6 +88,19 @@ export function useSavedJobs(): UseSavedJobsReturn {
 
       const data = await response.json();
       const savedJobs = data.savedJobs || [];
+
+      // Cache the count
+      try {
+        localStorage.setItem(
+          'saved_jobs_count_cache',
+          JSON.stringify({
+            count: savedJobs.length,
+            timestamp: Date.now(),
+          })
+        );
+      } catch (error) {
+        console.error('Failed to cache saved jobs count:', error);
+      }
 
       setState((prev) => ({
         ...prev,

@@ -21,6 +21,7 @@ import { MetricChangeIndicator } from "@/components/application/metrics/metrics"
 import { SectionHeader } from "@/components/application/section-headers/section-headers";
 import { ButtonGroup, ButtonGroupItem } from "@/components/base/button-group/button-group";
 import { Button } from "@/components/base/buttons/button";
+import { AnimatedCounter } from "@/components/base/animated-counter";
 import { FeaturedIcon } from "@/components/foundations/featured-icon/featured-icon";
 import { WelcomeHero } from "./welcome-hero";
 
@@ -229,7 +230,7 @@ export const Dashboard01 = () => {
                             <p className="text-sm font-medium text-tertiary">Jobs Available</p>
                             <div className="flex items-start gap-2">
                                 <span className="text-display-md font-semibold text-primary">
-                                    {isLoading ? '-' : stats.availableCount.toLocaleString()}
+                                    {isLoading ? '-' : <AnimatedCounter value={stats.availableCount} />}
                                 </span>
                             </div>
                             <p className="text-xs text-quaternary">Total jobs in system</p>
@@ -239,7 +240,7 @@ export const Dashboard01 = () => {
                             <p className="text-sm font-medium text-tertiary">Jobs Saved</p>
                             <div className="flex items-start gap-2">
                                 <span className="text-display-md font-semibold text-primary">
-                                    {isLoading ? '-' : stats.savedCount}
+                                    {isLoading ? '-' : <AnimatedCounter value={stats.savedCount} />}
                                 </span>
                                 {!isLoading && stats.savedChange !== 0 && (
                                     <MetricChangeIndicator
@@ -256,7 +257,7 @@ export const Dashboard01 = () => {
                             <p className="text-sm font-medium text-tertiary">Jobs Applied</p>
                             <div className="flex items-start gap-2">
                                 <span className="text-display-md font-semibold text-primary">
-                                    {isLoading ? '-' : stats.applicationsCount}
+                                    {isLoading ? '-' : <AnimatedCounter value={stats.applicationsCount} />}
                                 </span>
                                 {!isLoading && stats.applicationsChange !== 0 && (
                                     <MetricChangeIndicator

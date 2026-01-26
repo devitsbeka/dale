@@ -20,6 +20,7 @@ import { JobCard } from '@/components/jobs/job-card';
 import { JobFilters } from '@/components/jobs/job-filters';
 import { JobDetailsPanel } from '@/components/jobs/job-details-panel';
 import { ApplyModal } from '@/components/jobs/apply-modal';
+import { AnimatedCounter } from '@/components/base/animated-counter';
 import { cx } from '@/utils/cx';
 import { useJobs, useSavedJobs, useJobApplications } from '@/hooks/jobs';
 import type { Job, JobFilters as JobFiltersType, ApplyFormData } from '@/types/job';
@@ -163,7 +164,7 @@ export default function JobsPage() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-primary">
-                    {jobs.pagination.total.toLocaleString()}
+                    <AnimatedCounter value={jobs.pagination.total} />
                   </p>
                   <p className="text-xs text-tertiary">Total Jobs</p>
                 </div>
@@ -176,7 +177,7 @@ export default function JobsPage() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-primary">
-                    {savedJobs.savedJobs.length}
+                    <AnimatedCounter value={savedJobs.savedJobs.length} />
                   </p>
                   <p className="text-xs text-tertiary">Saved Jobs</p>
                 </div>
@@ -189,7 +190,7 @@ export default function JobsPage() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-primary">
-                    {applications.applications.length}
+                    <AnimatedCounter value={applications.applications.length} />
                   </p>
                   <p className="text-xs text-tertiary">Applied</p>
                 </div>
@@ -202,7 +203,7 @@ export default function JobsPage() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-primary">
-                    {applications.stats?.responseRate || 0}%
+                    <AnimatedCounter value={applications.stats?.responseRate || 0} />%
                   </p>
                   <p className="text-xs text-tertiary">Response Rate</p>
                 </div>

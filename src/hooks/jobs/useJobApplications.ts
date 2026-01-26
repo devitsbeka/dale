@@ -52,17 +52,37 @@ interface UseJobApplicationsReturn
     UseJobApplicationsActions {}
 
 export function useJobApplications(): UseJobApplicationsReturn {
+  // Load cached stats from localStorage
+  const getCachedStats = () => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const cached = localStorage.getItem('applications_stats_cache');
+      if (cached) {
+        const { stats, timestamp } = JSON.parse(cached);
+        // Return cached stats if less than 2 minutes old
+        if (Date.now() - timestamp < 2 * 60 * 1000) {
+          return stats;
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load cached applications stats:', error);
+    }
+    return null;
+  };
+
+  const cachedStats = getCachedStats();
+
   const [state, setState] = useState<UseJobApplicationsState>({
     applications: [],
     appliedJobIds: new Set(),
-    isLoading: true,
+    isLoading: !cachedStats, // Don't show loading if we have cache
     error: null,
-    stats: null,
+    stats: cachedStats,
     pagination: {
       page: 1,
       limit: 50,
-      total: 0,
-      totalPages: 0,
+      total: cachedStats?.total || 0,
+      totalPages: cachedStats ? Math.ceil(cachedStats.total / 50) : 0,
     },
   });
 
@@ -84,6 +104,21 @@ export function useJobApplications(): UseJobApplicationsReturn {
 
         const data = await response.json();
         const applications = data.applications || [];
+
+        // Cache the stats
+        if (data.stats) {
+          try {
+            localStorage.setItem(
+              'applications_stats_cache',
+              JSON.stringify({
+                stats: data.stats,
+                timestamp: Date.now(),
+              })
+            );
+          } catch (error) {
+            console.error('Failed to cache applications stats:', error);
+          }
+        }
 
         setState((prev) => ({
           ...prev,
