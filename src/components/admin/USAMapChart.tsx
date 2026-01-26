@@ -66,12 +66,12 @@ export default function USAMapChart({ data, style }: USAMapChartProps) {
         type: 'map',
         map: 'USA',
         roam: true,
-        center: [-95, 38],
+        center: [-92, 38],
         scaleLimit: {
           min: 1,
           max: 5
         },
-        zoom: 2.18,
+        zoom: 2.83,
         label: {
           show: false,
           emphasis: {
