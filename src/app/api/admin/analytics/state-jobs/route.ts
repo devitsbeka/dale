@@ -7,7 +7,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { matchesState } from '@/lib/location-utils';
 
-export const dynamic = 'force-dynamic';
+// In-memory cache
+const cache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 export async function GET(request: NextRequest) {
   try {
@@ -19,6 +21,20 @@ export async function GET(request: NextRequest) {
         { error: 'State parameter is required' },
         { status: 400 }
       );
+    }
+
+    const cacheKey = `state-jobs:${state.toUpperCase()}`;
+    const now = Date.now();
+
+    // Check cache
+    const cached = cache.get(cacheKey);
+    if (cached && (now - cached.timestamp) < CACHE_TTL) {
+      return NextResponse.json(cached.data, {
+        headers: {
+          'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+          'X-Cache': 'HIT'
+        }
+      });
     }
 
     // Get all onsite jobs with locations
@@ -61,10 +77,20 @@ export async function GET(request: NextRequest) {
     // Limit to 50 most recent jobs
     const limitedJobs = stateJobs.slice(0, 50);
 
-    return NextResponse.json({
+    const responseData = {
       state,
       totalJobs: stateJobs.length,
       jobs: limitedJobs,
+    };
+
+    // Update cache
+    cache.set(cacheKey, { data: responseData, timestamp: now });
+
+    return NextResponse.json(responseData, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+        'X-Cache': 'MISS'
+      }
     });
   } catch (error) {
     console.error('Error fetching state jobs:', error);

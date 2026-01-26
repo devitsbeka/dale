@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import * as echarts from 'echarts';
 import { stateData, getCostOfLivingLabel, stateNameToAbbr } from '@/lib/state-data';
@@ -43,6 +43,7 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
   const [stateJobs, setStateJobs] = useState<StateJob[]>([]);
   const [loadingJobs, setLoadingJobs] = useState(false);
   const [displayedJobsCount, setDisplayedJobsCount] = useState(0);
+  const jobsCache = useRef<Record<string, StateJob[]>>({});
 
   useEffect(() => {
     // Register USA map with ECharts using reliable GeoJSON source
@@ -66,12 +67,34 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
   }, [selectedState]);
 
   const fetchStateJobs = async (state: string) => {
+    // Check cache first
+    if (jobsCache.current[state]) {
+      const jobs = jobsCache.current[state];
+      setStateJobs(jobs);
+      setDisplayedJobsCount(0);
+
+      // Progressively reveal cached jobs (faster)
+      if (jobs.length > 0) {
+        const revealJobs = async () => {
+          for (let i = 1; i <= jobs.length; i++) {
+            await new Promise(resolve => setTimeout(resolve, 15));
+            setDisplayedJobsCount(i);
+          }
+        };
+        revealJobs();
+      }
+      return;
+    }
+
     setLoadingJobs(true);
     setDisplayedJobsCount(0);
     try {
       const response = await fetch(`/api/admin/analytics/state-jobs?state=${state}`);
       const result = await response.json();
       const jobs = result.jobs || [];
+
+      // Cache the results
+      jobsCache.current[state] = jobs;
       setStateJobs(jobs);
 
       // Progressively reveal jobs with staggered animation
