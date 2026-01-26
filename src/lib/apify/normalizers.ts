@@ -4,36 +4,77 @@
  */
 
 import type { Job } from '@/types/job';
+import {
+  normalizeJobTitle,
+  normalizeCompanyName,
+  normalizeDescription,
+  normalizeLocation,
+  getCompanyLogoUrl,
+  normalizeUrl,
+  normalizeSalary,
+  extractSkillsFromDescription,
+} from '@/lib/jobs/semantic-normalizer';
 
 /**
  * Normalize LinkedIn job from curious_coder/linkedin-jobs-scraper
  */
 export function normalizeLinkedInJob(item: any): Job | null {
   try {
+    // Semantic normalization
+    const normalizedTitle = normalizeJobTitle(item.title || item.jobTitle);
+    const normalizedCompany = normalizeCompanyName(item.companyName || item.company);
+    const normalizedDesc = normalizeDescription(
+      item.description || item.jobDescription,
+      item.descriptionHtml
+    );
+    const normalizedLoc = normalizeLocation(item.location);
+    const normalizedSalary = normalizeSalary(
+      item.salaryRange?.min,
+      item.salaryRange?.max,
+      'yearly'
+    );
+
+    // Get company logo (fallback to Clearbit if not provided)
+    const companyLogo =
+      item.companyLogo ||
+      item.companyLogoUrl ||
+      getCompanyLogoUrl(
+        normalizedCompany.name,
+        item.companyUrl || item.companyLinkedInUrl
+      );
+
+    // Extract skills from description if not provided
+    const tags = item.skills && item.skills.length > 0
+      ? item.skills
+      : extractSkillsFromDescription(normalizedDesc);
+
     return {
       id: `linkedin-${item.jobId || item.id}`,
       externalId: item.jobId || item.id,
       source: 'linkedin',
-      title: item.title || item.jobTitle,
-      company: item.companyName || item.company,
-      companyLogo: item.companyLogo || item.companyLogoUrl,
-      companyUrl: item.companyUrl || item.companyLinkedInUrl,
-      location: item.location || 'Remote',
-      locationType: item.workplaceType?.toLowerCase() === 'remote' ? 'remote' :
-                    item.workplaceType?.toLowerCase() === 'hybrid' ? 'hybrid' : 'onsite',
-      description: item.description || item.jobDescription || '',
+      title: normalizedTitle,
+      company: normalizedCompany.displayName,
+      companyLogo,
+      companyUrl: normalizeUrl(item.companyUrl || item.companyLinkedInUrl),
+      location: normalizedLoc.display,
+      locationType: normalizedLoc.isRemote
+        ? 'remote'
+        : item.workplaceType?.toLowerCase() === 'hybrid'
+        ? 'hybrid'
+        : 'onsite',
+      description: normalizedDesc,
       descriptionHtml: item.descriptionHtml || null,
       requirements: null,
       benefits: null,
-      category: categorizeJob(item.title),
-      tags: item.skills || [],
+      category: categorizeJob(normalizedTitle),
+      tags,
       experienceLevel: normalizeExperienceLevel(item.seniorityLevel),
       employmentType: normalizeEmploymentType(item.employmentType),
-      salaryMin: item.salaryRange?.min || null,
-      salaryMax: item.salaryRange?.max || null,
+      salaryMin: normalizedSalary.min,
+      salaryMax: normalizedSalary.max,
       salaryCurrency: item.salaryCurrency || 'USD',
-      salaryPeriod: 'yearly',
-      applyUrl: item.applyUrl || item.url || item.link,
+      salaryPeriod: normalizedSalary.period,
+      applyUrl: normalizeUrl(item.applyUrl || item.url || item.link) || '#',
       applicationEmail: null,
       publishedAt: item.postedAt || item.listedAt || new Date().toISOString(),
       expiresAt: null,
@@ -52,29 +93,53 @@ export function normalizeLinkedInJob(item: any): Job | null {
  */
 export function normalizeGreenhouseJob(item: any): Job | null {
   try {
+    // Semantic normalization
+    const normalizedTitle = normalizeJobTitle(item.title);
+    const normalizedCompany = normalizeCompanyName(item.companyName);
+    const normalizedDesc = normalizeDescription(item.content, item.content);
+    const normalizedLoc = normalizeLocation(item.location?.name);
+
+    // Extract company URL from job URL
+    let companyUrl: string | null = null;
+    if (item.absoluteUrl) {
+      try {
+        companyUrl = new URL(item.absoluteUrl).origin;
+      } catch (e) {
+        companyUrl = null;
+      }
+    }
+
+    // Get company logo
+    const companyLogo = getCompanyLogoUrl(normalizedCompany.name, companyUrl);
+
+    // Extract tags from departments and description
+    const departmentTags = item.departments?.map((d: any) => d.name) || [];
+    const descriptionTags = extractSkillsFromDescription(normalizedDesc);
+    const tags = [...new Set([...departmentTags, ...descriptionTags])].slice(0, 20);
+
     return {
       id: `greenhouse-${item.id}`,
       externalId: String(item.id),
       source: 'greenhouse',
-      title: item.title,
-      company: item.companyName || 'Unknown Company',
-      companyLogo: null,
-      companyUrl: item.absoluteUrl ? new URL(item.absoluteUrl).origin : null,
-      location: item.location?.name || 'Remote',
-      locationType: item.location?.name?.toLowerCase().includes('remote') ? 'remote' : 'onsite',
-      description: stripHtml(item.content || ''),
+      title: normalizedTitle,
+      company: normalizedCompany.displayName,
+      companyLogo,
+      companyUrl: normalizeUrl(companyUrl),
+      location: normalizedLoc.display,
+      locationType: normalizedLoc.isRemote ? 'remote' : 'onsite',
+      description: normalizedDesc,
       descriptionHtml: item.content,
       requirements: null,
       benefits: null,
-      category: categorizeJob(item.title),
-      tags: item.departments?.map((d: any) => d.name) || [],
+      category: categorizeJob(normalizedTitle),
+      tags,
       experienceLevel: null,
       employmentType: 'full-time',
       salaryMin: null,
       salaryMax: null,
       salaryCurrency: null,
       salaryPeriod: null,
-      applyUrl: item.absoluteUrl,
+      applyUrl: normalizeUrl(item.absoluteUrl) || '#',
       applicationEmail: null,
       publishedAt: item.updatedAt || new Date().toISOString(),
       expiresAt: null,
@@ -93,29 +158,56 @@ export function normalizeGreenhouseJob(item: any): Job | null {
  */
 export function normalizeIndeedJob(item: any): Job | null {
   try {
+    // Semantic normalization
+    const normalizedTitle = normalizeJobTitle(item.title || item.jobTitle);
+    const normalizedCompany = normalizeCompanyName(item.company || item.companyName);
+    const normalizedDesc = normalizeDescription(
+      item.description || item.snippet,
+      item.descriptionHtml
+    );
+    const normalizedLoc = normalizeLocation(
+      item.location || item.formattedLocation
+    );
+
+    // Parse salary if provided as string
+    const parsedSalary = parseSalary(item.salary);
+    const salaryMin = item.salary?.min || parsedSalary?.min || null;
+    const salaryMax = item.salary?.max || parsedSalary?.max || null;
+    const normalizedSalary = normalizeSalary(salaryMin, salaryMax, 'yearly');
+
+    // Get company logo
+    const companyLogo =
+      item.companyLogo || getCompanyLogoUrl(normalizedCompany.name, item.companyUrl);
+
+    // Extract skills from description if not provided
+    const tags =
+      item.tags && item.tags.length > 0
+        ? item.tags
+        : extractSkillsFromDescription(normalizedDesc);
+
     return {
       id: `indeed-${item.id || item.jobkey}`,
       externalId: item.id || item.jobkey,
       source: 'indeed',
-      title: item.title || item.jobTitle,
-      company: item.company || item.companyName,
-      companyLogo: item.companyLogo || null,
-      companyUrl: item.companyUrl || null,
-      location: item.location || item.formattedLocation || 'Remote',
-      locationType: item.isRemote ? 'remote' : 'onsite',
-      description: item.description || item.snippet || '',
+      title: normalizedTitle,
+      company: normalizedCompany.displayName,
+      companyLogo,
+      companyUrl: normalizeUrl(item.companyUrl),
+      location: normalizedLoc.display,
+      locationType: normalizedLoc.isRemote || item.isRemote ? 'remote' : 'onsite',
+      description: normalizedDesc,
       descriptionHtml: item.descriptionHtml || null,
       requirements: null,
       benefits: null,
-      category: categorizeJob(item.title),
-      tags: item.tags || [],
+      category: categorizeJob(normalizedTitle),
+      tags,
       experienceLevel: null,
       employmentType: item.jobType || 'full-time',
-      salaryMin: item.salary?.min || parseSalary(item.salary)?.min || null,
-      salaryMax: item.salary?.max || parseSalary(item.salary)?.max || null,
+      salaryMin: normalizedSalary.min,
+      salaryMax: normalizedSalary.max,
       salaryCurrency: 'USD',
-      salaryPeriod: 'yearly',
-      applyUrl: item.url || item.link,
+      salaryPeriod: normalizedSalary.period,
+      applyUrl: normalizeUrl(item.url || item.link) || '#',
       applicationEmail: null,
       publishedAt: item.postedAt || item.date || new Date().toISOString(),
       expiresAt: null,
@@ -127,22 +219,6 @@ export function normalizeIndeedJob(item: any): Job | null {
     console.error('Error normalizing Indeed job:', error);
     return null;
   }
-}
-
-/**
- * Helper: Strip HTML tags
- */
-function stripHtml(html: string): string {
-  return html
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/\s+/g, ' ')
-    .trim();
 }
 
 /**
