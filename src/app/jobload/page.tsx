@@ -79,7 +79,8 @@ export default function JobLoadPage() {
   const [selectedRun, setSelectedRun] = useState<string | null>(null);
   const [runDetails, setRunDetails] = useState<any>(null);
   const [loadingRunDetails, setLoadingRunDetails] = useState(false);
-  const [importing, setImporting] = useState(false);
+  const [importing, setImporting] = useState<Record<string, boolean>>({});
+  const [importProgress, setImportProgress] = useState<Record<string, { status: string; progress: number }>>({});
   const [searchQuery, setSearchQuery] = useState('');
   const [historicalRuns, setHistoricalRuns] = useState<any[]>([]);
   const [loadingHistoricalRuns, setLoadingHistoricalRuns] = useState(false);
@@ -319,14 +320,17 @@ export default function JobLoadPage() {
       !confirm(
         'Import all jobs from this run to your database?\n\n' +
           'Jobs will be automatically normalized to your unified format and saved. ' +
-          'Existing jobs will be updated, new jobs will be added.\n\n' +
+          'Existing jobs will be updated, new jobs will be added. ' +
+          'Duplicates will be automatically detected and removed.\n\n' +
           'Continue?'
       )
     ) {
       return;
     }
 
-    setImporting(true);
+    setImporting((prev) => ({ ...prev, [runId]: true }));
+    setImportProgress((prev) => ({ ...prev, [runId]: { status: 'Fetching run data...', progress: 10 } }));
+
     try {
       const headers: HeadersInit = {
         'Content-Type': 'application/json',
@@ -334,6 +338,8 @@ export default function JobLoadPage() {
       if (apiKey) {
         headers['X-Apify-Token'] = apiKey;
       }
+
+      setImportProgress((prev) => ({ ...prev, [runId]: { status: 'Normalizing jobs...', progress: 30 } }));
 
       const response = await fetch(`/api/jobload/runs/${runId}/import`, {
         method: 'POST',
@@ -343,24 +349,80 @@ export default function JobLoadPage() {
 
       if (!response.ok) {
         showToast('Failed to import jobs', 'error');
+        setImportProgress((prev) => {
+          const newState = { ...prev };
+          delete newState[runId];
+          return newState;
+        });
         return;
       }
+
+      setImportProgress((prev) => ({ ...prev, [runId]: { status: 'Saving to database...', progress: 70 } }));
 
       const data = await response.json();
 
       if (data.success) {
+        setImportProgress((prev) => ({ ...prev, [runId]: { status: 'Removing duplicates...', progress: 90 } }));
+
+        // Remove duplicates
+        await removeDuplicates();
+
+        setImportProgress((prev) => ({ ...prev, [runId]: { status: 'Complete!', progress: 100 } }));
+
         showToast(
           `✅ Successfully imported ${data.stats.created + data.stats.updated} jobs! (${data.stats.created} new, ${data.stats.updated} updated from ${data.stats.totalFetched} fetched)`,
           'success'
         );
+
+        // Clear progress after 2 seconds
+        setTimeout(() => {
+          setImportProgress((prev) => {
+            const newState = { ...prev };
+            delete newState[runId];
+            return newState;
+          });
+        }, 2000);
       } else {
         showToast(`Failed to import: ${data.error}`, 'error');
+        setImportProgress((prev) => {
+          const newState = { ...prev };
+          delete newState[runId];
+          return newState;
+        });
       }
     } catch (error) {
       console.error('Error importing jobs:', error);
       showToast('Failed to import jobs', 'error');
+      setImportProgress((prev) => {
+        const newState = { ...prev };
+        delete newState[runId];
+        return newState;
+      });
     } finally {
-      setImporting(false);
+      setImporting((prev) => {
+        const newState = { ...prev };
+        delete newState[runId];
+        return newState;
+      });
+    }
+  };
+
+  // Remove duplicates from database
+  const removeDuplicates = async () => {
+    try {
+      const response = await fetch('/api/jobs/remove-duplicates', {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        console.error('Failed to remove duplicates');
+        return;
+      }
+
+      const data = await response.json();
+      console.log(`Removed ${data.removed} duplicate jobs`);
+    } catch (error) {
+      console.error('Error removing duplicates:', error);
     }
   };
 
@@ -876,26 +938,49 @@ export default function JobLoadPage() {
                             )}
                           </div>
                         </div>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => viewRunDetails(run.id)}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 text-sm font-medium"
-                          >
-                            <Eye className="w-4 h-4" />
-                            View Results
-                          </button>
-                          <button
-                            onClick={() => importRun(run.id, run.actId)}
-                            disabled={importing}
-                            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2 text-sm font-medium"
-                          >
-                            {importing ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                              <Download className="w-4 h-4" />
-                            )}
-                            {importing ? 'Importing...' : 'Import to DB'}
-                          </button>
+                        <div className="flex flex-col gap-2 min-w-[200px]">
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => viewRunDetails(run.id)}
+                              disabled={importing[run.id]}
+                              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm font-medium"
+                            >
+                              <Eye className="w-4 h-4" />
+                              View
+                            </button>
+                            <button
+                              onClick={() => importRun(run.id, run.actId)}
+                              disabled={importing[run.id]}
+                              className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm font-medium"
+                            >
+                              {importing[run.id] ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Download className="w-4 h-4" />
+                              )}
+                              Import
+                            </button>
+                          </div>
+
+                          {/* Progress bar */}
+                          {importProgress[run.id] && (
+                            <div className="w-full">
+                              <div className="flex justify-between items-center mb-1">
+                                <span className="text-xs text-gray-600 dark:text-gray-400">
+                                  {importProgress[run.id].status}
+                                </span>
+                                <span className="text-xs font-semibold text-gray-900 dark:text-white">
+                                  {importProgress[run.id].progress}%
+                                </span>
+                              </div>
+                              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+                                <div
+                                  className="bg-green-600 h-full transition-all duration-300 ease-out"
+                                  style={{ width: `${importProgress[run.id].progress}%` }}
+                                />
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -984,18 +1069,40 @@ export default function JobLoadPage() {
                         Import all {runDetails.totalItems.toLocaleString()} jobs to your database with automatic format normalization
                       </p>
                     </div>
-                    <button
-                      onClick={() => importRun(selectedRun, runDetails.run.actorId)}
-                      disabled={importing}
-                      className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2 whitespace-nowrap ml-4"
-                    >
-                      {importing ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                      ) : (
-                        <Download className="w-5 h-5" />
+                    <div className="ml-4">
+                      <button
+                        onClick={() => importRun(selectedRun, runDetails.run.actorId)}
+                        disabled={importing[selectedRun]}
+                        className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2 whitespace-nowrap"
+                      >
+                        {importing[selectedRun] ? (
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                          <Download className="w-5 h-5" />
+                        )}
+                        {importing[selectedRun] ? importProgress[selectedRun]?.status || 'Importing...' : 'Import All Jobs'}
+                      </button>
+
+                      {/* Progress indicator */}
+                      {importProgress[selectedRun] && (
+                        <div className="mt-2 w-64">
+                          <div className="flex justify-between items-center mb-1">
+                            <span className="text-xs text-gray-600 dark:text-gray-400">
+                              {importProgress[selectedRun].status}
+                            </span>
+                            <span className="text-xs font-semibold text-gray-900 dark:text-white">
+                              {importProgress[selectedRun].progress}%
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+                            <div
+                              className="bg-green-600 h-full transition-all duration-300 ease-out"
+                              style={{ width: `${importProgress[selectedRun].progress}%` }}
+                            />
+                          </div>
+                        </div>
                       )}
-                      {importing ? 'Importing...' : 'Import All Jobs'}
-                    </button>
+                    </div>
                   </div>
                 </div>
 
