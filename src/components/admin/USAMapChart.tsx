@@ -42,6 +42,7 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
   const [selectedJob, setSelectedJob] = useState<StateJob | null>(null);
   const [stateJobs, setStateJobs] = useState<StateJob[]>([]);
   const [loadingJobs, setLoadingJobs] = useState(false);
+  const [displayedJobsCount, setDisplayedJobsCount] = useState(0);
 
   useEffect(() => {
     // Register USA map with ECharts using reliable GeoJSON source
@@ -66,10 +67,23 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
 
   const fetchStateJobs = async (state: string) => {
     setLoadingJobs(true);
+    setDisplayedJobsCount(0);
     try {
       const response = await fetch(`/api/admin/analytics/state-jobs?state=${state}`);
       const result = await response.json();
-      setStateJobs(result.jobs || []);
+      const jobs = result.jobs || [];
+      setStateJobs(jobs);
+
+      // Progressively reveal jobs with staggered animation
+      if (jobs.length > 0) {
+        const revealJobs = async () => {
+          for (let i = 1; i <= jobs.length; i++) {
+            await new Promise(resolve => setTimeout(resolve, 30));
+            setDisplayedJobsCount(i);
+          }
+        };
+        revealJobs();
+      }
     } catch (error) {
       console.error('Error fetching state jobs:', error);
       setStateJobs([]);
@@ -176,6 +190,16 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
           }
           to {
             transform: translateX(0);
+            opacity: 1;
+          }
+        }
+        @keyframes slideInDown {
+          from {
+            transform: translateY(-10px);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
             opacity: 1;
           }
         }
@@ -407,13 +431,11 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
                 <h4 className={`text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>
                   Jobs in {stateInfo.name} ({stateJobs.length})
                 </h4>
-                {loadingJobs ? (
-                  <div className={`text-xs py-4 ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Loading jobs...</div>
-                ) : stateJobs.length === 0 ? (
+                {stateJobs.length === 0 && !loadingJobs ? (
                   <div className={`text-xs py-4 ${isDark ? 'text-gray-600' : 'text-gray-500'}`}>No jobs found in this state</div>
                 ) : (
                   <div className="space-y-2">
-                    {stateJobs.map((job) => (
+                    {stateJobs.slice(0, displayedJobsCount).map((job, idx) => (
                       <div
                         key={job.id}
                         onClick={() => setSelectedJob(job)}
@@ -422,6 +444,9 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
                             ? 'border-gray-800 bg-gray-900/30 hover:bg-gray-900/50 hover:border-blue-500'
                             : 'border-gray-200 bg-gray-50 hover:bg-gray-100 hover:border-blue-400'
                         }`}
+                        style={{
+                          animation: `slideInDown 300ms cubic-bezier(0.4, 0, 0.2, 1) both`
+                        }}
                       >
                         <div className="flex items-start gap-2">
                           {job.companyLogo && (
