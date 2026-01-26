@@ -48,7 +48,7 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
   const [stateAvgSalary, setStateAvgSalary] = useState<number | null>(null);
   const [stateTopCity, setStateTopCity] = useState<string | null>(null);
   const [stateTopEmployers, setStateTopEmployers] = useState<Array<{ company: string; logo: string | null; jobCount: number }>>([]);
-  const [selectedEmploymentType, setSelectedEmploymentType] = useState<'full-time' | 'part-time' | 'internship'>('full-time');
+  const [selectedEmploymentType, setSelectedEmploymentType] = useState<'full-time' | 'part-time' | 'contract' | 'internship'>('full-time');
   const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
   const jobsCache = useRef<Record<string, { jobs: StateJob[]; avgSalary: number | null; topCity: string | null; topEmployers: Array<{ company: string; logo: string | null; jobCount: number }> }>>({});
 
@@ -702,6 +702,9 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
                   <h4 className={`text-xs font-medium ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>
                     Jobs in {selectedState ? stateInfo?.name : 'United States'}
                   </h4>
+                  <span className={`text-[10px] font-semibold ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
+                    Total: {stateJobs.length}
+                  </span>
                 </div>
 
                 {/* Employment Type Tabs */}
@@ -709,9 +712,10 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
                   {[
                     { key: 'full-time', label: 'FT' },
                     { key: 'part-time', label: 'PT' },
+                    { key: 'contract', label: 'Contract' },
                     { key: 'internship', label: 'Internship' }
                   ].map((tab) => {
-                    const tabKey = tab.key as 'full-time' | 'part-time' | 'internship';
+                    const tabKey = tab.key as 'full-time' | 'part-time' | 'contract' | 'internship';
                     const count = stateJobs.filter((job: StateJob) =>
                       job.employmentType?.toLowerCase() === tabKey
                     ).length;
