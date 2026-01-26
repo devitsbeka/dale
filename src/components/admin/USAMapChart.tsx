@@ -240,15 +240,15 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
         return value > 0 ? `$${Math.round(value / 1000)}k` : '$0';
       },
       inRange: {
-        // Clean monochromatic gradient: light grey → dark grey
+        // Pastel salad green gradient: very light → slightly less light
         color: isDark
-          ? ['#374151', '#4b5563', '#6b7280', '#9ca3af', '#d1d5db']  // Dark mode: dark to light grey
-          : ['#f3f4f6', '#e5e7eb', '#d1d5db', '#9ca3af', '#6b7280']  // Light mode: light to dark grey
+          ? ['#1f2937', '#065f46', '#047857', '#059669', '#10b981']  // Dark mode: dark to green
+          : ['#f0fdf4', '#dcfce7', '#bbf7d0', '#86efac', '#4ade80']  // Light mode: pastel salad green gradient
       },
       // Make the control handle more visible
       controller: {
         inRange: {
-          color: isDark ? '#9ca3af' : '#4b5563'
+          color: isDark ? '#10b981' : '#4ade80'
         }
       }
     },
