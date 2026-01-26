@@ -581,13 +581,31 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
 
               {/* Companies */}
               {(() => {
-                // Filter companies based on selected employment type
-                const filteredCompanies = stateTopEmployers.filter(employer => {
-                  return stateJobs.some((job: StateJob) =>
-                    job.company === employer.company &&
-                    job.employmentType?.toLowerCase() === selectedEmploymentType
-                  );
+                // Build company list dynamically from jobs matching selected employment type
+                const jobsByType = stateJobs.filter((job: StateJob) =>
+                  job.employmentType?.toLowerCase() === selectedEmploymentType
+                );
+
+                // Count jobs per company for this employment type
+                const companyCounts: Record<string, { count: number; logo: string | null }> = {};
+                jobsByType.forEach((job: StateJob) => {
+                  if (job.company) {
+                    if (!companyCounts[job.company]) {
+                      companyCounts[job.company] = { count: 0, logo: job.companyLogo };
+                    }
+                    companyCounts[job.company].count++;
+                  }
                 });
+
+                // Get top companies for this employment type (limit to 10)
+                const filteredCompanies = Object.entries(companyCounts)
+                  .sort(([, a], [, b]) => b.count - a.count)
+                  .slice(0, 10)
+                  .map(([company, data]) => ({
+                    company,
+                    logo: data.logo,
+                    jobCount: data.count
+                  }));
 
                 return (
                   <div className="mb-4" style={{ minHeight: '80px' }}>
