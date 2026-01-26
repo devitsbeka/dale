@@ -25,12 +25,11 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Fetch from USAJobs API
+    // Fetch from USAJobs API - broader search for tech jobs
     const usajobsResponse = await fetch(
       'https://data.usajobs.gov/api/search?' + new URLSearchParams({
-        Keyword: 'software developer engineer',
-        ResultsPerPage: '500',
-        Fields: 'min'
+        Keyword: 'software developer engineer data analyst IT computer',
+        ResultsPerPage: '500'
       }),
       {
         headers: {

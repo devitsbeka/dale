@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import * as echarts from 'echarts';
 import { stateData, getCostOfLivingLabel, stateNameToAbbr } from '@/lib/state-data';
-import { extractCity } from '@/lib/location-utils';
+import { extractCity, extractState } from '@/lib/location-utils';
 import { formatJobText } from '@/lib/text-formatting';
 import { getCategoryLabel } from '@/lib/category-utils';
 
@@ -78,8 +78,10 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
   useEffect(() => {
     // Fetch USAJobs data when enabled
     if (enabledSources.usajobs) {
+      console.log('[USAJobs] Toggle enabled, fetching data...');
       fetchUSAJobsData();
     } else {
+      console.log('[USAJobs] Toggle disabled, clearing data');
       setUsajobsData([]);
       // Refetch current view without USAJobs data
       if (selectedState) {
@@ -275,9 +277,11 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
 
   const fetchUSAJobsData = async () => {
     try {
+      console.log('[USAJobs] Fetching from API...');
       const response = await fetch('/api/admin/analytics/usajobs-data');
       const result = await response.json();
       const jobs = result.jobs || [];
+      console.log('[USAJobs] Fetched', jobs.length, 'jobs');
       setUsajobsData(jobs);
 
       // Clear cache to force refetch with new data
@@ -285,8 +289,10 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
 
       // Refetch current view with merged data
       if (selectedState) {
+        console.log('[USAJobs] Refetching state:', selectedState);
         fetchStateJobs(selectedState);
       } else {
+        console.log('[USAJobs] Refetching USA-wide data');
         fetchUSAJobs();
       }
     } catch (error) {
@@ -320,7 +326,38 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
     );
   }
 
-  const maxValue = Math.max(...data.data.map((d: any) => d.value), 1);
+  // Calculate dynamic map data with USAJobs counts
+  const getMapData = () => {
+    if (!enabledSources.usajobs || usajobsData.length === 0) {
+      return data.data;
+    }
+
+    // Count USAJobs by state
+    const usajobsStateCounts: Record<string, number> = {};
+    usajobsData.forEach((job: StateJob) => {
+      const state = extractState(job.location);
+      if (state) {
+        usajobsStateCounts[state] = (usajobsStateCounts[state] || 0) + 1;
+      }
+    });
+
+    console.log('[USAJobs] State counts:', usajobsStateCounts);
+
+    // Merge counts with original data
+    return data.data.map((stateData: any) => {
+      const stateAbbr = Object.entries(stateNameToAbbr).find(
+        ([name]) => name === stateData.name
+      )?.[1];
+      const additionalJobs = stateAbbr ? (usajobsStateCounts[stateAbbr] || 0) : 0;
+      return {
+        ...stateData,
+        jobCount: stateData.jobCount + additionalJobs
+      };
+    });
+  };
+
+  const mapData = getMapData();
+  const maxValue = Math.max(...mapData.map((d: any) => d.value), 1);
 
   const option = {
     backgroundColor: 'transparent',
@@ -396,7 +433,7 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
             shadowColor: 'rgba(0, 0, 0, 0.5)'
           }
         },
-        data: data.data
+        data: mapData
       }
     ]
   };
