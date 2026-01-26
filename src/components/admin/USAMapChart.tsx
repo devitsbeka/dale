@@ -155,9 +155,9 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
   const stateInfo = selectedState ? stateData[selectedState] : null;
 
   return (
-    <div className="flex gap-4" style={style}>
+    <div className="relative flex gap-4" style={style}>
       {/* Map */}
-      <div className={`${selectedState ? 'w-2/3' : 'w-full'} transition-all duration-300`}>
+      <div className={`${selectedState ? 'w-2/3' : 'w-full'} transition-all duration-300 relative z-0`}>
         <ReactECharts
           option={option}
           onEvents={{ click: handleStateClick }}
@@ -167,7 +167,9 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
 
       {/* Side Panel */}
       {selectedState && stateInfo && (
-        <div className={`w-1/3 border-l pl-4 overflow-y-auto ${isDark ? 'border-gray-800' : 'border-gray-200'}`} style={{ height: style?.height || '500px' }}>
+        <div className={`w-1/3 border-l pl-4 overflow-y-auto relative z-10 ${
+          isDark ? 'border-gray-800 bg-gray-950' : 'border-gray-200 bg-white'
+        }`} style={{ height: style?.height || '500px' }}>
           {/* Header */}
           <div className="flex items-start justify-between mb-4">
             <div>
