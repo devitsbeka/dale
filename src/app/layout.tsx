@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { AriaSSRProvider } from "@/providers/ssr-provider";
 import { RouteProvider } from "@/providers/router-provider";
 import { Theme } from "@/providers/theme";
 import { AuthProvider } from "@/contexts/auth-context";
@@ -22,11 +23,13 @@ export default function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning>
             <body className="bg-primary antialiased">
-                <AuthProvider>
-                    <RouteProvider>
-                        <Theme>{children}</Theme>
-                    </RouteProvider>
-                </AuthProvider>
+                <AriaSSRProvider>
+                    <AuthProvider>
+                        <RouteProvider>
+                            <Theme>{children}</Theme>
+                        </RouteProvider>
+                    </AuthProvider>
+                </AriaSSRProvider>
             </body>
         </html>
     );
