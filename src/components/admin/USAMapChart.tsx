@@ -47,7 +47,8 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
   const [displayedJobsCount, setDisplayedJobsCount] = useState(0);
   const [stateAvgSalary, setStateAvgSalary] = useState<number | null>(null);
   const [stateTopCity, setStateTopCity] = useState<string | null>(null);
-  const jobsCache = useRef<Record<string, { jobs: StateJob[]; avgSalary: number | null; topCity: string | null }>>({});
+  const [stateTopEmployers, setStateTopEmployers] = useState<Array<{ company: string; logo: string | null; jobCount: number }>>([]);
+  const jobsCache = useRef<Record<string, { jobs: StateJob[]; avgSalary: number | null; topCity: string | null; topEmployers: Array<{ company: string; logo: string | null; jobCount: number }> }>>({});
 
   useEffect(() => {
     // Register USA map with ECharts using reliable GeoJSON source
@@ -77,6 +78,7 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
       setStateJobs(cached.jobs);
       setStateAvgSalary(cached.avgSalary);
       setStateTopCity(cached.topCity);
+      setStateTopEmployers(cached.topEmployers);
       setDisplayedJobsCount(0);
 
       // Progressively reveal cached jobs (faster)
@@ -103,11 +105,13 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
       jobsCache.current[state] = {
         jobs,
         avgSalary: result.avgSalary,
-        topCity: result.topCity
+        topCity: result.topCity,
+        topEmployers: result.topEmployers || []
       };
       setStateJobs(jobs);
       setStateAvgSalary(result.avgSalary);
       setStateTopCity(result.topCity);
+      setStateTopEmployers(result.topEmployers || []);
 
       // Progressively reveal jobs with staggered animation
       if (jobs.length > 0) {
@@ -124,6 +128,7 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
       setStateJobs([]);
       setStateAvgSalary(null);
       setStateTopCity(null);
+      setStateTopEmployers([]);
     } finally {
       setLoadingJobs(false);
     }
@@ -476,6 +481,51 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
                   </div>
                 </div>
               </div>
+
+              {/* Top Employers */}
+              {stateTopEmployers.length > 0 && (
+                <div className="mb-4">
+                  <h4 className={`text-xs font-medium mb-3 ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>
+                    Top Employers
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {stateTopEmployers.map((employer, idx) => (
+                      <div
+                        key={idx}
+                        className={`relative group`}
+                        title={`${employer.company} (${employer.jobCount} job${employer.jobCount > 1 ? 's' : ''})`}
+                      >
+                        {employer.logo ? (
+                          <img
+                            src={employer.logo}
+                            alt={employer.company}
+                            className={`w-10 h-10 object-contain border-2 rounded-lg ${
+                              isDark
+                                ? 'border-gray-800 bg-gray-900 hover:border-blue-500'
+                                : 'border-gray-200 bg-white hover:border-blue-400'
+                            } transition-all cursor-pointer`}
+                            onError={(e) => {
+                              // Fallback to company initial if logo fails
+                              e.currentTarget.style.display = 'none';
+                              const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                              if (fallback) fallback.style.display = 'flex';
+                            }}
+                          />
+                        ) : null}
+                        <div
+                          className={`w-10 h-10 rounded-lg border-2 flex items-center justify-center text-xs font-semibold ${
+                            isDark
+                              ? 'border-gray-800 bg-gray-900 text-gray-400 hover:border-blue-500'
+                              : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-blue-400'
+                          } transition-all cursor-pointer ${employer.logo ? 'hidden' : 'flex'}`}
+                        >
+                          {employer.company.charAt(0).toUpperCase()}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Jobs List */}
               <div>

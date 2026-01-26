@@ -92,6 +92,9 @@ export async function GET(request: NextRequest) {
 
     // Count cities
     const cityCounts: Record<string, number> = {};
+    // Count companies and collect logos
+    const companyCounts: Record<string, { count: number; logo: string | null }> = {};
+
     for (const job of stateJobs) {
       if (job.location) {
         const city = job.location.split(',')[0]?.trim();
@@ -99,11 +102,29 @@ export async function GET(request: NextRequest) {
           cityCounts[city] = (cityCounts[city] || 0) + 1;
         }
       }
+
+      // Count companies
+      if (job.company) {
+        if (!companyCounts[job.company]) {
+          companyCounts[job.company] = { count: 0, logo: job.companyLogo };
+        }
+        companyCounts[job.company].count++;
+      }
     }
 
     // Get top city
     const topCity = Object.entries(cityCounts)
       .sort(([, a], [, b]) => b - a)[0]?.[0] || null;
+
+    // Get top 10 employers
+    const topEmployers = Object.entries(companyCounts)
+      .sort(([, a], [, b]) => b.count - a.count)
+      .slice(0, 10)
+      .map(([company, data]) => ({
+        company,
+        logo: data.logo,
+        jobCount: data.count
+      }));
 
     // Limit to 50 most recent jobs
     const limitedJobs = stateJobs.slice(0, 50);
@@ -113,6 +134,7 @@ export async function GET(request: NextRequest) {
       totalJobs: stateJobs.length,
       avgSalary,
       topCity,
+      topEmployers,
       jobs: limitedJobs,
       filters: {
         minSalary: minSalary ? parseInt(minSalary) : null,
