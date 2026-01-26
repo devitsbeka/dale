@@ -11,6 +11,7 @@ import {
     File05,
     HomeLine,
     LifeBuoy01,
+    LineChartUp02,
     PieChart03,
     Rows01,
     Settings01,
@@ -39,6 +40,11 @@ const expandedNavItems: Array<{ label: string; items: NavItemType[] }> = [
                 label: 'Jobs',
                 href: '/jobs',
                 icon: Briefcase02,
+            },
+            {
+                label: 'Snapshot',
+                href: '/snapshot',
+                icon: LineChartUp02,
             },
         ],
     },
@@ -80,6 +86,11 @@ const collapsedNavItems: (NavItemType & { icon: React.FC<{ className?: string }>
         label: 'Jobs',
         href: '/jobs',
         icon: Briefcase02,
+    },
+    {
+        label: 'Snapshot',
+        href: '/snapshot',
+        icon: LineChartUp02,
     },
     {
         label: 'Tasks',

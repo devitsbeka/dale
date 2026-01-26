@@ -7,7 +7,6 @@
 
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import Link from 'next/link';
 
 const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
 
@@ -50,40 +49,7 @@ export default function SnapshotPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50 backdrop-blur-sm bg-white/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Dale
-              </Link>
-              <span className="ml-3 text-sm text-gray-500">Market Snapshot</span>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <select
-                value={dateRange}
-                onChange={(e) => setDateRange(Number(e.target.value))}
-                className="px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
-              >
-                <option value={7}>Last 7 days</option>
-                <option value={30}>Last 30 days</option>
-                <option value={90}>Last 90 days</option>
-              </select>
-
-              <Link
-                href="/jobs"
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Browse Jobs
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
-
+    <div className="min-h-screen">
       {loading ? (
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
@@ -92,7 +58,25 @@ export default function SnapshotPage() {
           </div>
         </div>
       ) : (
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="p-6 md:p-8">
+          {/* Header with controls */}
+          <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Market Snapshot</h1>
+              <p className="text-gray-600">
+                Real-time insights from {data?.overview?.totalJobs?.toLocaleString() || 0} job listings
+              </p>
+            </div>
+            <select
+              value={dateRange}
+              onChange={(e) => setDateRange(Number(e.target.value))}
+              className="px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white w-full sm:w-auto"
+            >
+              <option value={7}>Last 7 days</option>
+              <option value={30}>Last 30 days</option>
+              <option value={90}>Last 90 days</option>
+            </select>
+          </div>
           {/* Hero Stats */}
           <div className="mb-12">
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Job Market Overview</h1>
@@ -177,38 +161,12 @@ export default function SnapshotPage() {
             </ChartCard>
           </div>
 
-          {/* CTA Section */}
-          <div className="mt-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-12 text-center text-white">
-            <h2 className="text-3xl font-bold mb-4">Ready to Find Your Next Opportunity?</h2>
-            <p className="text-lg mb-8 text-blue-100">
-              Browse {data?.overview?.activeJobs?.toLocaleString() || '0'} active job listings from top companies
-            </p>
-            <div className="flex gap-4 justify-center">
-              <Link
-                href="/jobs"
-                className="px-8 py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                Browse All Jobs
-              </Link>
-              <Link
-                href="/dashboard"
-                className="px-8 py-3 bg-blue-700 text-white font-semibold rounded-lg hover:bg-blue-800 transition-colors border border-blue-500"
-              >
-                View Dashboard
-              </Link>
-            </div>
-          </div>
-        </main>
-      )}
-
-      {/* Footer */}
-      <footer className="bg-gray-50 border-t border-gray-200 mt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center text-gray-500 text-sm">
+          {/* Footer Info */}
+          <div className="mt-8 text-center text-gray-500 text-sm">
             <p>Data updated in real-time • Last refresh: {new Date().toLocaleString()}</p>
           </div>
         </div>
-      </footer>
+      )}
     </div>
   );
 }
