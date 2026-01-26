@@ -15,9 +15,9 @@ export default function USAMapChart({ data, style }: USAMapChartProps) {
   const [mapRegistered, setMapRegistered] = useState(false);
 
   useEffect(() => {
-    // Register USA map with ECharts
+    // Register USA map with ECharts using reliable GeoJSON source
     if (typeof window !== 'undefined') {
-      fetch('https://cdn.jsdelivr.net/npm/echarts@5/map/json/usa.json')
+      fetch('https://raw.githubusercontent.com/python-visualization/folium/master/examples/data/us-states.json')
         .then(response => response.json())
         .then(usaJson => {
           echarts.registerMap('USA', usaJson);
