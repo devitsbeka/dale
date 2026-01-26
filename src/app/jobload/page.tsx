@@ -81,6 +81,8 @@ export default function JobLoadPage() {
   const [loadingRunDetails, setLoadingRunDetails] = useState(false);
   const [importing, setImporting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [historicalRuns, setHistoricalRuns] = useState<any[]>([]);
+  const [loadingHistoricalRuns, setLoadingHistoricalRuns] = useState(false);
 
   // Show toast notification
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
@@ -255,6 +257,34 @@ export default function JobLoadPage() {
         config.id === actorId ? { ...config, ...updates } : config
       )
     );
+  };
+
+  // Fetch historical runs from Apify
+  const fetchHistoricalRuns = async () => {
+    setLoadingHistoricalRuns(true);
+    try {
+      const headers: HeadersInit = {};
+      if (apiKey) {
+        headers['X-Apify-Token'] = apiKey;
+      }
+
+      const response = await fetch('/api/jobload/runs', { headers });
+
+      if (!response.ok) {
+        console.error('Failed to fetch historical runs:', response.status);
+        return;
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        setHistoricalRuns(data.runs);
+      }
+    } catch (error) {
+      console.error('Error fetching historical runs:', error);
+    } finally {
+      setLoadingHistoricalRuns(false);
+    }
   };
 
   // Fetch run details
@@ -447,6 +477,13 @@ export default function JobLoadPage() {
     }
   }, [autoRefresh, apiKey]);
 
+  // Fetch historical runs on mount and when API key changes
+  useEffect(() => {
+    if (hasApiKey) {
+      fetchHistoricalRuns();
+    }
+  }, [hasApiKey]);
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'completed':
@@ -472,6 +509,38 @@ export default function JobLoadPage() {
         return 'bg-blue-500';
       default:
         return 'bg-gray-400';
+    }
+  };
+
+  const getApifyStatusIcon = (status: string) => {
+    switch (status) {
+      case 'SUCCEEDED':
+        return <CheckCircle2 className="w-5 h-5 text-green-500" />;
+      case 'FAILED':
+      case 'TIMED-OUT':
+        return <XCircle className="w-5 h-5 text-red-500" />;
+      case 'ABORTED':
+        return <XCircle className="w-5 h-5 text-orange-500" />;
+      case 'RUNNING':
+        return <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />;
+      default:
+        return <Clock className="w-5 h-5 text-gray-400" />;
+    }
+  };
+
+  const getApifyStatusColor = (status: string) => {
+    switch (status) {
+      case 'SUCCEEDED':
+        return 'text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20';
+      case 'FAILED':
+      case 'TIMED-OUT':
+        return 'text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/20';
+      case 'ABORTED':
+        return 'text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20';
+      case 'RUNNING':
+        return 'text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20';
+      default:
+        return 'text-gray-700 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/20';
     }
   };
 
@@ -721,53 +790,107 @@ export default function JobLoadPage() {
               </div>
             </div>
 
-            {/* Completed Runs */}
-            {status.loads.filter((load) => load.status === 'completed').length > 0 && (
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                  Completed Runs
+            {/* All Historical Runs */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  All Runs ({historicalRuns.length})
                 </h3>
-                <div className="space-y-3">
-                  {status.loads
-                    .filter((load) => load.status === 'completed')
-                    .map((load) => (
-                      <div
-                        key={load.runId}
-                        className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-300 dark:hover:border-blue-600 transition-colors"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <CheckCircle2 className="w-5 h-5 text-green-500" />
-                              <h4 className="font-semibold text-gray-900 dark:text-white">
-                                {load.actorName}
-                              </h4>
-                              <span className="text-xs text-gray-500 dark:text-gray-400">
-                                {new Date(load.startedAt).toLocaleString()}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-                              <span>{load.jobsFetched.toLocaleString()} jobs fetched</span>
-                              <span>{load.jobsSynced.toLocaleString()} synced</span>
-                              <span>${load.estimatedCost.toFixed(2)} cost</span>
-                              <span>{load.duration}s duration</span>
-                            </div>
-                          </div>
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => viewRunDetails(load.runId)}
-                              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+                <button
+                  onClick={fetchHistoricalRuns}
+                  disabled={loadingHistoricalRuns}
+                  className="text-sm px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
+                >
+                  {loadingHistoricalRuns ? 'Refreshing...' : 'Refresh'}
+                </button>
+              </div>
+
+              {loadingHistoricalRuns ? (
+                <div className="text-center py-8">
+                  <Loader2 className="w-8 h-8 text-blue-500 animate-spin mx-auto mb-2" />
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Loading historical runs...
+                  </p>
+                </div>
+              ) : historicalRuns.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-600 dark:text-gray-400">
+                    No runs found. Start a job load to see runs here.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {historicalRuns.map((run) => (
+                    <div
+                      key={run.id}
+                      className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-300 dark:hover:border-blue-600 transition-colors"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            {getApifyStatusIcon(run.status)}
+                            <h4 className="font-semibold text-gray-900 dark:text-white">
+                              {run.actorName}
+                            </h4>
+                            <span
+                              className={`px-2 py-0.5 text-xs rounded-full font-medium ${getApifyStatusColor(
+                                run.status
+                              )}`}
                             >
-                              <Eye className="w-4 h-4" />
-                              View Details
-                            </button>
+                              {run.status}
+                            </span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                              {new Date(run.startedAt).toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                            {run.stats?.outputDataset?.itemCount !== undefined && (
+                              <span>
+                                {run.stats.outputDataset.itemCount.toLocaleString()} results
+                              </span>
+                            )}
+                            {run.stats?.totalUsage && (
+                              <span>${(run.stats.totalUsage.USD || 0).toFixed(4)} cost</span>
+                            )}
+                            {run.finishedAt && (
+                              <span>
+                                {Math.round(
+                                  (new Date(run.finishedAt).getTime() -
+                                    new Date(run.startedAt).getTime()) /
+                                    1000
+                                )}
+                                s duration
+                              </span>
+                            )}
                           </div>
                         </div>
+                        <div className="flex gap-2">
+                          {run.stats?.outputDataset?.itemCount > 0 && (
+                            <>
+                              <button
+                                onClick={() => viewRunDetails(run.id)}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 text-sm"
+                              >
+                                <Eye className="w-4 h-4" />
+                                View
+                              </button>
+                              <button
+                                onClick={() => importRun(run.id, run.actId)}
+                                disabled={importing}
+                                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 flex items-center gap-2 text-sm"
+                              >
+                                <Download className="w-4 h-4" />
+                                Import
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </div>
-                    ))}
+                    </div>
+                  ))}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </>
         )}
 
