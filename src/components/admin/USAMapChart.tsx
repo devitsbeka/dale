@@ -274,10 +274,8 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
         itemStyle: {
           borderColor: isDark ? '#374151' : '#d1d5db',
           borderWidth: 1,
-          // Base area color for all states (very light grey)
-          areaColor: isDark ? '#1f2937' : '#f9fafb',
           emphasis: {
-            areaColor: isDark ? '#3b82f6' : '#60a5fa',
+            areaColor: isDark ? '#2d5a3f' : '#c8e6d3',
             shadowOffsetX: 0,
             shadowOffsetY: 0,
             shadowBlur: 20,
