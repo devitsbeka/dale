@@ -85,28 +85,24 @@ export default function SnapshotPage() {
               value={data?.overview?.totalJobs?.toLocaleString() || '0'}
               change="+12%"
               changeType="positive"
-              icon="📊"
             />
             <StatCard
               label="Active Jobs"
               value={data?.overview?.activeJobs?.toLocaleString() || '0'}
               change="+8%"
               changeType="positive"
-              icon="✅"
             />
             <StatCard
               label="Avg Salary"
               value={`$${(data?.overview?.avgSalary || 0).toLocaleString()}`}
               change="+5%"
               changeType="positive"
-              icon="💰"
             />
             <StatCard
               label="Data Quality"
               value={`${Number(data?.overview?.avgQualityScore || 0).toFixed(1)}%`}
               change="+2%"
               changeType="positive"
-              icon="⭐"
             />
           </div>
 
@@ -165,18 +161,15 @@ export default function SnapshotPage() {
 }
 
 // Stat Card Component
-function StatCard({ label, value, change, changeType, icon }: any) {
+function StatCard({ label, value, change, changeType }: any) {
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-      <div className="flex items-start justify-between">
-        <div className="flex-1">
-          <p className="text-sm font-medium text-gray-600 mb-1">{label}</p>
-          <p className="text-3xl font-bold text-gray-900">{value}</p>
-          <p className={`text-sm mt-2 ${changeType === 'positive' ? 'text-green-600' : 'text-red-600'}`}>
-            {change} vs last period
-          </p>
-        </div>
-        <div className="text-3xl">{icon}</div>
+      <div>
+        <p className="text-sm font-medium text-gray-600 mb-1">{label}</p>
+        <p className="text-3xl font-bold text-gray-900">{value}</p>
+        <p className={`text-sm mt-2 ${changeType === 'positive' ? 'text-green-600' : 'text-red-600'}`}>
+          {change} vs last period
+        </p>
       </div>
     </div>
   );

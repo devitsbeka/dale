@@ -88,10 +88,10 @@ export default function AdminAnalyticsPage() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <KPICard title="Total Jobs" value={data?.overview?.totalJobs} color="blue" icon="📊" />
-        <KPICard title="Active Jobs" value={data?.overview?.activeJobs} color="green" icon="✅" />
-        <KPICard title="Avg Salary" value={`$${(data?.overview?.avgSalary || 0).toLocaleString()}`} color="purple" icon="💰" />
-        <KPICard title="Quality Score" value={`${Number(data?.overview?.avgQualityScore || 0).toFixed(1)}%`} color="orange" icon="⭐" />
+        <KPICard title="Total Jobs" value={data?.overview?.totalJobs} color="blue" />
+        <KPICard title="Active Jobs" value={data?.overview?.activeJobs} color="green" />
+        <KPICard title="Avg Salary" value={`$${(data?.overview?.avgSalary || 0).toLocaleString()}`} color="purple" />
+        <KPICard title="Quality Score" value={`${Number(data?.overview?.avgQualityScore || 0).toFixed(1)}%`} color="orange" />
       </div>
 
       {/* Main Timeline Chart */}
@@ -144,7 +144,7 @@ export default function AdminAnalyticsPage() {
 }
 
 // Components
-function KPICard({ title, value, color, icon }: any) {
+function KPICard({ title, value, color }: any) {
   const colorClasses: any = {
     blue: 'bg-blue-50 border-blue-200 text-blue-900',
     green: 'bg-green-50 border-green-200 text-green-900',
@@ -154,14 +154,11 @@ function KPICard({ title, value, color, icon }: any) {
 
   return (
     <div className={`rounded-xl p-6 border-2 ${colorClasses[color]} hover:shadow-lg transition-shadow`}>
-      <div className="flex items-start justify-between">
-        <div className="flex-1">
-          <p className="text-sm font-medium opacity-75 mb-1">{title}</p>
-          <p className="text-3xl font-bold mt-1">
-            {value !== null && value !== undefined ? (typeof value === 'number' ? value.toLocaleString() : value) : '0'}
-          </p>
-        </div>
-        <div className="text-3xl">{icon}</div>
+      <div>
+        <p className="text-sm font-medium opacity-75 mb-1">{title}</p>
+        <p className="text-3xl font-bold mt-1">
+          {value !== null && value !== undefined ? (typeof value === 'number' ? value.toLocaleString() : value) : '0'}
+        </p>
       </div>
     </div>
   );
