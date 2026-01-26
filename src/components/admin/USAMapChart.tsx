@@ -130,7 +130,8 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
   };
 
   const handleStateClick = (params: any) => {
-    if (params.name) {
+    // Only handle intentional user clicks, not programmatic events
+    if (params.name && params.event && params.event.type === 'click') {
       // Convert full state name to abbreviation
       const stateAbbr = stateNameToAbbr[params.name] || params.name;
       setSelectedState(stateAbbr);
