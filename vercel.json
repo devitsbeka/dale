@@ -6,10 +6,6 @@
     {
       "path": "/api/cron/sync-jobs-daily",
       "schedule": "0 2 * * *"
-    },
-    {
-      "path": "/api/cron/sync-jobs-hourly",
-      "schedule": "0 * * * *"
     }
   ]
 }
