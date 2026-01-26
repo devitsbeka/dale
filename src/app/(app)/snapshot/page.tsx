@@ -77,16 +77,9 @@ export default function SnapshotPage() {
               <option value={90}>Last 90 days</option>
             </select>
           </div>
-          {/* Hero Stats */}
-          <div className="mb-12">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Job Market Overview</h1>
-            <p className="text-lg text-gray-600">
-              Real-time insights from {data?.overview?.totalJobs?.toLocaleString() || 0} job listings across multiple platforms
-            </p>
-          </div>
 
           {/* KPI Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <StatCard
               label="Total Listings"
               value={data?.overview?.totalJobs?.toLocaleString() || '0'}
