@@ -6,7 +6,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Loader2, CheckCircle2, XCircle, Clock, Zap, Settings, AlertTriangle, ChevronRight } from 'lucide-react';
+import { Loader2, CheckCircle2, XCircle, Clock, Zap, Settings, AlertTriangle, ChevronRight, Eye, Download, Search, X } from 'lucide-react';
 
 interface LoadStatus {
   runId: string;
@@ -76,6 +76,11 @@ export default function JobLoadPage() {
   const [availableActors, setAvailableActors] = useState<ActorInfo[]>([]);
   const [loadingActors, setLoadingActors] = useState(true);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [selectedRun, setSelectedRun] = useState<string | null>(null);
+  const [runDetails, setRunDetails] = useState<any>(null);
+  const [loadingRunDetails, setLoadingRunDetails] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Show toast notification
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
@@ -250,6 +255,89 @@ export default function JobLoadPage() {
         config.id === actorId ? { ...config, ...updates } : config
       )
     );
+  };
+
+  // Fetch run details
+  const fetchRunDetails = async (runId: string) => {
+    setLoadingRunDetails(true);
+    try {
+      const headers: HeadersInit = {};
+      if (apiKey) {
+        headers['X-Apify-Token'] = apiKey;
+      }
+
+      const response = await fetch(`/api/jobload/runs/${runId}`, { headers });
+
+      if (!response.ok) {
+        showToast('Failed to fetch run details', 'error');
+        return;
+      }
+
+      const data = await response.json();
+      setRunDetails(data);
+    } catch (error) {
+      console.error('Error fetching run details:', error);
+      showToast('Failed to fetch run details', 'error');
+    } finally {
+      setLoadingRunDetails(false);
+    }
+  };
+
+  // Import jobs from run
+  const importRun = async (runId: string, actorId: string) => {
+    if (!confirm('Import all jobs from this run to the database?')) {
+      return;
+    }
+
+    setImporting(true);
+    try {
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      if (apiKey) {
+        headers['X-Apify-Token'] = apiKey;
+      }
+
+      const response = await fetch(`/api/jobload/runs/${runId}/import`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ actorId }),
+      });
+
+      if (!response.ok) {
+        showToast('Failed to import jobs', 'error');
+        return;
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        showToast(
+          `Imported ${data.stats.created + data.stats.updated} jobs (${data.stats.created} new, ${data.stats.updated} updated)`,
+          'success'
+        );
+      } else {
+        showToast(`Failed to import: ${data.error}`, 'error');
+      }
+    } catch (error) {
+      console.error('Error importing jobs:', error);
+      showToast('Failed to import jobs', 'error');
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  // View run details
+  const viewRunDetails = async (runId: string) => {
+    setSelectedRun(runId);
+    await fetchRunDetails(runId);
+  };
+
+  // Close run details modal
+  const closeRunDetails = () => {
+    setSelectedRun(null);
+    setRunDetails(null);
+    setSearchQuery('');
   };
 
   // Calculate total estimated cost
@@ -618,7 +706,7 @@ export default function JobLoadPage() {
             )}
 
             {/* Live Logs */}
-            <div className="bg-gray-900 rounded-lg p-6 shadow-sm">
+            <div className="bg-gray-900 rounded-lg p-6 shadow-sm mb-8">
               <h3 className="text-lg font-semibold text-white mb-4">Live Logs</h3>
               <div className="space-y-2 font-mono text-sm max-h-96 overflow-y-auto">
                 {logs.length === 0 ? (
@@ -632,6 +720,54 @@ export default function JobLoadPage() {
                 )}
               </div>
             </div>
+
+            {/* Completed Runs */}
+            {status.loads.filter((load) => load.status === 'completed').length > 0 && (
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                  Completed Runs
+                </h3>
+                <div className="space-y-3">
+                  {status.loads
+                    .filter((load) => load.status === 'completed')
+                    .map((load) => (
+                      <div
+                        key={load.runId}
+                        className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-300 dark:hover:border-blue-600 transition-colors"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <CheckCircle2 className="w-5 h-5 text-green-500" />
+                              <h4 className="font-semibold text-gray-900 dark:text-white">
+                                {load.actorName}
+                              </h4>
+                              <span className="text-xs text-gray-500 dark:text-gray-400">
+                                {new Date(load.startedAt).toLocaleString()}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                              <span>{load.jobsFetched.toLocaleString()} jobs fetched</span>
+                              <span>{load.jobsSynced.toLocaleString()} synced</span>
+                              <span>${load.estimatedCost.toFixed(2)} cost</span>
+                              <span>{load.duration}s duration</span>
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => viewRunDetails(load.runId)}
+                              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+                            >
+                              <Eye className="w-4 h-4" />
+                              View Details
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
           </>
         )}
 
@@ -642,6 +778,199 @@ export default function JobLoadPage() {
           </div>
         )}
       </div>
+
+      {/* Run Details Modal */}
+      {selectedRun && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-7xl w-full my-8 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                  Run Details
+                </h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Run ID: {selectedRun}
+                </p>
+              </div>
+              <button
+                onClick={closeRunDetails}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {loadingRunDetails ? (
+              <div className="text-center py-12">
+                <Loader2 className="w-12 h-12 text-blue-500 animate-spin mx-auto mb-4" />
+                <p className="text-gray-600 dark:text-gray-400">Loading run details...</p>
+              </div>
+            ) : runDetails ? (
+              <div className="space-y-6">
+                {/* Run Metadata */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                  <div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Status</div>
+                    <div className="font-semibold text-gray-900 dark:text-white capitalize">
+                      {runDetails.run.status}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Total Jobs</div>
+                    <div className="font-semibold text-gray-900 dark:text-white">
+                      {runDetails.totalItems.toLocaleString()}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Started</div>
+                    <div className="font-semibold text-gray-900 dark:text-white">
+                      {new Date(runDetails.run.startedAt).toLocaleString()}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Finished</div>
+                    <div className="font-semibold text-gray-900 dark:text-white">
+                      {new Date(runDetails.run.finishedAt).toLocaleString()}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Import Button */}
+                <div className="flex justify-end">
+                  <button
+                    onClick={() => importRun(selectedRun, runDetails.run.actorId)}
+                    disabled={importing}
+                    className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2"
+                  >
+                    {importing ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <Download className="w-5 h-5" />
+                    )}
+                    {importing ? 'Importing...' : `Import ${runDetails.totalItems} Jobs to Database`}
+                  </button>
+                </div>
+
+                {/* Job Results */}
+                <div>
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      Job Results ({runDetails.items.length})
+                    </h3>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search jobs..."
+                        className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <table className="w-full text-sm">
+                      <thead className="bg-gray-50 dark:bg-gray-900">
+                        <tr>
+                          <th className="px-4 py-3 text-left font-semibold text-gray-900 dark:text-white">
+                            Title
+                          </th>
+                          <th className="px-4 py-3 text-left font-semibold text-gray-900 dark:text-white">
+                            Company
+                          </th>
+                          <th className="px-4 py-3 text-left font-semibold text-gray-900 dark:text-white">
+                            Location
+                          </th>
+                          <th className="px-4 py-3 text-left font-semibold text-gray-900 dark:text-white">
+                            Posted
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                        {runDetails.items
+                          .filter((item: any) => {
+                            if (!searchQuery) return true;
+                            const query = searchQuery.toLowerCase();
+                            return (
+                              item.title?.toLowerCase().includes(query) ||
+                              item.company?.toLowerCase().includes(query) ||
+                              item.companyName?.toLowerCase().includes(query) ||
+                              item.location?.toLowerCase().includes(query)
+                            );
+                          })
+                          .slice(0, 100)
+                          .map((item: any, idx: number) => (
+                            <tr
+                              key={idx}
+                              className="hover:bg-gray-50 dark:hover:bg-gray-900"
+                            >
+                              <td className="px-4 py-3 text-gray-900 dark:text-white">
+                                {item.title || item.positionName || 'N/A'}
+                              </td>
+                              <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                                {item.company || item.companyName || 'N/A'}
+                              </td>
+                              <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                                {item.location || item.locationName || 'Remote'}
+                              </td>
+                              <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                                {item.publishedAt || item.postedAt
+                                  ? new Date(
+                                      item.publishedAt || item.postedAt
+                                    ).toLocaleDateString()
+                                  : 'N/A'}
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {searchQuery &&
+                    runDetails.items.filter((item: any) => {
+                      const query = searchQuery.toLowerCase();
+                      return (
+                        item.title?.toLowerCase().includes(query) ||
+                        item.company?.toLowerCase().includes(query) ||
+                        item.companyName?.toLowerCase().includes(query) ||
+                        item.location?.toLowerCase().includes(query)
+                      );
+                    }).length === 0 && (
+                      <p className="text-center text-gray-600 dark:text-gray-400 py-8">
+                        No jobs match your search query.
+                      </p>
+                    )}
+
+                  {runDetails.items.length > 100 && !searchQuery && (
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 text-center">
+                      Showing first 100 of {runDetails.items.length} jobs. Use search to filter.
+                    </p>
+                  )}
+                </div>
+
+                {/* Logs */}
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                    Run Logs
+                  </h3>
+                  <div className="bg-gray-900 rounded-lg p-4 max-h-96 overflow-y-auto">
+                    <pre className="text-xs text-gray-300 font-mono whitespace-pre-wrap">
+                      {runDetails.logs || 'No logs available'}
+                    </pre>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-gray-600 dark:text-gray-400">
+                  Failed to load run details.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Settings Modal */}
       {showSettings && (

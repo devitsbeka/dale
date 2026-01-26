@@ -42,11 +42,26 @@ export class ApifyClient {
   }
 
   /**
-   * Get run status
+   * Get run status (overloaded)
    */
-  async getRun(actorId: string, runId: string): Promise<ApifyRun> {
+  async getRun(runIdOrActorId: string, runId?: string): Promise<ApifyRun> {
+    // If only one parameter, fetch by runId directly
+    if (!runId) {
+      const response = await fetch(
+        `${APIFY_API_URL}/actor-runs/${runIdOrActorId}?token=${this.token}`
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to get run status: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return data.data;
+    }
+
+    // If two parameters, fetch by actorId and runId
     const response = await fetch(
-      `${APIFY_API_URL}/acts/${actorId}/runs/${runId}?token=${this.token}`
+      `${APIFY_API_URL}/acts/${runIdOrActorId}/runs/${runId}?token=${this.token}`
     );
 
     if (!response.ok) {
