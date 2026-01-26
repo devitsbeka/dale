@@ -6,6 +6,7 @@
 
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
+import USAMapChart from '@/components/admin/USAMapChart';
 
 const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
 
@@ -13,6 +14,7 @@ interface AnalyticsData {
   overview: any;
   distribution: any;
   timeseries: any;
+  usaMap: any;
 }
 
 export default function AdminAnalyticsPage() {
@@ -27,19 +29,21 @@ export default function AdminAnalyticsPage() {
   const fetchAnalytics = async () => {
     setLoading(true);
     try {
-      const [overviewRes, distRes, timeseriesRes] = await Promise.all([
+      const [overviewRes, distRes, timeseriesRes, usaMapRes] = await Promise.all([
         fetch('/api/admin/analytics/overview'),
         fetch('/api/admin/analytics/distribution'),
         fetch(`/api/admin/analytics/timeseries?days=${dateRange}`),
+        fetch('/api/admin/analytics/usa-map'),
       ]);
 
-      const [overview, distribution, timeseries] = await Promise.all([
+      const [overview, distribution, timeseries, usaMap] = await Promise.all([
         overviewRes.json(),
         distRes.json(),
         timeseriesRes.json(),
+        usaMapRes.json(),
       ]);
 
-      setData({ overview, distribution, timeseries });
+      setData({ overview, distribution, timeseries, usaMap });
     } catch (error) {
       console.error('Error fetching analytics:', error);
     } finally {
@@ -109,6 +113,11 @@ export default function AdminAnalyticsPage() {
       {/* Heatmap */}
       <ChartCard title="Posting Patterns" description="When companies typically post jobs (hour × day of week)">
         <ReactECharts option={getHeatmapChartOption(data?.timeseries)} style={{ height: '500px' }} />
+      </ChartCard>
+
+      {/* USA Map */}
+      <ChartCard title="Onsite Jobs by State" description={`${data?.usaMap?.jobsWithState || 0} onsite jobs across ${data?.usaMap?.data?.length || 0} states`}>
+        <USAMapChart data={data?.usaMap} style={{ height: '600px' }} />
       </ChartCard>
 
       {/* Three Column Charts */}
