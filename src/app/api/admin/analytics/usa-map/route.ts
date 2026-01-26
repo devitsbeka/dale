@@ -26,7 +26,7 @@ const abbrToStateName: Record<string, string> = {
 
 export async function GET() {
   try {
-    // Get all onsite jobs with locations
+    // Get all onsite jobs with locations and salary data
     const onsiteJobs = await prisma.job.findMany({
       where: {
         locationType: 'onsite',
@@ -35,7 +35,9 @@ export async function GET() {
       },
       select: {
         id: true,
-        location: true
+        location: true,
+        salaryMin: true,
+        salaryMax: true
       },
       orderBy: [
         { publishedAt: 'desc' },
@@ -43,30 +45,54 @@ export async function GET() {
       ]
     });
 
-    // Count jobs by state
-    const stateCounts: Record<string, number> = {};
+    // Calculate average salary and count by state
+    const stateData: Record<string, { count: number; totalSalary: number; salaryCount: number }> = {};
 
     for (const job of onsiteJobs) {
       const state = extractState(job.location);
       if (state) {
-        stateCounts[state] = (stateCounts[state] || 0) + 1;
+        if (!stateData[state]) {
+          stateData[state] = { count: 0, totalSalary: 0, salaryCount: 0 };
+        }
+        stateData[state].count++;
+
+        // Calculate average of min and max if both exist
+        if (job.salaryMin && job.salaryMax) {
+          const avgSalary = (job.salaryMin + job.salaryMax) / 2;
+          stateData[state].totalSalary += avgSalary;
+          stateData[state].salaryCount++;
+        } else if (job.salaryMin) {
+          stateData[state].totalSalary += job.salaryMin;
+          stateData[state].salaryCount++;
+        } else if (job.salaryMax) {
+          stateData[state].totalSalary += job.salaryMax;
+          stateData[state].salaryCount++;
+        }
       }
     }
 
     // Create complete data array with ALL states (including 0-count states)
-    const data = Object.entries(abbrToStateName).map(([abbr, name]) => ({
-      name: name,
-      value: stateCounts[abbr] || 0  // 0 for states with no jobs
-    })).sort((a, b) => b.value - a.value);
+    const data = Object.entries(abbrToStateName).map(([abbr, name]) => {
+      const state = stateData[abbr];
+      const avgSalary = state && state.salaryCount > 0
+        ? Math.round(state.totalSalary / state.salaryCount)
+        : 0;
+
+      return {
+        name: name,
+        value: avgSalary,  // Average salary for the state
+        jobCount: state?.count || 0
+      };
+    }).sort((a, b) => b.value - a.value);
 
     // Separate stats for states with actual jobs
-    const statesWithJobs = data.filter(d => d.value > 0);
+    const statesWithJobs = data.filter(d => d.jobCount > 0);
 
     return NextResponse.json({
-      data,  // All 51 states
+      data,  // All 51 states with salary data
       totalJobs: onsiteJobs.length,
-      jobsWithState: data.reduce((sum, item) => sum + item.value, 0),
-      topStates: statesWithJobs.slice(0, 10)  // Top 10 excluding 0-count states
+      jobsWithState: data.reduce((sum, item) => sum + item.jobCount, 0),
+      topStates: statesWithJobs.slice(0, 10)  // Top 10 by salary
     });
   } catch (error) {
     console.error('Error fetching USA map data:', error);

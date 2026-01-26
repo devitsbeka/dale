@@ -86,12 +86,47 @@ export async function GET(request: NextRequest) {
     // Filter jobs by state
     const stateJobs = onsiteJobs.filter(job => matchesState(job.location, state));
 
+    // Calculate average salary for the state
+    let totalSalary = 0;
+    let salaryCount = 0;
+    const cityCounts: Record<string, number> = {};
+
+    for (const job of stateJobs) {
+      // Calculate salary
+      if (job.salaryMin && job.salaryMax) {
+        totalSalary += (job.salaryMin + job.salaryMax) / 2;
+        salaryCount++;
+      } else if (job.salaryMin) {
+        totalSalary += job.salaryMin;
+        salaryCount++;
+      } else if (job.salaryMax) {
+        totalSalary += job.salaryMax;
+        salaryCount++;
+      }
+
+      // Count cities
+      if (job.location) {
+        const city = job.location.split(',')[0]?.trim();
+        if (city && city.length > 2) {
+          cityCounts[city] = (cityCounts[city] || 0) + 1;
+        }
+      }
+    }
+
+    const avgSalary = salaryCount > 0 ? Math.round(totalSalary / salaryCount) : null;
+
+    // Get top city
+    const topCity = Object.entries(cityCounts)
+      .sort(([, a], [, b]) => b - a)[0]?.[0] || null;
+
     // Limit to 50 most recent jobs
     const limitedJobs = stateJobs.slice(0, 50);
 
     const responseData = {
       state,
       totalJobs: stateJobs.length,
+      avgSalary,
+      topCity,
       jobs: limitedJobs,
       filters: {
         minSalary: minSalary ? parseInt(minSalary) : null,

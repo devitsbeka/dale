@@ -45,12 +45,9 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
   const [stateJobs, setStateJobs] = useState<StateJob[]>([]);
   const [loadingJobs, setLoadingJobs] = useState(false);
   const [displayedJobsCount, setDisplayedJobsCount] = useState(0);
-  const [salaryRange, setSalaryRange] = useState<{min: number; max: number}>({
-    min: 0,
-    max: 300000
-  });
-  const [appliedSalaryRange, setAppliedSalaryRange] = useState<{min: number; max: number} | null>(null);
-  const jobsCache = useRef<Record<string, StateJob[]>>({});
+  const [stateAvgSalary, setStateAvgSalary] = useState<number | null>(null);
+  const [stateTopCity, setStateTopCity] = useState<string | null>(null);
+  const jobsCache = useRef<Record<string, { jobs: StateJob[]; avgSalary: number | null; topCity: string | null }>>({});
 
   useEffect(() => {
     // Register USA map with ECharts using reliable GeoJSON source
@@ -75,19 +72,17 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
 
   const fetchStateJobs = async (state: string) => {
     // Check cache first
-    const cacheKey = appliedSalaryRange
-      ? `${state}:${appliedSalaryRange.min}-${appliedSalaryRange.max}`
-      : state;
-
-    if (jobsCache.current[cacheKey]) {
-      const jobs = jobsCache.current[cacheKey];
-      setStateJobs(jobs);
+    if (jobsCache.current[state]) {
+      const cached = jobsCache.current[state];
+      setStateJobs(cached.jobs);
+      setStateAvgSalary(cached.avgSalary);
+      setStateTopCity(cached.topCity);
       setDisplayedJobsCount(0);
 
       // Progressively reveal cached jobs (faster)
-      if (jobs.length > 0) {
+      if (cached.jobs.length > 0) {
         const revealJobs = async () => {
-          for (let i = 1; i <= jobs.length; i++) {
+          for (let i = 1; i <= cached.jobs.length; i++) {
             await new Promise(resolve => setTimeout(resolve, 15));
             setDisplayedJobsCount(i);
           }
@@ -100,19 +95,19 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
     setLoadingJobs(true);
     setDisplayedJobsCount(0);
     try {
-      const params = new URLSearchParams({ state });
-      if (appliedSalaryRange) {
-        params.append('minSalary', appliedSalaryRange.min.toString());
-        params.append('maxSalary', appliedSalaryRange.max.toString());
-      }
-
-      const response = await fetch(`/api/admin/analytics/state-jobs?${params}`);
+      const response = await fetch(`/api/admin/analytics/state-jobs?state=${state}`);
       const result = await response.json();
       const jobs = result.jobs || [];
 
       // Cache the results
-      jobsCache.current[cacheKey] = jobs;
+      jobsCache.current[state] = {
+        jobs,
+        avgSalary: result.avgSalary,
+        topCity: result.topCity
+      };
       setStateJobs(jobs);
+      setStateAvgSalary(result.avgSalary);
+      setStateTopCity(result.topCity);
 
       // Progressively reveal jobs with staggered animation
       if (jobs.length > 0) {
@@ -127,6 +122,8 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
     } catch (error) {
       console.error('Error fetching state jobs:', error);
       setStateJobs([]);
+      setStateAvgSalary(null);
+      setStateTopCity(null);
     } finally {
       setLoadingJobs(false);
     }
@@ -156,23 +153,26 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
       trigger: 'item',
       formatter: (params: any) => {
         if (params.value) {
-          return `${params.name}: ${params.value.toLocaleString()} jobs`;
+          return `${params.name}<br/>Avg Salary: $${params.value.toLocaleString()}<br/>Jobs: ${params.data?.jobCount || 0}`;
         }
-        return `${params.name}: 0 jobs`;
+        return `${params.name}<br/>Avg Salary: N/A<br/>Jobs: 0`;
       },
-      backgroundColor: '#1f2937',
-      borderColor: '#374151',
-      textStyle: { color: '#e5e7eb' }
+      backgroundColor: isDark ? '#1f2937' : '#ffffff',
+      borderColor: isDark ? '#374151' : '#e5e7eb',
+      textStyle: { color: isDark ? '#e5e7eb' : '#1f2937' }
     },
     visualMap: {
       min: 0,
       max: maxValue,
       left: 'left',
       bottom: '5%',
-      text: ['High', 'Low'],
+      text: ['High Salary', 'Low Salary'],
       calculable: true,
       textStyle: {
         color: isDark ? '#9ca3af' : '#6b7280'
+      },
+      formatter: (value: number) => {
+        return value > 0 ? `$${Math.round(value / 1000)}k` : '$0';
       },
       inRange: {
         // Clean monochromatic gradient: light grey → dark grey
@@ -462,84 +462,16 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
               {/* Stats Grid */}
               <div className="grid grid-cols-2 gap-3 mb-4">
                 <div className={`border p-3 ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
-                  <div className={`text-[10px] uppercase tracking-wide ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>Population</div>
-                  <div className={`text-sm font-semibold mt-1 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{stateInfo.population.toLocaleString()}</div>
+                  <div className={`text-[10px] uppercase tracking-wide ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>Average Salary</div>
+                  <div className={`text-sm font-semibold mt-1 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                    {stateAvgSalary ? `$${stateAvgSalary.toLocaleString()}` : 'N/A'}
+                  </div>
                 </div>
                 <div className={`border p-3 ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
-                  <div className={`text-[10px] uppercase tracking-wide ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>Cost of Living</div>
-                  <div className={`text-sm font-semibold mt-1 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{getCostOfLivingLabel(stateInfo.costOfLiving)}</div>
-                </div>
-              </div>
-
-              {/* Top Cities */}
-              <div className="mb-4">
-                <h4 className={`text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>Top Cities</h4>
-                <div className="space-y-1">
-                  {stateInfo.topCities.map((city, idx) => (
-                    <div key={idx} className={`text-xs flex items-center gap-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                      <span className={isDark ? 'text-gray-600' : 'text-gray-400'}>{idx + 1}.</span>
-                      <span>{city}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Salary Filter */}
-              <div className="mb-4">
-                <h4 className={`text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>
-                  Salary Range
-                </h4>
-                <div className="space-y-2">
-                  <div className="flex gap-2 items-center">
-                    <input
-                      type="number"
-                      value={salaryRange.min}
-                      onChange={(e) => setSalaryRange(prev => ({ ...prev, min: parseInt(e.target.value) || 0 }))}
-                      className={`w-full px-2 py-1 text-xs border ${
-                        isDark ? 'bg-gray-900 border-gray-800 text-gray-300' : 'bg-white border-gray-300 text-gray-900'
-                      }`}
-                      placeholder="Min"
-                    />
-                    <span className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>-</span>
-                    <input
-                      type="number"
-                      value={salaryRange.max}
-                      onChange={(e) => setSalaryRange(prev => ({ ...prev, max: parseInt(e.target.value) || 300000 }))}
-                      className={`w-full px-2 py-1 text-xs border ${
-                        isDark ? 'bg-gray-900 border-gray-800 text-gray-300' : 'bg-white border-gray-300 text-gray-900'
-                      }`}
-                      placeholder="Max"
-                    />
+                  <div className={`text-[10px] uppercase tracking-wide ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>Top City</div>
+                  <div className={`text-sm font-semibold mt-1 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                    {stateTopCity || 'N/A'}
                   </div>
-                  <button
-                    onClick={() => {
-                      setAppliedSalaryRange(salaryRange);
-                      fetchStateJobs(selectedState!);
-                    }}
-                    className={`w-full text-xs py-1 px-2 border ${
-                      isDark
-                        ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'
-                        : 'bg-blue-500 text-white border-blue-500 hover:bg-blue-600'
-                    }`}
-                  >
-                    Apply Filter
-                  </button>
-                  {appliedSalaryRange && (
-                    <button
-                      onClick={() => {
-                        setAppliedSalaryRange(null);
-                        setSalaryRange({ min: 0, max: 300000 });
-                        fetchStateJobs(selectedState!);
-                      }}
-                      className={`w-full text-xs py-1 px-2 border ${
-                        isDark
-                          ? 'border-gray-700 text-gray-400 hover:bg-gray-800'
-                          : 'border-gray-300 text-gray-600 hover:bg-gray-50'
-                      }`}
-                    >
-                      Clear Filter
-                    </button>
-                  )}
                 </div>
               </div>
 
