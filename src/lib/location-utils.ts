@@ -25,6 +25,44 @@ const validStates = new Set([
   'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY', 'DC'
 ]);
 
+// Common international location keywords to exclude
+const internationalKeywords = [
+  'germany', 'berlin', 'munich', 'hamburg', 'frankfurt', 'stuttgart', 'cologne',
+  'hanover', 'nuremberg', 'dusseldorf', 'dortmund', 'essen', 'leipzig', 'bremen',
+  'dresden', 'bochum', 'wuppertal', 'bielefeld', 'bonn', 'mannheim', 'karlsruhe',
+  'wiesbaden', 'munster', 'augsburg', 'aachen', 'monchengladbach', 'chemnitz',
+  'kiel', 'halle', 'magdeburg', 'freiburg', 'krefeld', 'mainz', 'lubeck', 'erfurt',
+  'rostock', 'kassel', 'hagen', 'potsdam', 'saarbrucken', 'hamm', 'ludwigshafen',
+  'oldenburg', 'osnabruck', 'solingen', 'leverkusen', 'heidelberg', 'darmstadt',
+  'paderborn', 'regensburg', 'wurzburg', 'wolfsburg', 'gottingen', 'recklinghausen',
+  'heilbronn', 'ingolstadt', 'bottrop', 'offenbach', 'pforzheim', 'bremerhaven',
+  'remscheid', 'reutlingen', 'koblenz', 'bergisch', 'gladbach', 'jena', 'trier',
+  'erkrath', 'wesel', 'kaufbeuren', 'deggendorf', 'norderstedt',
+  'uk', 'united kingdom', 'england', 'london', 'manchester', 'birmingham',
+  'canada', 'toronto', 'vancouver', 'montreal',
+  'australia', 'sydney', 'melbourne',
+  'india', 'bangalore', 'mumbai', 'delhi',
+  'china', 'beijing', 'shanghai',
+  'france', 'paris', 'lyon',
+  'spain', 'madrid', 'barcelona',
+  'italy', 'rome', 'milan',
+  'netherlands', 'amsterdam', 'rotterdam',
+  'belgium', 'brussels',
+  'switzerland', 'zurich', 'geneva',
+  'austria', 'vienna',
+  'poland', 'warsaw', 'krakow',
+  'sweden', 'stockholm',
+  'denmark', 'copenhagen',
+  'norway', 'oslo',
+  'finland', 'helsinki',
+  'ireland', 'dublin',
+  'portugal', 'lisbon',
+  'greece', 'athens',
+  'czech', 'prague',
+  'hungary', 'budapest',
+  'romania', 'bucharest'
+];
+
 /**
  * Extract state abbreviation from location string
  * @param location - Location string (e.g., "San Francisco, CA" or "Austin, Texas")
@@ -34,6 +72,19 @@ export function extractState(location: string | null): string | null {
   if (!location) return null;
 
   const normalized = location.trim();
+  const lowerLocation = normalized.toLowerCase();
+
+  // Exclude if it's just "United States" with no specific state
+  if (lowerLocation === 'united states' || lowerLocation === 'usa' || lowerLocation === 'us') {
+    return null;
+  }
+
+  // Exclude international locations
+  for (const keyword of internationalKeywords) {
+    if (lowerLocation.includes(keyword)) {
+      return null;
+    }
+  }
 
   // Priority 1: Match state abbreviation after comma (most common format: "City, ST")
   const commaMatch = normalized.match(/,\s*([A-Z]{2})(?:\s|$|,)/i);
