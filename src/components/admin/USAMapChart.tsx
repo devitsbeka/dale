@@ -153,10 +153,11 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
     tooltip: {
       trigger: 'item',
       formatter: (params: any) => {
+        const jobCount = params.data?.jobCount || 0;
         if (params.value) {
-          return `${params.name}: ${params.value.toLocaleString()} jobs`;
+          return `${params.name}<br/>Avg Salary: $${params.value.toLocaleString()}<br/>Jobs: ${jobCount}`;
         }
-        return `${params.name}: 0 jobs`;
+        return `${params.name}<br/>Avg Salary: $0<br/>Jobs: 0`;
       },
       backgroundColor: isDark ? '#1f2937' : '#ffffff',
       borderColor: isDark ? '#374151' : '#e5e7eb',
@@ -167,10 +168,13 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
       max: maxValue,
       left: 'left',
       bottom: '5%',
-      text: ['High', 'Low'],
+      text: ['High Salary', 'Low Salary'],
       calculable: true,
       textStyle: {
         color: isDark ? '#9ca3af' : '#6b7280'
+      },
+      formatter: (value: number) => {
+        return value > 0 ? `$${Math.round(value / 1000)}k` : '$0';
       },
       inRange: {
         // Clean monochromatic gradient: light grey → dark grey

@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { matchesState } from '@/lib/location-utils';
+import { getStateSalary } from '@/lib/bls-salary-data';
 
 // In-memory cache
 const cache = new Map<string, { data: any; timestamp: number }>();
@@ -86,25 +87,12 @@ export async function GET(request: NextRequest) {
     // Filter jobs by state
     const stateJobs = onsiteJobs.filter(job => matchesState(job.location, state));
 
-    // Calculate average salary for the state
-    let totalSalary = 0;
-    let salaryCount = 0;
+    // Get average salary from BLS data
+    const avgSalary = getStateSalary(state);
+
+    // Count cities
     const cityCounts: Record<string, number> = {};
-
     for (const job of stateJobs) {
-      // Calculate salary
-      if (job.salaryMin && job.salaryMax) {
-        totalSalary += (job.salaryMin + job.salaryMax) / 2;
-        salaryCount++;
-      } else if (job.salaryMin) {
-        totalSalary += job.salaryMin;
-        salaryCount++;
-      } else if (job.salaryMax) {
-        totalSalary += job.salaryMax;
-        salaryCount++;
-      }
-
-      // Count cities
       if (job.location) {
         const city = job.location.split(',')[0]?.trim();
         if (city && city.length > 2) {
@@ -112,8 +100,6 @@ export async function GET(request: NextRequest) {
         }
       }
     }
-
-    const avgSalary = salaryCount > 0 ? Math.round(totalSalary / salaryCount) : null;
 
     // Get top city
     const topCity = Object.entries(cityCounts)

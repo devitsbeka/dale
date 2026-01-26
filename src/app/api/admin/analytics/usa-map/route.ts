@@ -6,6 +6,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { extractState } from '@/lib/location-utils';
+import { getStateSalary } from '@/lib/bls-salary-data';
 
 export const dynamic = 'force-dynamic';
 
@@ -54,18 +55,23 @@ export async function GET() {
     }
 
     // Create complete data array with ALL states (including 0-count states)
-    const data = Object.entries(abbrToStateName).map(([abbr, name]) => ({
-      name: name,
-      value: stateCounts[abbr] || 0  // Job count for states
-    })).sort((a, b) => b.value - a.value);
+    // Use BLS salary data for the map gradient
+    const data = Object.entries(abbrToStateName).map(([abbr, name]) => {
+      const salary = getStateSalary(abbr) || 0;
+      return {
+        name: name,
+        value: salary,  // Average salary from BLS data
+        jobCount: stateCounts[abbr] || 0
+      };
+    }).sort((a, b) => b.value - a.value);
 
     // Separate stats for states with actual jobs
-    const statesWithJobs = data.filter(d => d.value > 0);
+    const statesWithJobs = data.filter(d => d.jobCount > 0);
 
     return NextResponse.json({
-      data,  // All 51 states
+      data,  // All 51 states with salary data
       totalJobs: onsiteJobs.length,
-      jobsWithState: data.reduce((sum, item) => sum + item.value, 0),
+      jobsWithState: data.reduce((sum, item) => sum + item.jobCount, 0),
       topStates: statesWithJobs.slice(0, 10)  // Top 10 by job count
     });
   } catch (error) {
