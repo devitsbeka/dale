@@ -7,6 +7,7 @@
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import USAMapChart from '@/components/admin/USAMapChart';
+import { useAdminTheme } from '@/contexts/AdminThemeContext';
 
 const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
 
@@ -21,6 +22,8 @@ export default function AdminAnalyticsPage() {
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState(30);
+  const { theme } = useAdminTheme();
+  const isDark = theme === 'dark';
 
   // Chart controls
   const [timelineChartType, setTimelineChartType] = useState<'line' | 'bar'>('line');
@@ -68,10 +71,10 @@ export default function AdminAnalyticsPage() {
   return (
     <div className="flex flex-col h-full">
       {/* Header Bar */}
-      <div className="h-16 border-b border-gray-800 flex items-center justify-between px-6">
+      <div className={`h-16 border-b flex items-center justify-between px-6 ${isDark ? 'border-gray-800' : 'border-gray-200'}`}>
         <div>
-          <h1 className="text-base font-semibold text-gray-100">Analytics</h1>
-          <p className="text-xs text-gray-500 mt-0.5">
+          <h1 className={`text-base font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>Analytics</h1>
+          <p className={`text-xs mt-0.5 ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
             {data?.overview?.totalJobs?.toLocaleString() || 0} job listings
           </p>
         </div>
@@ -79,7 +82,11 @@ export default function AdminAnalyticsPage() {
           <select
             value={dateRange}
             onChange={(e) => setDateRange(Number(e.target.value))}
-            className="px-3 py-1.5 text-xs bg-gray-800 border border-gray-700 text-gray-300 focus:outline-none focus:border-gray-600"
+            className={`px-3 py-1.5 text-xs border focus:outline-none transition-colors ${
+              isDark
+                ? 'bg-gray-800 border-gray-700 text-gray-300 focus:border-gray-600'
+                : 'bg-white border-gray-300 text-gray-700 focus:border-gray-400'
+            }`}
           >
             <option value={7}>Last 7 days</option>
             <option value={30}>Last 30 days</option>
@@ -89,7 +96,11 @@ export default function AdminAnalyticsPage() {
           </select>
           <button
             onClick={fetchAnalytics}
-            className="px-3 py-1.5 text-xs font-medium bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 transition-colors"
+            className={`px-3 py-1.5 text-xs font-medium border transition-colors ${
+              isDark
+                ? 'bg-gray-800 hover:bg-gray-700 border-gray-700 text-gray-300'
+                : 'bg-gray-200 hover:bg-gray-300 border-gray-300 text-gray-700'
+            }`}
           >
             Refresh
           </button>
@@ -104,26 +115,30 @@ export default function AdminAnalyticsPage() {
             <MetricPanel
               label="Total Jobs"
               value={data?.overview?.totalJobs?.toLocaleString() || '0'}
+              isDark={isDark}
             />
             <MetricPanel
               label="Active"
               value={data?.overview?.activeJobs?.toLocaleString() || '0'}
+              isDark={isDark}
             />
             <MetricPanel
               label="Avg Salary"
               value={`$${(data?.overview?.avgSalary || 0).toLocaleString()}`}
+              isDark={isDark}
             />
             <MetricPanel
               label="Quality"
               value={`${Number(data?.overview?.avgQualityScore || 0).toFixed(1)}%`}
+              isDark={isDark}
             />
           </div>
 
           {/* Main Timeline */}
-          <ChartPanel
+          <ChartPanel isDark={isDark}
             title="Jobs Posted Over Time"
             actions={
-              <ToggleGroup
+              <ToggleGroup isDark={isDark}
                 value={timelineChartType}
                 onChange={setTimelineChartType}
                 options={[
@@ -142,10 +157,10 @@ export default function AdminAnalyticsPage() {
 
           {/* Two Column */}
           <div className="grid grid-cols-2 gap-3">
-            <ChartPanel
+            <ChartPanel isDark={isDark}
               title="Jobs by Source"
               actions={
-                <ToggleGroup
+                <ToggleGroup isDark={isDark}
                   value={sourceStackMode}
                   onChange={setSourceStackMode}
                   options={[
@@ -162,7 +177,7 @@ export default function AdminAnalyticsPage() {
               />
             </ChartPanel>
 
-            <ChartPanel
+            <ChartPanel isDark={isDark}
               title="Salary Trends"
               actions={
                 <div className="flex gap-1">
@@ -195,7 +210,7 @@ export default function AdminAnalyticsPage() {
           </div>
 
           {/* Heatmap */}
-          <ChartPanel title="Posting Patterns (Hour × Day)">
+          <ChartPanel title="Posting Patterns (Hour × Day)" isDark={isDark}>
             <ReactECharts
               option={getHeatmapChartOption(data?.timeseries)}
               style={{ height: '400px' }}
@@ -204,7 +219,7 @@ export default function AdminAnalyticsPage() {
           </ChartPanel>
 
           {/* USA Map */}
-          <ChartPanel
+          <ChartPanel isDark={isDark}
             title="Onsite Jobs by State"
             subtitle={`${data?.usaMap?.jobsWithState || 0} jobs across ${data?.usaMap?.data?.length || 0} states`}
           >
@@ -213,10 +228,10 @@ export default function AdminAnalyticsPage() {
 
           {/* Three Column */}
           <div className="grid grid-cols-3 gap-3">
-            <ChartPanel
+            <ChartPanel isDark={isDark}
               title="Categories"
               actions={
-                <ToggleGroup
+                <ToggleGroup isDark={isDark}
                   value={categoryChartType}
                   onChange={setCategoryChartType}
                   options={[
@@ -233,7 +248,7 @@ export default function AdminAnalyticsPage() {
               />
             </ChartPanel>
 
-            <ChartPanel title="Work Location">
+            <ChartPanel title="Work Location" isDark={isDark}>
               <ReactECharts
                 option={getLocationChartOption(data?.distribution)}
                 style={{ height: '280px' }}
@@ -241,7 +256,7 @@ export default function AdminAnalyticsPage() {
               />
             </ChartPanel>
 
-            <ChartPanel title="Location Trends">
+            <ChartPanel title="Location Trends" isDark={isDark}>
               <ReactECharts
                 option={getLocationTrendsOption(data?.timeseries)}
                 style={{ height: '280px' }}
@@ -251,7 +266,7 @@ export default function AdminAnalyticsPage() {
           </div>
 
           {/* Quality Trends */}
-          <ChartPanel title="Data Quality Trends">
+          <ChartPanel title="Data Quality Trends" isDark={isDark}>
             <ReactECharts
               option={getQualitySparklineOption(data?.timeseries)}
               style={{ height: '200px' }}
@@ -265,11 +280,11 @@ export default function AdminAnalyticsPage() {
 }
 
 // Components
-function MetricPanel({ label, value }: { label: string; value: string }) {
+function MetricPanel({ label, value, isDark }: { label: string; value: string; isDark: boolean }) {
   return (
-    <div className="border border-gray-800 bg-gray-900/50 px-4 py-3">
-      <div className="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">{label}</div>
-      <div className="text-xl font-semibold text-gray-100 font-mono">{value}</div>
+    <div className={`border px-4 py-3 ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-white'}`}>
+      <div className={`text-[10px] font-medium uppercase tracking-wider mb-1 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>{label}</div>
+      <div className={`text-xl font-semibold font-mono ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{value}</div>
     </div>
   );
 }
@@ -279,18 +294,20 @@ function ChartPanel({
   subtitle,
   actions,
   children,
+  isDark,
 }: {
   title: string;
   subtitle?: string;
   actions?: React.ReactNode;
   children: React.ReactNode;
+  isDark: boolean;
 }) {
   return (
-    <div className="border border-gray-800 bg-gray-900/50">
-      <div className="border-b border-gray-800 px-4 py-2.5 flex items-center justify-between">
+    <div className={`border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-white'}`}>
+      <div className={`border-b px-4 py-2.5 flex items-center justify-between ${isDark ? 'border-gray-800' : 'border-gray-200'}`}>
         <div>
-          <h3 className="text-xs font-medium text-gray-300">{title}</h3>
-          {subtitle && <p className="text-[10px] text-gray-600 mt-0.5">{subtitle}</p>}
+          <h3 className={`text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{title}</h3>
+          {subtitle && <p className={`text-[10px] mt-0.5 ${isDark ? 'text-gray-600' : 'text-gray-500'}`}>{subtitle}</p>}
         </div>
         {actions && <div className="flex items-center gap-2">{actions}</div>}
       </div>
@@ -303,21 +320,23 @@ function ToggleGroup({
   value,
   onChange,
   options,
+  isDark,
 }: {
   value: string;
   onChange: (value: any) => void;
   options: Array<{ value: string; label: string }>;
+  isDark: boolean;
 }) {
   return (
-    <div className="flex gap-0.5 bg-gray-800">
+    <div className={isDark ? 'flex gap-0.5 bg-gray-800' : 'flex gap-0.5 bg-gray-200'}>
       {options.map((option) => (
         <button
           key={option.value}
           onClick={() => onChange(option.value)}
           className={`px-2.5 py-1 text-[10px] font-medium transition-colors ${
             value === option.value
-              ? 'bg-gray-700 text-gray-100'
-              : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'
+              ? isDark ? 'bg-gray-700 text-gray-100' : 'bg-white text-gray-900'
+              : isDark ? 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
           }`}
         >
           {option.label}

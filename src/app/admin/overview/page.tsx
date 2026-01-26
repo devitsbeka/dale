@@ -6,6 +6,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useAdminTheme } from '@/contexts/AdminThemeContext';
 
 interface OverviewData {
   totalJobs: number;
@@ -29,6 +30,8 @@ interface OverviewData {
 export default function AdminOverviewPage() {
   const [data, setData] = useState<OverviewData | null>(null);
   const [loading, setLoading] = useState(true);
+  const { theme } = useAdminTheme();
+  const isDark = theme === 'dark';
 
   useEffect(() => {
     fetchOverview();
@@ -57,14 +60,18 @@ export default function AdminOverviewPage() {
   return (
     <div className="flex flex-col h-full">
       {/* Header Bar */}
-      <div className="h-16 border-b border-gray-800 flex items-center justify-between px-6">
+      <div className={`h-16 ${isDark ? 'border-gray-800' : 'border-gray-200'} border-b flex items-center justify-between px-6`}>
         <div>
-          <h1 className="text-base font-semibold text-gray-100">Overview</h1>
-          <p className="text-xs text-gray-500 mt-0.5">System-wide metrics and status</p>
+          <h1 className={`text-base font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>Overview</h1>
+          <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'} mt-0.5`}>System-wide metrics and status</p>
         </div>
         <button
           onClick={fetchOverview}
-          className="px-3 py-1.5 text-xs font-medium bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 transition-colors"
+          className={`px-3 py-1.5 text-xs font-medium transition-colors ${
+            isDark
+              ? 'bg-gray-800 hover:bg-gray-700 border-gray-700 text-gray-300'
+              : 'bg-gray-200 hover:bg-gray-300 border-gray-300 text-gray-700'
+          } border`}
         >
           Refresh
         </button>
@@ -79,52 +86,56 @@ export default function AdminOverviewPage() {
               label="Total Jobs"
               value={data?.totalJobs?.toLocaleString() || '0'}
               sublabel="All records"
+              isDark={isDark}
             />
             <MetricPanel
               label="Active Jobs"
               value={data?.activeJobs?.toLocaleString() || '0'}
               sublabel={`${data?.activeJobs && data?.totalJobs ? ((data.activeJobs / data.totalJobs) * 100).toFixed(1) : '0'}% of total`}
+              isDark={isDark}
             />
             <MetricPanel
               label="With Salary Data"
               value={data?.withSalary?.toLocaleString() || '0'}
               sublabel={`Avg $${data?.avgSalary?.toLocaleString() || '0'}`}
+              isDark={isDark}
             />
             <MetricPanel
               label="Quality Score"
-              value={`${data?.avgQualityScore?.toFixed(1) || '0'}%`}
+              value={`${Number(data?.avgQualityScore || 0).toFixed(1)}%`}
               sublabel="Data completeness"
+              isDark={isDark}
             />
           </div>
 
           {/* Two Column Layout */}
           <div className="grid grid-cols-2 gap-4">
             {/* Top Categories */}
-            <div className="border border-gray-800 bg-gray-900/50">
-              <div className="border-b border-gray-800 px-4 py-3">
-                <h3 className="text-sm font-medium text-gray-300">Top Categories</h3>
+            <div className={`border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-white'}`}>
+              <div className={`border-b px-4 py-3 ${isDark ? 'border-gray-800' : 'border-gray-200'}`}>
+                <h3 className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Top Categories</h3>
               </div>
               <div className="p-4">
                 <div className="space-y-2">
                   {data?.topCategories?.slice(0, 8).map((category, idx) => (
                     <div key={idx} className="flex items-center justify-between text-xs">
-                      <span className="text-gray-400">{category.name}</span>
-                      <span className="text-gray-300 font-mono">{category.count.toLocaleString()}</span>
+                      <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>{category.name}</span>
+                      <span className={`font-mono ${isDark ? 'text-gray-300' : 'text-gray-900'}`}>{category.count.toLocaleString()}</span>
                     </div>
                   )) || (
-                    <div className="text-xs text-gray-600">No data available</div>
+                    <div className={`text-xs ${isDark ? 'text-gray-600' : 'text-gray-500'}`}>No data available</div>
                   )}
                 </div>
               </div>
             </div>
 
             {/* Recent Syncs */}
-            <div className="border border-gray-800 bg-gray-900/50">
-              <div className="border-b border-gray-800 px-4 py-3 flex items-center justify-between">
-                <h3 className="text-sm font-medium text-gray-300">Recent Syncs</h3>
+            <div className={`border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-white'}`}>
+              <div className={`border-b px-4 py-3 flex items-center justify-between ${isDark ? 'border-gray-800' : 'border-gray-200'}`}>
+                <h3 className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Recent Syncs</h3>
                 <Link
                   href="/admin/sync"
-                  className="text-xs text-blue-400 hover:text-blue-300"
+                  className="text-xs text-blue-500 hover:text-blue-400"
                 >
                   View all
                 </Link>
@@ -138,12 +149,12 @@ export default function AdminOverviewPage() {
                           sync.status === 'success' ? 'bg-green-500' :
                           sync.status === 'failed' ? 'bg-red-500' : 'bg-yellow-500'
                         }`} />
-                        <span className="text-gray-400">{sync.source}</span>
+                        <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>{sync.source}</span>
                       </div>
-                      <span className="text-gray-500 font-mono">+{sync.jobsAdded}</span>
+                      <span className={`font-mono ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>+{sync.jobsAdded}</span>
                     </div>
                   )) || (
-                    <div className="text-xs text-gray-600">No recent syncs</div>
+                    <div className={`text-xs ${isDark ? 'text-gray-600' : 'text-gray-500'}`}>No recent syncs</div>
                   )}
                 </div>
               </div>
@@ -151,38 +162,54 @@ export default function AdminOverviewPage() {
           </div>
 
           {/* Quick Actions */}
-          <div className="border border-gray-800 bg-gray-900/50">
-            <div className="border-b border-gray-800 px-4 py-3">
-              <h3 className="text-sm font-medium text-gray-300">Quick Actions</h3>
+          <div className={`border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-white'}`}>
+            <div className={`border-b px-4 py-3 ${isDark ? 'border-gray-800' : 'border-gray-200'}`}>
+              <h3 className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Quick Actions</h3>
             </div>
             <div className="p-4 grid grid-cols-4 gap-3">
               <Link
                 href="/admin/jobs"
-                className="px-4 py-3 border border-gray-800 bg-gray-900 hover:bg-gray-800 hover:border-gray-700 transition-colors text-center"
+                className={`px-4 py-3 border transition-colors text-center ${
+                  isDark
+                    ? 'border-gray-800 bg-gray-900 hover:bg-gray-800 hover:border-gray-700'
+                    : 'border-gray-200 bg-gray-50 hover:bg-gray-100 hover:border-gray-300'
+                }`}
               >
-                <div className="text-xs font-medium text-gray-300">Manage Jobs</div>
-                <div className="text-xs text-gray-500 mt-1">View & edit all jobs</div>
+                <div className={`text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Manage Jobs</div>
+                <div className={`text-xs mt-1 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>View & edit all jobs</div>
               </Link>
               <Link
                 href="/admin/analytics"
-                className="px-4 py-3 border border-gray-800 bg-gray-900 hover:bg-gray-800 hover:border-gray-700 transition-colors text-center"
+                className={`px-4 py-3 border transition-colors text-center ${
+                  isDark
+                    ? 'border-gray-800 bg-gray-900 hover:bg-gray-800 hover:border-gray-700'
+                    : 'border-gray-200 bg-gray-50 hover:bg-gray-100 hover:border-gray-300'
+                }`}
               >
-                <div className="text-xs font-medium text-gray-300">Analytics</div>
-                <div className="text-xs text-gray-500 mt-1">View detailed charts</div>
+                <div className={`text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Analytics</div>
+                <div className={`text-xs mt-1 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>View detailed charts</div>
               </Link>
               <Link
                 href="/admin/sync"
-                className="px-4 py-3 border border-gray-800 bg-gray-900 hover:bg-gray-800 hover:border-gray-700 transition-colors text-center"
+                className={`px-4 py-3 border transition-colors text-center ${
+                  isDark
+                    ? 'border-gray-800 bg-gray-900 hover:bg-gray-800 hover:border-gray-700'
+                    : 'border-gray-200 bg-gray-50 hover:bg-gray-100 hover:border-gray-300'
+                }`}
               >
-                <div className="text-xs font-medium text-gray-300">Sync Status</div>
-                <div className="text-xs text-gray-500 mt-1">Monitor data sources</div>
+                <div className={`text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Sync Status</div>
+                <div className={`text-xs mt-1 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>Monitor data sources</div>
               </Link>
               <Link
                 href="/admin/export"
-                className="px-4 py-3 border border-gray-800 bg-gray-900 hover:bg-gray-800 hover:border-gray-700 transition-colors text-center"
+                className={`px-4 py-3 border transition-colors text-center ${
+                  isDark
+                    ? 'border-gray-800 bg-gray-900 hover:bg-gray-800 hover:border-gray-700'
+                    : 'border-gray-200 bg-gray-50 hover:bg-gray-100 hover:border-gray-300'
+                }`}
               >
-                <div className="text-xs font-medium text-gray-300">Export Data</div>
-                <div className="text-xs text-gray-500 mt-1">Download job listings</div>
+                <div className={`text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Export Data</div>
+                <div className={`text-xs mt-1 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>Download job listings</div>
               </Link>
             </div>
           </div>
@@ -192,12 +219,12 @@ export default function AdminOverviewPage() {
   );
 }
 
-function MetricPanel({ label, value, sublabel }: { label: string; value: string; sublabel: string }) {
+function MetricPanel({ label, value, sublabel, isDark }: { label: string; value: string; sublabel: string; isDark: boolean }) {
   return (
-    <div className="border border-gray-800 bg-gray-900/50 p-4">
-      <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">{label}</div>
-      <div className="text-2xl font-semibold text-gray-100 mt-2 font-mono">{value}</div>
-      <div className="text-xs text-gray-600 mt-1">{sublabel}</div>
+    <div className={`border p-4 ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-white'}`}>
+      <div className={`text-xs font-medium uppercase tracking-wide ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>{label}</div>
+      <div className={`text-2xl font-semibold mt-2 font-mono ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{value}</div>
+      <div className={`text-xs mt-1 ${isDark ? 'text-gray-600' : 'text-gray-500'}`}>{sublabel}</div>
     </div>
   );
 }

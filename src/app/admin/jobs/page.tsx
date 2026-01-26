@@ -6,6 +6,7 @@
 
 import { useState, useEffect } from 'react';
 import { JobsTable } from '@/components/admin/jobs-table';
+import { useAdminTheme } from '@/contexts/AdminThemeContext';
 
 export default function AdminJobsPage() {
   const [jobs, setJobs] = useState<any[]>([]);
@@ -14,6 +15,8 @@ export default function AdminJobsPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [filters, setFilters] = useState<any>({});
+  const { theme } = useAdminTheme();
+  const isDark = theme === 'dark';
 
   useEffect(() => {
     fetchJobs();
@@ -85,17 +88,21 @@ export default function AdminJobsPage() {
   return (
     <div className="flex flex-col h-full">
       {/* Header Bar */}
-      <div className="h-16 border-b border-gray-800 flex items-center justify-between px-6">
+      <div className={`h-16 border-b flex items-center justify-between px-6 ${isDark ? 'border-gray-800' : 'border-gray-200'}`}>
         <div>
-          <h1 className="text-base font-semibold text-gray-100">Job Management</h1>
-          <p className="text-xs text-gray-500 mt-0.5">
+          <h1 className={`text-base font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>Job Management</h1>
+          <p className={`text-xs mt-0.5 ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
             {loading ? 'Loading...' : `${total.toLocaleString()} total jobs`}
           </p>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={fetchJobs}
-            className="px-3 py-1.5 text-xs font-medium bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 transition-colors"
+            className={`px-3 py-1.5 text-xs font-medium border transition-colors ${
+              isDark
+                ? 'bg-gray-800 hover:bg-gray-700 border-gray-700 text-gray-300'
+                : 'bg-gray-200 hover:bg-gray-300 border-gray-300 text-gray-700'
+            }`}
           >
             Refresh
           </button>

@@ -70,7 +70,7 @@ export default function USAMapChart({ data, style }: USAMapChartProps) {
         name: 'Onsite Jobs',
         type: 'map',
         map: 'USA',
-        roam: true,
+        roam: 'move',  // Only allow panning, not scroll zoom
         center: [-92, 38],
         scaleLimit: {
           min: 1,
