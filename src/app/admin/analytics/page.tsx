@@ -223,7 +223,7 @@ export default function AdminAnalyticsPage() {
             title="Onsite Jobs by State"
             subtitle={`${data?.usaMap?.jobsWithState || 0} jobs across ${data?.usaMap?.data?.length || 0} states`}
           >
-            <USAMapChart data={data?.usaMap} style={{ height: '500px' }} />
+            <USAMapChart data={data?.usaMap} style={{ height: '500px' }} isDark={isDark} />
           </ChartPanel>
 
           {/* Three Column */}

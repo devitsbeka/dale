@@ -10,6 +10,7 @@ const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
 interface USAMapChartProps {
   data: any;
   style?: React.CSSProperties;
+  isDark?: boolean;
 }
 
 interface StateJob {
@@ -26,7 +27,7 @@ interface StateJob {
   source: string;
 }
 
-export default function USAMapChart({ data, style }: USAMapChartProps) {
+export default function USAMapChart({ data, style, isDark = true }: USAMapChartProps) {
   const [mapRegistered, setMapRegistered] = useState(false);
   const [selectedState, setSelectedState] = useState<string | null>(null);
   const [stateJobs, setStateJobs] = useState<StateJob[]>([]);
@@ -166,16 +167,16 @@ export default function USAMapChart({ data, style }: USAMapChartProps) {
 
       {/* Side Panel */}
       {selectedState && stateInfo && (
-        <div className="w-1/3 border-l border-gray-800 pl-4 overflow-y-auto" style={{ height: style?.height || '500px' }}>
+        <div className={`w-1/3 border-l pl-4 overflow-y-auto ${isDark ? 'border-gray-800' : 'border-gray-200'}`} style={{ height: style?.height || '500px' }}>
           {/* Header */}
           <div className="flex items-start justify-between mb-4">
             <div>
-              <h3 className="text-lg font-semibold text-gray-100">{stateInfo.name}</h3>
-              <p className="text-xs text-gray-500">State Information</p>
+              <h3 className={`text-lg font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{stateInfo.name}</h3>
+              <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>State Information</p>
             </div>
             <button
               onClick={() => setSelectedState(null)}
-              className="text-gray-400 hover:text-gray-200 transition-colors"
+              className={`${isDark ? 'text-gray-400 hover:text-gray-200' : 'text-gray-600 hover:text-gray-900'} transition-colors`}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -185,23 +186,23 @@ export default function USAMapChart({ data, style }: USAMapChartProps) {
 
           {/* Stats Grid */}
           <div className="grid grid-cols-2 gap-3 mb-4">
-            <div className="border border-gray-800 bg-gray-900/50 p-3">
-              <div className="text-[10px] text-gray-500 uppercase tracking-wide">Population</div>
-              <div className="text-sm font-semibold text-gray-100 mt-1">{stateInfo.population.toLocaleString()}</div>
+            <div className={`border p-3 ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
+              <div className={`text-[10px] uppercase tracking-wide ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>Population</div>
+              <div className={`text-sm font-semibold mt-1 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{stateInfo.population.toLocaleString()}</div>
             </div>
-            <div className="border border-gray-800 bg-gray-900/50 p-3">
-              <div className="text-[10px] text-gray-500 uppercase tracking-wide">Cost of Living</div>
-              <div className="text-sm font-semibold text-gray-100 mt-1">{getCostOfLivingLabel(stateInfo.costOfLiving)}</div>
+            <div className={`border p-3 ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
+              <div className={`text-[10px] uppercase tracking-wide ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>Cost of Living</div>
+              <div className={`text-sm font-semibold mt-1 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{getCostOfLivingLabel(stateInfo.costOfLiving)}</div>
             </div>
           </div>
 
           {/* Top Cities */}
           <div className="mb-4">
-            <h4 className="text-xs font-medium text-gray-400 mb-2">Top Cities</h4>
+            <h4 className={`text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>Top Cities</h4>
             <div className="space-y-1">
               {stateInfo.topCities.map((city, idx) => (
-                <div key={idx} className="text-xs text-gray-300 flex items-center gap-2">
-                  <span className="text-gray-600">{idx + 1}.</span>
+                <div key={idx} className={`text-xs flex items-center gap-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <span className={isDark ? 'text-gray-600' : 'text-gray-400'}>{idx + 1}.</span>
                   <span>{city}</span>
                 </div>
               ))}
@@ -210,21 +211,25 @@ export default function USAMapChart({ data, style }: USAMapChartProps) {
 
           {/* Jobs List */}
           <div>
-            <h4 className="text-xs font-medium text-gray-400 mb-2">
+            <h4 className={`text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>
               Jobs in {stateInfo.name} ({stateJobs.length})
             </h4>
             {loadingJobs ? (
-              <div className="text-xs text-gray-500 py-4">Loading jobs...</div>
+              <div className={`text-xs py-4 ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Loading jobs...</div>
             ) : stateJobs.length === 0 ? (
-              <div className="text-xs text-gray-600 py-4">No jobs found in this state</div>
+              <div className={`text-xs py-4 ${isDark ? 'text-gray-600' : 'text-gray-500'}`}>No jobs found in this state</div>
             ) : (
               <div className="space-y-2">
                 {stateJobs.map((job) => (
-                  <div key={job.id} className="border border-gray-800 bg-gray-900/30 p-2 hover:bg-gray-900/50 transition-colors">
-                    <div className="text-xs font-medium text-gray-200 mb-1">{job.title}</div>
-                    <div className="text-[10px] text-gray-500">{job.company}</div>
+                  <div key={job.id} className={`border p-2 transition-colors ${
+                    isDark
+                      ? 'border-gray-800 bg-gray-900/30 hover:bg-gray-900/50'
+                      : 'border-gray-200 bg-gray-50 hover:bg-gray-100'
+                  }`}>
+                    <div className={`text-xs font-medium mb-1 ${isDark ? 'text-gray-200' : 'text-gray-900'}`}>{job.title}</div>
+                    <div className={`text-[10px] ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>{job.company}</div>
                     {(job.salaryMin || job.salaryMax) && (
-                      <div className="text-[10px] text-gray-400 mt-1">
+                      <div className={`text-[10px] mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                         {job.salaryMin && job.salaryMax
                           ? `$${job.salaryMin.toLocaleString()} - $${job.salaryMax.toLocaleString()}`
                           : job.salaryMin
@@ -233,7 +238,7 @@ export default function USAMapChart({ data, style }: USAMapChartProps) {
                       </div>
                     )}
                     {job.category && (
-                      <div className="text-[10px] text-blue-400 mt-1">{job.category}</div>
+                      <div className="text-[10px] text-blue-500 mt-1">{job.category}</div>
                     )}
                   </div>
                 ))}
