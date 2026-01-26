@@ -16,8 +16,16 @@ import type { Job } from '@/types/job';
 
 const prisma = new PrismaClient();
 
-// In-memory progress tracking
-const loadStatuses = new Map<string, ApifyJobLoadStatus>();
+// In-memory progress tracking with global singleton pattern for Next.js hot reload
+const globalForLoadStatuses = global as typeof globalThis & {
+  loadStatuses: Map<string, ApifyJobLoadStatus>;
+};
+
+const loadStatuses = globalForLoadStatuses.loadStatuses || new Map<string, ApifyJobLoadStatus>();
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForLoadStatuses.loadStatuses = loadStatuses;
+}
 
 export class ApifyJobLoader {
   private client: ApifyClient;
@@ -66,6 +74,7 @@ export class ApifyJobLoader {
     };
 
     loadStatuses.set(run.id, status);
+    console.log(`[JobLoader] Added status for run ${run.id}, total statuses: ${loadStatuses.size}`);
 
     // Process in background
     this.processLoad(run.id, actorId).catch((error) => {
@@ -209,6 +218,7 @@ export class ApifyJobLoader {
    * Static method to get all load statuses
    */
   static getAllLoadStatuses(): ApifyJobLoadStatus[] {
+    console.log(`[JobLoader] getAllLoadStatuses called, total statuses: ${loadStatuses.size}`);
     return Array.from(loadStatuses.values());
   }
 }
