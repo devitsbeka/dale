@@ -157,9 +157,27 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
   const stateInfo = selectedState ? stateData[selectedState] : null;
 
   return (
-    <div className="relative flex gap-4" style={style}>
+    <>
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes slideInRight {
+          from {
+            transform: translateX(20px);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+      `}} />
+      <div className="relative flex gap-4" style={style}>
       {/* Map */}
-      <div className={`${selectedState ? 'w-2/3' : 'w-full'} transition-all duration-300 relative z-0`}>
+      <div
+        className={`${selectedState ? 'w-2/3' : 'w-full'} relative z-0`}
+        style={{
+          transition: 'width 600ms cubic-bezier(0.4, 0, 0.2, 1)',
+        }}
+      >
         <ReactECharts
           option={option}
           onEvents={{ click: handleStateClick }}
@@ -168,10 +186,25 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
       </div>
 
       {/* Side Panel */}
-      {selectedState && stateInfo && (
-        <div className={`w-1/3 border-l pl-4 overflow-y-auto relative z-10 ${
+      <div
+        className={`overflow-hidden relative z-10 ${
           isDark ? 'border-gray-800 bg-gray-950' : 'border-gray-200 bg-white'
-        }`} style={{ height: style?.height || '500px' }}>
+        }`}
+        style={{
+          width: selectedState ? '33.333333%' : '0%',
+          opacity: selectedState ? 1 : 0,
+          borderLeftWidth: selectedState ? '1px' : '0px',
+          paddingLeft: selectedState ? '1rem' : '0',
+          height: style?.height || '500px',
+          transition: 'width 600ms cubic-bezier(0.4, 0, 0.2, 1), opacity 500ms cubic-bezier(0.4, 0, 0.2, 1) 100ms, padding 600ms cubic-bezier(0.4, 0, 0.2, 1)',
+        }}
+      >
+        {selectedState && stateInfo && (
+        <div className="overflow-y-auto h-full"
+          style={{
+            animation: 'slideInRight 500ms cubic-bezier(0.4, 0, 0.2, 1) 150ms both'
+          }}
+        >
           {/* Header */}
           <div className="flex items-start justify-between mb-4">
             <div>
@@ -250,7 +283,9 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
             )}
           </div>
         </div>
-      )}
+        )}
+      </div>
     </div>
+    </>
   );
 }
