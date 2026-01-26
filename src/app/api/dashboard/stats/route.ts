@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getUserIdFromRequest } from '@/lib/auth/get-user-from-request';
+import { getUserIdOrNull } from '@/lib/auth/get-user-from-request';
 
 export async function GET(request: NextRequest) {
   try {
-    const userId = await getUserIdFromRequest(request);
+    const userId = await getUserIdOrNull(request);
     const searchParams = request.nextUrl.searchParams;
     const period = searchParams.get('period') || '12-months';
 
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     const jobsData = await jobsResponse.json();
     const totalJobsCount = jobsData.pagination?.total || 0;
 
-    // INSTANT PARALLEL QUERIES
+    // INSTANT PARALLEL QUERIES (skip if no userId)
     const [
       applications,
       previousApplications,
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
       allSavedJobs,
       profileViews,
       previousProfileViews,
-    ] = await Promise.all([
+    ] = userId ? await Promise.all([
       prisma.jobApplication.findMany({
         where: { userId, appliedAt: { gte: startDate } },
         select: { status: true, appliedAt: true },
@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
       prisma.resumeAnalytics.count({
         where: { resume: { userId }, eventType: 'view', timestamp: { gte: previousPeriodStart, lt: startDate } },
       }),
-    ]);
+    ]) : [[], [], [], [], [], [], 0, 0];
 
     console.log('TOTAL JOBS (synced with jobs page):', totalJobsCount);
 

@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getUserIdFromRequest } from '@/lib/auth/get-user-from-request';
+import { getUserIdOrNull } from '@/lib/auth/get-user-from-request';
 
 export async function GET(request: NextRequest) {
   try {
-    const userId = await getUserIdFromRequest(request);
+    const userId = await getUserIdOrNull(request);
+
+    // Return empty array if not authenticated
+    if (!userId) {
+      return NextResponse.json([]);
+    }
 
     // Fetch recent job applications with job details
     const recentApplications = await prisma.jobApplication.findMany({
