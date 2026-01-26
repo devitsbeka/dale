@@ -75,6 +75,13 @@ export default function JobLoadPage() {
   const [actorConfigs, setActorConfigs] = useState<ActorConfig[]>([]);
   const [availableActors, setAvailableActors] = useState<ActorInfo[]>([]);
   const [loadingActors, setLoadingActors] = useState(true);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  // Show toast notification
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 5000); // Auto-dismiss after 5 seconds
+  };
 
   // Load API key and actor configs from localStorage on mount
   useEffect(() => {
@@ -210,11 +217,11 @@ export default function JobLoadPage() {
       setApiKey(apiKeyInput.trim());
       setHasApiKey(true);
       setShowSettings(false);
-      alert('API key saved! You can now start job loading.');
+      showToast('API key saved! You can now start job loading.', 'success');
       // Fetch status with new key
       fetchStatus();
     } else {
-      alert('Please enter a valid API key');
+      showToast('Please enter a valid API key', 'error');
     }
   };
 
@@ -232,7 +239,7 @@ export default function JobLoadPage() {
   // Save actor configurations
   const saveActorConfigs = () => {
     localStorage.setItem('apify_actor_configs', JSON.stringify(actorConfigs));
-    alert('Actor configurations saved!');
+    showToast('Actor configurations saved!', 'success');
     setShowSettings(false);
   };
 
@@ -259,7 +266,7 @@ export default function JobLoadPage() {
   // Start job load
   const startJobLoad = async () => {
     if (!hasApiKey) {
-      alert('Please configure your Apify API token first!');
+      showToast('Please configure your Apify API token first!', 'error');
       setShowSettings(true);
       return;
     }
@@ -268,7 +275,7 @@ export default function JobLoadPage() {
     const enabledActors = actorConfigs.filter((config) => config.enabled);
 
     if (enabledActors.length === 0) {
-      alert('Please enable at least one actor in the settings!');
+      showToast('Please enable at least one actor in the settings!', 'error');
       setShowSettings(true);
       setSettingsTab('actors');
       return;
@@ -310,7 +317,7 @@ export default function JobLoadPage() {
       if (!response.ok) {
         const text = await response.text();
         console.error('Trigger request failed:', response.status, text);
-        alert(`Request failed (${response.status}): ${response.statusText}\n\nPlease check:\n1. Your API key is correct\n2. You have sufficient Apify credits\n3. The server is running properly`);
+        showToast(`Request failed (${response.status}): ${response.statusText}`, 'error');
         return;
       }
 
@@ -318,21 +325,25 @@ export default function JobLoadPage() {
       if (!contentType || !contentType.includes('application/json')) {
         const text = await response.text();
         console.error('Expected JSON response but got:', contentType, text);
-        alert('Server returned an unexpected response. Check console for details.');
+        showToast('Server returned an unexpected response. Check console for details.', 'error');
         return;
       }
 
       const data = await response.json();
 
       if (data.success) {
-        alert(`Started loading jobs from ${data.runIds?.length || 0} actors!\n\nEstimated cost: $${data.totalEstimatedCost?.toFixed(2) || '0.00'}`);
-        fetchStatus();
+        showToast(
+          `Started loading jobs from ${data.runIds?.length || 0} actors! Estimated cost: $${data.totalEstimatedCost?.toFixed(2) || '0.00'}`,
+          'success'
+        );
+        // Immediately fetch status to show the running jobs
+        setTimeout(() => fetchStatus(), 500);
       } else {
-        alert(`Failed to start: ${data.error}\n\nPlease check:\n1. Your API key is correct\n2. You have sufficient Apify credits\n3. The actor IDs are valid`);
+        showToast(`Failed to start: ${data.error}`, 'error');
       }
     } catch (error) {
       console.error('Error starting job load:', error);
-      alert('Failed to start job load. Check console for details.');
+      showToast('Failed to start job load. Check console for details.', 'error');
     } finally {
       setLoading(false);
     }
@@ -378,6 +389,32 @@ export default function JobLoadPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
+      {/* Toast Notification */}
+      {toast && (
+        <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-right">
+          <div
+            className={`px-6 py-4 rounded-lg shadow-lg flex items-center gap-3 ${
+              toast.type === 'success'
+                ? 'bg-green-600 text-white'
+                : 'bg-red-600 text-white'
+            }`}
+          >
+            {toast.type === 'success' ? (
+              <CheckCircle2 className="w-5 h-5" />
+            ) : (
+              <XCircle className="w-5 h-5" />
+            )}
+            <span className="font-medium">{toast.message}</span>
+            <button
+              onClick={() => setToast(null)}
+              className="ml-4 hover:opacity-80"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8 flex justify-between items-start">
