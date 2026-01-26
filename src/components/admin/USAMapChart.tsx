@@ -589,11 +589,12 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
                   );
                 });
 
-                return filteredCompanies.length > 0 && (
-                  <div className="mb-4">
+                return (
+                  <div className="mb-4" style={{ minHeight: '80px' }}>
                     <h4 className={`text-xs font-medium mb-3 ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>
                       Companies ({filteredCompanies.length})
                     </h4>
+                    {filteredCompanies.length > 0 ? (
                     <div
                       className="flex gap-2 overflow-x-auto pb-2"
                       style={{
@@ -622,21 +623,12 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
                               } else {
                                 setSelectedCompany(employer.company);
                               }
-                              setDisplayedJobsCount(0);
-                              // Re-reveal jobs with animation
+                              // No animation, just instantly filter
                               const filteredJobs = stateJobs.filter((job: StateJob) =>
                                 job.employmentType?.toLowerCase() === selectedEmploymentType &&
                                 (selectedCompany === employer.company ? true : job.company === employer.company)
                               );
-                              if (filteredJobs.length > 0) {
-                                const revealJobs = async () => {
-                                  for (let i = 1; i <= filteredJobs.length; i++) {
-                                    await new Promise(resolve => setTimeout(resolve, 20));
-                                    setDisplayedJobsCount(i);
-                                  }
-                                };
-                                revealJobs();
-                              }
+                              setDisplayedJobsCount(filteredJobs.length); // Show all immediately
                             }}
                           >
                             {employer.logo ? (
@@ -677,6 +669,11 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
                         );
                       })}
                     </div>
+                    ) : (
+                      <div className={`text-[10px] py-2 ${isDark ? 'text-gray-600' : 'text-gray-500'}`}>
+                        No companies with {selectedEmploymentType} positions
+                      </div>
+                    )}
                   </div>
                 );
               })()}
@@ -692,8 +689,8 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
                 {/* Employment Type Tabs */}
                 <div className={`flex gap-1 mb-3 border-b ${isDark ? 'border-gray-800' : 'border-gray-200'}`}>
                   {[
-                    { key: 'full-time', label: 'Full Time' },
-                    { key: 'part-time', label: 'Part Time' },
+                    { key: 'full-time', label: 'FT' },
+                    { key: 'part-time', label: 'PT' },
                     { key: 'internship', label: 'Internship' }
                   ].map((tab) => {
                     const tabKey = tab.key as 'full-time' | 'part-time' | 'internship';
@@ -706,22 +703,13 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
                         onClick={() => {
                           setSelectedEmploymentType(tabKey);
                           setSelectedCompany(null); // Reset company filter when switching tabs
-                          setDisplayedJobsCount(0);
-                          // Re-reveal jobs with animation
+                          // No animation, just instantly filter
                           const filteredJobs = stateJobs.filter((job: StateJob) =>
                             job.employmentType?.toLowerCase() === tabKey
                           );
-                          if (filteredJobs.length > 0) {
-                            const revealJobs = async () => {
-                              for (let i = 1; i <= filteredJobs.length; i++) {
-                                await new Promise(resolve => setTimeout(resolve, 20));
-                                setDisplayedJobsCount(i);
-                              }
-                            };
-                            revealJobs();
-                          }
+                          setDisplayedJobsCount(filteredJobs.length); // Show all immediately
                         }}
-                        className={`text-[10px] px-3 py-1.5 font-medium transition-colors border-b-2 ${
+                        className={`text-[10px] px-3 py-1.5 font-medium transition-colors border-b-2 whitespace-nowrap ${
                           selectedEmploymentType === tabKey
                             ? isDark
                               ? 'text-blue-400 border-blue-400'
