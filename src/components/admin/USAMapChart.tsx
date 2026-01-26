@@ -50,6 +50,9 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
   const [stateTopEmployers, setStateTopEmployers] = useState<Array<{ company: string; logo: string | null; jobCount: number }>>([]);
   const [selectedEmploymentType, setSelectedEmploymentType] = useState<'full-time' | 'part-time' | 'contract' | 'internship'>('full-time');
   const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
+  const [showSourcesPopup, setShowSourcesPopup] = useState(false);
+  const [enabledSources, setEnabledSources] = useState<Record<string, boolean>>({ usajobs: false });
+  const [usajobsData, setUsajobsData] = useState<StateJob[]>([]);
   const jobsCache = useRef<Record<string, { jobs: StateJob[]; avgSalary: number | null; topCity: string | null; topEmployers: Array<{ company: string; logo: string | null; jobCount: number }> }>>({});
 
   useEffect(() => {
@@ -71,6 +74,21 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
     // Fetch USA-wide stats on mount
     fetchUSAJobs();
   }, []);
+
+  useEffect(() => {
+    // Fetch USAJobs data when enabled
+    if (enabledSources.usajobs) {
+      fetchUSAJobsData();
+    } else {
+      setUsajobsData([]);
+      // Refetch current view without USAJobs data
+      if (selectedState) {
+        fetchStateJobs(selectedState);
+      } else {
+        fetchUSAJobs();
+      }
+    }
+  }, [enabledSources.usajobs]);
 
   useEffect(() => {
     if (selectedState) {
@@ -109,19 +127,47 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
     try {
       const response = await fetch(`/api/admin/analytics/usa-jobs`);
       const result = await response.json();
-      const jobs = result.jobs || [];
+      let jobs = result.jobs || [];
+
+      // Merge with USAJobs data if enabled
+      jobs = getMergedJobs(jobs);
+
+      // Recalculate stats with merged data
+      const companyCounts: Record<string, { count: number; logo: string | null }> = {};
+      const cityCounts: Record<string, number> = {};
+
+      jobs.forEach((job: StateJob) => {
+        if (job.company) {
+          if (!companyCounts[job.company]) {
+            companyCounts[job.company] = { count: 0, logo: job.companyLogo };
+          }
+          companyCounts[job.company].count++;
+        }
+        if (job.location) {
+          const city = extractCity(job.location);
+          if (city && city.length > 2) {
+            cityCounts[city] = (cityCounts[city] || 0) + 1;
+          }
+        }
+      });
+
+      const topCity = Object.entries(cityCounts).sort(([, a], [, b]) => b - a)[0]?.[0] || result.topCity;
+      const topEmployers = Object.entries(companyCounts)
+        .sort(([, a], [, b]) => b.count - a.count)
+        .slice(0, 10)
+        .map(([company, data]) => ({ company, logo: data.logo, jobCount: data.count }));
 
       // Cache the results
       jobsCache.current['USA'] = {
         jobs,
         avgSalary: result.avgSalary,
-        topCity: result.topCity,
-        topEmployers: result.topEmployers || []
+        topCity,
+        topEmployers
       };
       setStateJobs(jobs);
       setStateAvgSalary(result.avgSalary);
-      setStateTopCity(result.topCity);
-      setStateTopEmployers(result.topEmployers || []);
+      setStateTopCity(topCity);
+      setStateTopEmployers(topEmployers);
 
       // Show all jobs instantly
       const filteredJobs = jobs.filter((job: StateJob) =>
@@ -162,19 +208,54 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
     try {
       const response = await fetch(`/api/admin/analytics/state-jobs?state=${state}`);
       const result = await response.json();
-      const jobs = result.jobs || [];
+      let jobs = result.jobs || [];
+
+      // Merge with USAJobs data if enabled (filter by state)
+      if (enabledSources.usajobs && usajobsData.length > 0) {
+        const { extractState } = await import('@/lib/location-utils');
+        const stateUSAJobs = usajobsData.filter(job => {
+          const jobState = extractState(job.location);
+          return jobState === state;
+        });
+        jobs = [...jobs, ...stateUSAJobs];
+      }
+
+      // Recalculate stats with merged data
+      const companyCounts: Record<string, { count: number; logo: string | null }> = {};
+      const cityCounts: Record<string, number> = {};
+
+      jobs.forEach((job: StateJob) => {
+        if (job.company) {
+          if (!companyCounts[job.company]) {
+            companyCounts[job.company] = { count: 0, logo: job.companyLogo };
+          }
+          companyCounts[job.company].count++;
+        }
+        if (job.location) {
+          const city = job.location.split(',')[0]?.trim();
+          if (city && city.length > 2) {
+            cityCounts[city] = (cityCounts[city] || 0) + 1;
+          }
+        }
+      });
+
+      const topCity = Object.entries(cityCounts).sort(([, a], [, b]) => b - a)[0]?.[0] || result.topCity;
+      const topEmployers = Object.entries(companyCounts)
+        .sort(([, a], [, b]) => b.count - a.count)
+        .slice(0, 10)
+        .map(([company, data]) => ({ company, logo: data.logo, jobCount: data.count }));
 
       // Cache the results
       jobsCache.current[state] = {
         jobs,
         avgSalary: result.avgSalary,
-        topCity: result.topCity,
-        topEmployers: result.topEmployers || []
+        topCity,
+        topEmployers
       };
       setStateJobs(jobs);
       setStateAvgSalary(result.avgSalary);
-      setStateTopCity(result.topCity);
-      setStateTopEmployers(result.topEmployers || []);
+      setStateTopCity(topCity);
+      setStateTopEmployers(topEmployers);
 
       // Show all jobs instantly - filter by employment type
       const filteredJobs = jobs.filter((job: StateJob) =>
@@ -190,6 +271,36 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
     } finally {
       setLoadingJobs(false);
     }
+  };
+
+  const fetchUSAJobsData = async () => {
+    try {
+      const response = await fetch('/api/admin/analytics/usajobs-data');
+      const result = await response.json();
+      const jobs = result.jobs || [];
+      setUsajobsData(jobs);
+
+      // Clear cache to force refetch with new data
+      jobsCache.current = {};
+
+      // Refetch current view with merged data
+      if (selectedState) {
+        fetchStateJobs(selectedState);
+      } else {
+        fetchUSAJobs();
+      }
+    } catch (error) {
+      console.error('Error fetching USAJobs data:', error);
+      setUsajobsData([]);
+    }
+  };
+
+  // Helper to merge our jobs with USAJobs data
+  const getMergedJobs = (ourJobs: StateJob[]) => {
+    if (!enabledSources.usajobs || usajobsData.length === 0) {
+      return ourJobs;
+    }
+    return [...ourJobs, ...usajobsData];
   };
 
   const handleStateClick = (params: any) => {
@@ -375,7 +486,54 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
                 </p>
               </div>
             </div>
-            {selectedState && (
+            <div className="flex items-center gap-2">
+              {!selectedJob && (
+                <div className="relative">
+                  <button
+                    onClick={() => setShowSourcesPopup(!showSourcesPopup)}
+                    className={`text-[10px] px-3 py-1.5 border font-medium transition-colors ${
+                      isDark
+                        ? 'border-gray-700 text-gray-400 hover:bg-gray-800'
+                        : 'border-gray-300 text-gray-600 hover:bg-gray-50'
+                    }`}
+                  >
+                    Sources {enabledSources.usajobs && <span className="ml-1 text-blue-500">●</span>}
+                  </button>
+                  {showSourcesPopup && (
+                    <div className={`absolute right-0 top-full mt-2 w-48 border shadow-lg z-50 ${
+                      isDark ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'
+                    }`}>
+                      <div className="p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className={`text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                            Data Sources
+                          </span>
+                          <button
+                            onClick={() => setShowSourcesPopup(false)}
+                            className={`text-[10px] ${isDark ? 'text-gray-500 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'}`}
+                          >
+                            ✕
+                          </button>
+                        </div>
+                        <label className="flex items-center justify-between py-2 cursor-pointer">
+                          <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                            USAJobs.gov
+                          </span>
+                          <input
+                            type="checkbox"
+                            checked={enabledSources.usajobs}
+                            onChange={(e) => {
+                              setEnabledSources({ ...enabledSources, usajobs: e.target.checked });
+                            }}
+                            className="w-4 h-4"
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+              {selectedState && (
               <button
                 onClick={() => {
                   setSelectedJob(null);
@@ -390,7 +548,8 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
-            )}
+              )}
+            </div>
           </div>
 
           {/* Job Detail View */}
