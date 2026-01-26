@@ -271,6 +271,9 @@ model Job {
   isActive        Boolean  @default(true)
   viewCount       Int      @default(0)
 
+  // Full-text search (computed by PostgreSQL trigger)
+  searchVector    String?  @db.Text
+
   // Relations
   savedBy         SavedJob[]
   applications    JobApplication[]
@@ -286,6 +289,17 @@ model Job {
   @@index([company, title])
   @@index([lastSyncedAt])
   @@index([syncStatus])
+
+  // NEW INDEXES FOR 100k+ SCALE:
+
+  // Salary range queries
+  @@index([salaryMin, salaryMax, salaryCurrency])
+
+  // Common filter combinations
+  @@index([isActive, category, locationType])
+  @@index([isActive, experienceLevel, publishedAt(sort: Desc)])
+  @@index([isActive, employmentType, publishedAt(sort: Desc)])
+
   @@map("jobs")
 }
 

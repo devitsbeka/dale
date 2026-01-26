@@ -6,6 +6,10 @@
     {
       "path": "/api/cron/sync-jobs-daily",
       "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/refresh-job-stats",
+      "schedule": "*/5 * * * *"
     }
   ]
 }
