@@ -17,12 +17,20 @@ interface StateJob {
   id: string;
   title: string;
   company: string;
+  companyLogo: string | null;
+  companyUrl: string | null;
   location: string;
   salaryMin: number | null;
   salaryMax: number | null;
   salaryCurrency: string | null;
   category: string | null;
   experienceLevel: string | null;
+  employmentType: string | null;
+  description: string;
+  requirements: string | null;
+  benefits: string | null;
+  tags: string[];
+  applyUrl: string;
   publishedAt: Date;
   source: string;
 }
@@ -30,6 +38,7 @@ interface StateJob {
 export default function USAMapChart({ data, style, isDark = true }: USAMapChartProps) {
   const [mapRegistered, setMapRegistered] = useState(false);
   const [selectedState, setSelectedState] = useState<string | null>(null);
+  const [selectedJob, setSelectedJob] = useState<StateJob | null>(null);
   const [stateJobs, setStateJobs] = useState<StateJob[]>([]);
   const [loadingJobs, setLoadingJobs] = useState(false);
 
@@ -207,12 +216,32 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
         >
           {/* Header */}
           <div className="flex items-start justify-between mb-4">
-            <div>
-              <h3 className={`text-lg font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{stateInfo.name}</h3>
-              <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>State Information</p>
+            <div className="flex items-center gap-2">
+              {selectedJob && (
+                <button
+                  onClick={() => setSelectedJob(null)}
+                  className={`${isDark ? 'text-gray-400 hover:text-gray-200' : 'text-gray-600 hover:text-gray-900'} transition-colors`}
+                  title="Back to state"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                </button>
+              )}
+              <div>
+                <h3 className={`text-lg font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                  {selectedJob ? selectedJob.title : stateInfo.name}
+                </h3>
+                <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
+                  {selectedJob ? selectedJob.company : 'State Information'}
+                </p>
+              </div>
             </div>
             <button
-              onClick={() => setSelectedState(null)}
+              onClick={() => {
+                setSelectedJob(null);
+                setSelectedState(null);
+              }}
               className={`${isDark ? 'text-gray-400 hover:text-gray-200' : 'text-gray-600 hover:text-gray-900'} transition-colors`}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -221,67 +250,206 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
             </button>
           </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-2 gap-3 mb-4">
-            <div className={`border p-3 ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
-              <div className={`text-[10px] uppercase tracking-wide ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>Population</div>
-              <div className={`text-sm font-semibold mt-1 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{stateInfo.population.toLocaleString()}</div>
-            </div>
-            <div className={`border p-3 ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
-              <div className={`text-[10px] uppercase tracking-wide ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>Cost of Living</div>
-              <div className={`text-sm font-semibold mt-1 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{getCostOfLivingLabel(stateInfo.costOfLiving)}</div>
-            </div>
-          </div>
-
-          {/* Top Cities */}
-          <div className="mb-4">
-            <h4 className={`text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>Top Cities</h4>
-            <div className="space-y-1">
-              {stateInfo.topCities.map((city, idx) => (
-                <div key={idx} className={`text-xs flex items-center gap-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                  <span className={isDark ? 'text-gray-600' : 'text-gray-400'}>{idx + 1}.</span>
-                  <span>{city}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Jobs List */}
-          <div>
-            <h4 className={`text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>
-              Jobs in {stateInfo.name} ({stateJobs.length})
-            </h4>
-            {loadingJobs ? (
-              <div className={`text-xs py-4 ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Loading jobs...</div>
-            ) : stateJobs.length === 0 ? (
-              <div className={`text-xs py-4 ${isDark ? 'text-gray-600' : 'text-gray-500'}`}>No jobs found in this state</div>
-            ) : (
-              <div className="space-y-2">
-                {stateJobs.map((job) => (
-                  <div key={job.id} className={`border p-2 transition-colors ${
-                    isDark
-                      ? 'border-gray-800 bg-gray-900/30 hover:bg-gray-900/50'
-                      : 'border-gray-200 bg-gray-50 hover:bg-gray-100'
-                  }`}>
-                    <div className={`text-xs font-medium mb-1 ${isDark ? 'text-gray-200' : 'text-gray-900'}`}>{job.title}</div>
-                    <div className={`text-[10px] ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>{job.company}</div>
-                    {(job.salaryMin || job.salaryMax) && (
-                      <div className={`text-[10px] mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                        {job.salaryMin && job.salaryMax
-                          ? `$${job.salaryMin.toLocaleString()} - $${job.salaryMax.toLocaleString()}`
-                          : job.salaryMin
-                          ? `From $${job.salaryMin.toLocaleString()}`
-                          : `Up to $${job.salaryMax?.toLocaleString()}`}
-                      </div>
-                    )}
-                    {job.category && (
-                      <div className="text-[10px] text-blue-500 mt-1">{job.category}</div>
-                    )}
+          {/* Job Detail View */}
+          {selectedJob ? (
+            <div className="space-y-4">
+              {/* Company Info */}
+              <div className="flex items-start gap-3">
+                {selectedJob.companyLogo && (
+                  <img
+                    src={selectedJob.companyLogo}
+                    alt={selectedJob.company}
+                    className={`w-12 h-12 object-contain border ${isDark ? 'border-gray-800 bg-gray-900' : 'border-gray-200 bg-white'} p-1`}
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  />
+                )}
+                <div className="flex-1">
+                  <div className={`text-xs font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                    {selectedJob.company}
                   </div>
-                ))}
+                  <div className={`text-[10px] ${isDark ? 'text-gray-600' : 'text-gray-500'}`}>
+                    {selectedJob.location}
+                  </div>
+                </div>
               </div>
-            )}
-          </div>
+
+              {/* Job Meta */}
+              <div className="grid grid-cols-2 gap-2">
+                {selectedJob.category && (
+                  <div className={`border p-2 ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
+                    <div className={`text-[10px] uppercase tracking-wide ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>Category</div>
+                    <div className={`text-xs font-medium mt-0.5 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{selectedJob.category}</div>
+                  </div>
+                )}
+                {selectedJob.experienceLevel && (
+                  <div className={`border p-2 ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
+                    <div className={`text-[10px] uppercase tracking-wide ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>Level</div>
+                    <div className={`text-xs font-medium mt-0.5 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{selectedJob.experienceLevel}</div>
+                  </div>
+                )}
+                {selectedJob.employmentType && (
+                  <div className={`border p-2 ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
+                    <div className={`text-[10px] uppercase tracking-wide ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>Type</div>
+                    <div className={`text-xs font-medium mt-0.5 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{selectedJob.employmentType}</div>
+                  </div>
+                )}
+                {(selectedJob.salaryMin || selectedJob.salaryMax) && (
+                  <div className={`border p-2 ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
+                    <div className={`text-[10px] uppercase tracking-wide ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>Salary</div>
+                    <div className={`text-xs font-medium mt-0.5 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                      {selectedJob.salaryMin && selectedJob.salaryMax
+                        ? `$${selectedJob.salaryMin.toLocaleString()} - $${selectedJob.salaryMax.toLocaleString()}`
+                        : selectedJob.salaryMin
+                        ? `From $${selectedJob.salaryMin.toLocaleString()}`
+                        : `Up to $${selectedJob.salaryMax?.toLocaleString()}`}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Tags */}
+              {selectedJob.tags && selectedJob.tags.length > 0 && (
+                <div>
+                  <h4 className={`text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>Skills</h4>
+                  <div className="flex flex-wrap gap-1">
+                    {selectedJob.tags.map((tag, idx) => (
+                      <span
+                        key={idx}
+                        className={`text-[10px] px-2 py-0.5 ${isDark ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-700'}`}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Description */}
+              <div>
+                <h4 className={`text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>Description</h4>
+                <div
+                  className={`text-[11px] leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-700'}`}
+                  dangerouslySetInnerHTML={{ __html: selectedJob.description.substring(0, 800) + (selectedJob.description.length > 800 ? '...' : '') }}
+                />
+              </div>
+
+              {/* Requirements */}
+              {selectedJob.requirements && (
+                <div>
+                  <h4 className={`text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>Requirements</h4>
+                  <div
+                    className={`text-[11px] leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-700'}`}
+                    dangerouslySetInnerHTML={{ __html: selectedJob.requirements.substring(0, 600) + (selectedJob.requirements.length > 600 ? '...' : '') }}
+                  />
+                </div>
+              )}
+
+              {/* Benefits */}
+              {selectedJob.benefits && (
+                <div>
+                  <h4 className={`text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>Benefits</h4>
+                  <div
+                    className={`text-[11px] leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-700'}`}
+                    dangerouslySetInnerHTML={{ __html: selectedJob.benefits.substring(0, 400) + (selectedJob.benefits.length > 400 ? '...' : '') }}
+                  />
+                </div>
+              )}
+
+              {/* Apply Button */}
+              <a
+                href={selectedJob.applyUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`block text-center text-xs font-medium py-2 px-4 border ${
+                  isDark
+                    ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'
+                    : 'bg-blue-500 text-white border-blue-500 hover:bg-blue-600'
+                } transition-colors`}
+              >
+                Apply Now
+              </a>
+            </div>
+          ) : (
+            <>
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className={`border p-3 ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
+                  <div className={`text-[10px] uppercase tracking-wide ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>Population</div>
+                  <div className={`text-sm font-semibold mt-1 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{stateInfo.population.toLocaleString()}</div>
+                </div>
+                <div className={`border p-3 ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
+                  <div className={`text-[10px] uppercase tracking-wide ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>Cost of Living</div>
+                  <div className={`text-sm font-semibold mt-1 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{getCostOfLivingLabel(stateInfo.costOfLiving)}</div>
+                </div>
+              </div>
+
+              {/* Top Cities */}
+              <div className="mb-4">
+                <h4 className={`text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>Top Cities</h4>
+                <div className="space-y-1">
+                  {stateInfo.topCities.map((city, idx) => (
+                    <div key={idx} className={`text-xs flex items-center gap-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                      <span className={isDark ? 'text-gray-600' : 'text-gray-400'}>{idx + 1}.</span>
+                      <span>{city}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Jobs List */}
+              <div>
+                <h4 className={`text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>
+                  Jobs in {stateInfo.name} ({stateJobs.length})
+                </h4>
+                {loadingJobs ? (
+                  <div className={`text-xs py-4 ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Loading jobs...</div>
+                ) : stateJobs.length === 0 ? (
+                  <div className={`text-xs py-4 ${isDark ? 'text-gray-600' : 'text-gray-500'}`}>No jobs found in this state</div>
+                ) : (
+                  <div className="space-y-2">
+                    {stateJobs.map((job) => (
+                      <div
+                        key={job.id}
+                        onClick={() => setSelectedJob(job)}
+                        className={`border p-2 transition-colors cursor-pointer ${
+                          isDark
+                            ? 'border-gray-800 bg-gray-900/30 hover:bg-gray-900/50 hover:border-blue-500'
+                            : 'border-gray-200 bg-gray-50 hover:bg-gray-100 hover:border-blue-400'
+                        }`}
+                      >
+                        <div className="flex items-start gap-2">
+                          {job.companyLogo && (
+                            <img
+                              src={job.companyLogo}
+                              alt={job.company}
+                              className={`w-8 h-8 object-contain border ${isDark ? 'border-gray-800 bg-gray-900' : 'border-gray-200 bg-white'} p-0.5 flex-shrink-0`}
+                              onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                            />
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <div className={`text-xs font-medium mb-1 ${isDark ? 'text-gray-200' : 'text-gray-900'}`}>{job.title}</div>
+                            <div className={`text-[10px] ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>{job.company}</div>
+                            {(job.salaryMin || job.salaryMax) && (
+                              <div className={`text-[10px] mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                {job.salaryMin && job.salaryMax
+                                  ? `$${job.salaryMin.toLocaleString()} - $${job.salaryMax.toLocaleString()}`
+                                  : job.salaryMin
+                                  ? `From $${job.salaryMin.toLocaleString()}`
+                                  : `Up to $${job.salaryMax?.toLocaleString()}`}
+                              </div>
+                            )}
+                            {job.category && (
+                              <div className="text-[10px] text-blue-500 mt-1">{job.category}</div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
         </div>
         )}
       </div>
