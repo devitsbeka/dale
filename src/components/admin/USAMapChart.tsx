@@ -68,12 +68,86 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
   }, []);
 
   useEffect(() => {
+    // Fetch USA-wide stats on mount
+    fetchUSAJobs();
+  }, []);
+
+  useEffect(() => {
     if (selectedState) {
       setSelectedEmploymentType('full-time');
       setSelectedCompany(null);
       fetchStateJobs(selectedState);
     }
   }, [selectedState]);
+
+  const fetchUSAJobs = async () => {
+    // Check cache first
+    if (jobsCache.current['USA']) {
+      const cached = jobsCache.current['USA'];
+      setStateJobs(cached.jobs);
+      setStateAvgSalary(cached.avgSalary);
+      setStateTopCity(cached.topCity);
+      setStateTopEmployers(cached.topEmployers);
+      setDisplayedJobsCount(0);
+
+      // Progressively reveal cached jobs (faster)
+      const filteredJobs = cached.jobs.filter((job: StateJob) =>
+        job.employmentType?.toLowerCase() === 'full-time'
+      );
+      if (filteredJobs.length > 0) {
+        const revealJobs = async () => {
+          for (let i = 1; i <= Math.min(filteredJobs.length, 50); i++) {
+            await new Promise(resolve => setTimeout(resolve, 10));
+            setDisplayedJobsCount(i);
+          }
+        };
+        revealJobs();
+      }
+      return;
+    }
+
+    setLoadingJobs(true);
+    setDisplayedJobsCount(0);
+    try {
+      const response = await fetch(`/api/admin/analytics/usa-jobs`);
+      const result = await response.json();
+      const jobs = result.jobs || [];
+
+      // Cache the results
+      jobsCache.current['USA'] = {
+        jobs,
+        avgSalary: result.avgSalary,
+        topCity: result.topCity,
+        topEmployers: result.topEmployers || []
+      };
+      setStateJobs(jobs);
+      setStateAvgSalary(result.avgSalary);
+      setStateTopCity(result.topCity);
+      setStateTopEmployers(result.topEmployers || []);
+
+      // Progressively reveal jobs - show first 50
+      const filteredJobs = jobs.filter((job: StateJob) =>
+        job.employmentType?.toLowerCase() === 'full-time'
+      );
+      if (filteredJobs.length > 0) {
+        const revealJobs = async () => {
+          for (let i = 1; i <= Math.min(filteredJobs.length, 50); i++) {
+            await new Promise(resolve => setTimeout(resolve, 20));
+            setDisplayedJobsCount(i);
+          }
+        };
+        revealJobs();
+      }
+    } catch (error) {
+      console.error('Error fetching USA jobs:', error);
+      setStateJobs([]);
+      setStateAvgSalary(null);
+      setStateTopCity(null);
+      setStateTopEmployers([]);
+    } finally {
+      setLoadingJobs(false);
+    }
+  };
 
   const fetchStateJobs = async (state: string) => {
     // Check cache first
@@ -276,7 +350,7 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
       <div className="relative flex gap-4" style={style}>
       {/* Map */}
       <div
-        className={`${selectedState ? 'w-2/3' : 'w-full'} relative z-0`}
+        className="w-2/3 relative z-0"
         style={{
           transition: 'width 600ms cubic-bezier(0.4, 0, 0.2, 1)',
         }}
@@ -294,15 +368,15 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
           isDark ? 'border-gray-800 bg-gray-950' : 'border-gray-200 bg-white'
         }`}
         style={{
-          width: selectedState ? '33.333333%' : '0%',
-          opacity: selectedState ? 1 : 0,
-          borderLeftWidth: selectedState ? '1px' : '0px',
-          paddingLeft: selectedState ? '1rem' : '0',
+          width: '33.333333%',
+          opacity: 1,
+          borderLeftWidth: '1px',
+          paddingLeft: '1rem',
           height: style?.height || '500px',
           transition: 'width 600ms cubic-bezier(0.4, 0, 0.2, 1), opacity 500ms cubic-bezier(0.4, 0, 0.2, 1) 100ms, padding 600ms cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       >
-        {selectedState && stateInfo && (
+        {((selectedState && stateInfo) || !selectedState) && (
         <div className="overflow-y-auto h-full"
           style={{
             animation: 'slideInRight 500ms cubic-bezier(0.4, 0, 0.2, 1) 150ms both'
@@ -324,24 +398,29 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
               )}
               <div>
                 <h3 className={`text-lg font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
-                  {selectedJob ? selectedJob.title : stateInfo.name}
+                  {selectedJob ? selectedJob.title : selectedState ? stateInfo?.name : 'United States'}
                 </h3>
                 <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
-                  {selectedJob ? selectedJob.company : 'State Information'}
+                  {selectedJob ? selectedJob.company : selectedState ? 'State Information' : 'Nationwide Statistics'}
                 </p>
               </div>
             </div>
-            <button
-              onClick={() => {
-                setSelectedJob(null);
-                setSelectedState(null);
-              }}
-              className={`${isDark ? 'text-gray-400 hover:text-gray-200' : 'text-gray-600 hover:text-gray-900'} transition-colors`}
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+            {selectedState && (
+              <button
+                onClick={() => {
+                  setSelectedJob(null);
+                  setSelectedState(null);
+                  setSelectedEmploymentType('full-time');
+                  setSelectedCompany(null);
+                  fetchUSAJobs();
+                }}
+                className={`${isDark ? 'text-gray-400 hover:text-gray-200' : 'text-gray-600 hover:text-gray-900'} transition-colors`}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
           </div>
 
           {/* Job Detail View */}
@@ -598,7 +677,7 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <h4 className={`text-xs font-medium ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>
-                    Jobs in {stateInfo.name}
+                    Jobs in {selectedState ? stateInfo?.name : 'United States'}
                   </h4>
                 </div>
 
