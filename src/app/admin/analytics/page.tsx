@@ -1,5 +1,5 @@
 /**
- * Admin Analytics Dashboard - Professional analytics with ECharts
+ * Admin Analytics - Professional data visualization interface
  */
 
 'use client';
@@ -7,7 +7,6 @@
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import USAMapChart from '@/components/admin/USAMapChart';
-import { Select } from '@/components/base/select/select';
 
 const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
 
@@ -23,7 +22,7 @@ export default function AdminAnalyticsPage() {
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState(30);
 
-  // Chart-specific controls
+  // Chart controls
   const [timelineChartType, setTimelineChartType] = useState<'line' | 'bar'>('line');
   const [salaryChartSeries, setSalaryChartSeries] = useState<string[]>(['Average', 'Median', 'Max']);
   const [categoryChartType, setCategoryChartType] = useState<'pie' | 'bar'>('pie');
@@ -60,241 +59,275 @@ export default function AdminAnalyticsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading analytics...</p>
-        </div>
+      <div className="flex items-center justify-center h-full">
+        <div className="text-gray-500 text-sm">Loading analytics...</div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header with Controls */}
-      <div className="flex justify-between items-center">
+    <div className="flex flex-col h-full">
+      {/* Header Bar */}
+      <div className="h-16 border-b border-gray-800 flex items-center justify-between px-6">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900">Analytics Dashboard</h2>
-          <p className="text-gray-500 mt-1">Real-time insights from {data?.overview?.totalJobs?.toLocaleString() || 0} job listings</p>
+          <h1 className="text-base font-semibold text-gray-100">Analytics</h1>
+          <p className="text-xs text-gray-500 mt-0.5">
+            {data?.overview?.totalJobs?.toLocaleString() || 0} job listings
+          </p>
         </div>
-
-        <div className="w-48">
-          <Select
-            selectedKey={String(dateRange)}
-            onSelectionChange={(key) => setDateRange(Number(key))}
-            items={[
-              { id: '7', label: 'Last 7 days' },
-              { id: '30', label: 'Last 30 days' },
-              { id: '90', label: 'Last 90 days' },
-              { id: '180', label: 'Last 6 months' },
-              { id: '365', label: 'Last year' },
-            ]}
-            size="md"
+        <div className="flex items-center gap-3">
+          <select
+            value={dateRange}
+            onChange={(e) => setDateRange(Number(e.target.value))}
+            className="px-3 py-1.5 text-xs bg-gray-800 border border-gray-700 text-gray-300 focus:outline-none focus:border-gray-600"
           >
-            {(item) => <Select.Item id={item.id}>{item.label}</Select.Item>}
-          </Select>
+            <option value={7}>Last 7 days</option>
+            <option value={30}>Last 30 days</option>
+            <option value={90}>Last 90 days</option>
+            <option value={180}>Last 6 months</option>
+            <option value={365}>Last year</option>
+          </select>
+          <button
+            onClick={fetchAnalytics}
+            className="px-3 py-1.5 text-xs font-medium bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 transition-colors"
+          >
+            Refresh
+          </button>
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <KPICard title="Total Jobs" value={data?.overview?.totalJobs} color="blue" />
-        <KPICard title="Active Jobs" value={data?.overview?.activeJobs} color="green" />
-        <KPICard title="Avg Salary" value={`$${(data?.overview?.avgSalary || 0).toLocaleString()}`} color="purple" />
-        <KPICard title="Quality Score" value={`${Number(data?.overview?.avgQualityScore || 0).toFixed(1)}%`} color="orange" />
-      </div>
-
-      {/* Main Timeline Chart */}
-      <ChartCard
-        title="Jobs Posted Over Time"
-        description="Daily new job listings by category"
-        actions={
-          <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
-            <button
-              onClick={() => setTimelineChartType('line')}
-              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                timelineChartType === 'line'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Line
-            </button>
-            <button
-              onClick={() => setTimelineChartType('bar')}
-              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                timelineChartType === 'bar'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Bar
-            </button>
+      {/* Content */}
+      <div className="flex-1 overflow-auto p-4">
+        <div className="max-w-[1920px] mx-auto space-y-4">
+          {/* KPI Grid */}
+          <div className="grid grid-cols-4 gap-3">
+            <MetricPanel
+              label="Total Jobs"
+              value={data?.overview?.totalJobs?.toLocaleString() || '0'}
+            />
+            <MetricPanel
+              label="Active"
+              value={data?.overview?.activeJobs?.toLocaleString() || '0'}
+            />
+            <MetricPanel
+              label="Avg Salary"
+              value={`$${(data?.overview?.avgSalary || 0).toLocaleString()}`}
+            />
+            <MetricPanel
+              label="Quality"
+              value={`${Number(data?.overview?.avgQualityScore || 0).toFixed(1)}%`}
+            />
           </div>
-        }
-      >
-        <ReactECharts option={getTimelineChartOption(data?.timeseries, timelineChartType)} style={{ height: '400px' }} />
-      </ChartCard>
 
-      {/* Two Column Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ChartCard
-          title="Jobs by Source"
-          description="Stacked area showing contribution by platform"
-          actions={
-            <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
-              <button
-                onClick={() => setSourceStackMode('stack')}
-                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                  sourceStackMode === 'stack'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                Stacked
-              </button>
-              <button
-                onClick={() => setSourceStackMode('line')}
-                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                  sourceStackMode === 'line'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                Lines
-              </button>
-            </div>
-          }
-        >
-          <ReactECharts option={getSourceStackChartOption(data?.timeseries, sourceStackMode)} style={{ height: '350px' }} />
-        </ChartCard>
+          {/* Main Timeline */}
+          <ChartPanel
+            title="Jobs Posted Over Time"
+            actions={
+              <ToggleGroup
+                value={timelineChartType}
+                onChange={setTimelineChartType}
+                options={[
+                  { value: 'line', label: 'Line' },
+                  { value: 'bar', label: 'Bar' },
+                ]}
+              />
+            }
+          >
+            <ReactECharts
+              option={getTimelineChartOption(data?.timeseries, timelineChartType)}
+              style={{ height: '350px' }}
+              theme="dark"
+            />
+          </ChartPanel>
 
-        <ChartCard
-          title="Salary Trends"
-          description="Average, median, and maximum salaries"
-          actions={
-            <div className="flex gap-1">
-              {['Average', 'Median', 'Max'].map((series) => (
-                <button
-                  key={series}
-                  onClick={() => {
-                    setSalaryChartSeries((prev) =>
-                      prev.includes(series) ? prev.filter((s) => s !== series) : [...prev, series]
-                    );
-                  }}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                    salaryChartSeries.includes(series)
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  {series}
-                </button>
-              ))}
-            </div>
-          }
-        >
-          <ReactECharts option={getSalaryTrendsChartOption(data?.timeseries, salaryChartSeries)} style={{ height: '350px' }} />
-        </ChartCard>
+          {/* Two Column */}
+          <div className="grid grid-cols-2 gap-3">
+            <ChartPanel
+              title="Jobs by Source"
+              actions={
+                <ToggleGroup
+                  value={sourceStackMode}
+                  onChange={setSourceStackMode}
+                  options={[
+                    { value: 'stack', label: 'Stack' },
+                    { value: 'line', label: 'Lines' },
+                  ]}
+                />
+              }
+            >
+              <ReactECharts
+                option={getSourceStackChartOption(data?.timeseries, sourceStackMode)}
+                style={{ height: '300px' }}
+                theme="dark"
+              />
+            </ChartPanel>
+
+            <ChartPanel
+              title="Salary Trends"
+              actions={
+                <div className="flex gap-1">
+                  {['Average', 'Median', 'Max'].map((series) => (
+                    <button
+                      key={series}
+                      onClick={() => {
+                        setSalaryChartSeries((prev) =>
+                          prev.includes(series) ? prev.filter((s) => s !== series) : [...prev, series]
+                        );
+                      }}
+                      className={`px-2 py-1 text-xs transition-colors ${
+                        salaryChartSeries.includes(series)
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                      }`}
+                    >
+                      {series}
+                    </button>
+                  ))}
+                </div>
+              }
+            >
+              <ReactECharts
+                option={getSalaryTrendsChartOption(data?.timeseries, salaryChartSeries)}
+                style={{ height: '300px' }}
+                theme="dark"
+              />
+            </ChartPanel>
+          </div>
+
+          {/* Heatmap */}
+          <ChartPanel title="Posting Patterns (Hour × Day)">
+            <ReactECharts
+              option={getHeatmapChartOption(data?.timeseries)}
+              style={{ height: '400px' }}
+              theme="dark"
+            />
+          </ChartPanel>
+
+          {/* USA Map */}
+          <ChartPanel
+            title="Onsite Jobs by State"
+            subtitle={`${data?.usaMap?.jobsWithState || 0} jobs across ${data?.usaMap?.data?.length || 0} states`}
+          >
+            <USAMapChart data={data?.usaMap} style={{ height: '500px' }} />
+          </ChartPanel>
+
+          {/* Three Column */}
+          <div className="grid grid-cols-3 gap-3">
+            <ChartPanel
+              title="Categories"
+              actions={
+                <ToggleGroup
+                  value={categoryChartType}
+                  onChange={setCategoryChartType}
+                  options={[
+                    { value: 'pie', label: 'Pie' },
+                    { value: 'bar', label: 'Bar' },
+                  ]}
+                />
+              }
+            >
+              <ReactECharts
+                option={getCategoryChartOption(data?.distribution, categoryChartType)}
+                style={{ height: '280px' }}
+                theme="dark"
+              />
+            </ChartPanel>
+
+            <ChartPanel title="Work Location">
+              <ReactECharts
+                option={getLocationChartOption(data?.distribution)}
+                style={{ height: '280px' }}
+                theme="dark"
+              />
+            </ChartPanel>
+
+            <ChartPanel title="Location Trends">
+              <ReactECharts
+                option={getLocationTrendsOption(data?.timeseries)}
+                style={{ height: '280px' }}
+                theme="dark"
+              />
+            </ChartPanel>
+          </div>
+
+          {/* Quality Trends */}
+          <ChartPanel title="Data Quality Trends">
+            <ReactECharts
+              option={getQualitySparklineOption(data?.timeseries)}
+              style={{ height: '200px' }}
+              theme="dark"
+            />
+          </ChartPanel>
+        </div>
       </div>
-
-      {/* Heatmap */}
-      <ChartCard title="Posting Patterns" description="When companies typically post jobs (hour × day of week)">
-        <ReactECharts option={getHeatmapChartOption(data?.timeseries)} style={{ height: '500px' }} />
-      </ChartCard>
-
-      {/* USA Map */}
-      <ChartCard title="Onsite Jobs by State" description={`${data?.usaMap?.jobsWithState || 0} onsite jobs across ${data?.usaMap?.data?.length || 0} states`}>
-        <USAMapChart data={data?.usaMap} style={{ height: '600px' }} />
-      </ChartCard>
-
-      {/* Three Column Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <ChartCard
-          title="Top Categories"
-          description="Most popular job categories"
-          actions={
-            <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
-              <button
-                onClick={() => setCategoryChartType('pie')}
-                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                  categoryChartType === 'pie'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                Pie
-              </button>
-              <button
-                onClick={() => setCategoryChartType('bar')}
-                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                  categoryChartType === 'bar'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                Bar
-              </button>
-            </div>
-          }
-        >
-          <ReactECharts option={getCategoryChartOption(data?.distribution, categoryChartType)} style={{ height: '300px' }} />
-        </ChartCard>
-
-        <ChartCard title="Work Location" description="Remote vs onsite distribution">
-          <ReactECharts option={getLocationChartOption(data?.distribution)} style={{ height: '300px' }} />
-        </ChartCard>
-
-        <ChartCard title="Location Trends" description="Remote vs onsite over time">
-          <ReactECharts option={getLocationTrendsOption(data?.timeseries)} style={{ height: '300px' }} />
-        </ChartCard>
-      </div>
-
-      {/* Quality Trends */}
-      <ChartCard title="Data Quality Trends" description="Completeness score over time">
-        <ReactECharts option={getQualitySparklineOption(data?.timeseries)} style={{ height: '250px' }} />
-      </ChartCard>
     </div>
   );
 }
 
 // Components
-function KPICard({ title, value, color }: any) {
-  const colorClasses: any = {
-    blue: 'bg-blue-50 border-blue-200 text-blue-900',
-    green: 'bg-green-50 border-green-200 text-green-900',
-    purple: 'bg-purple-50 border-purple-200 text-purple-900',
-    orange: 'bg-orange-50 border-orange-200 text-orange-900',
-  };
-
+function MetricPanel({ label, value }: { label: string; value: string }) {
   return (
-    <div className={`rounded-xl p-6 border-2 ${colorClasses[color]} hover:shadow-lg transition-shadow`}>
-      <div>
-        <p className="text-sm font-medium opacity-75 mb-1">{title}</p>
-        <p className="text-3xl font-bold mt-1">
-          {value !== null && value !== undefined ? (typeof value === 'number' ? value.toLocaleString() : value) : '0'}
-        </p>
-      </div>
+    <div className="border border-gray-800 bg-gray-900/50 px-4 py-3">
+      <div className="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">{label}</div>
+      <div className="text-xl font-semibold text-gray-100 font-mono">{value}</div>
     </div>
   );
 }
 
-function ChartCard({ title, description, actions, children }: any) {
+function ChartPanel({
+  title,
+  subtitle,
+  actions,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  actions?: React.ReactNode;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-      <div className="mb-4 flex items-start justify-between">
-        <div className="flex-1">
-          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-          <p className="text-sm text-gray-500 mt-1">{description}</p>
+    <div className="border border-gray-800 bg-gray-900/50">
+      <div className="border-b border-gray-800 px-4 py-2.5 flex items-center justify-between">
+        <div>
+          <h3 className="text-xs font-medium text-gray-300">{title}</h3>
+          {subtitle && <p className="text-[10px] text-gray-600 mt-0.5">{subtitle}</p>}
         </div>
-        {actions && <div className="flex items-center gap-2 ml-4">{actions}</div>}
+        {actions && <div className="flex items-center gap-2">{actions}</div>}
       </div>
-      {children}
+      <div className="p-3">{children}</div>
     </div>
   );
 }
 
-// Chart Options
+function ToggleGroup({
+  value,
+  onChange,
+  options,
+}: {
+  value: string;
+  onChange: (value: any) => void;
+  options: Array<{ value: string; label: string }>;
+}) {
+  return (
+    <div className="flex gap-0.5 bg-gray-800">
+      {options.map((option) => (
+        <button
+          key={option.value}
+          onClick={() => onChange(option.value)}
+          className={`px-2.5 py-1 text-[10px] font-medium transition-colors ${
+            value === option.value
+              ? 'bg-gray-700 text-gray-100'
+              : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'
+          }`}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// Chart Options (with dark theme)
 function getTimelineChartOption(timeseries: any, chartType: 'line' | 'bar' = 'line') {
   if (!timeseries?.jobsByCategory) return {};
 
@@ -305,7 +338,7 @@ function getTimelineChartOption(timeseries: any, chartType: 'line' | 'bar' = 'li
     name: category,
     type: chartType,
     smooth: chartType === 'line',
-    areaStyle: chartType === 'line' ? { opacity: 0.3 } : undefined,
+    areaStyle: chartType === 'line' ? { opacity: 0.2 } : undefined,
     data: dates.map((date) => {
       const item = timeseries.jobsByCategory.find((d: any) => d.date === date && d.category === category);
       return item ? item.count : 0;
@@ -313,12 +346,24 @@ function getTimelineChartOption(timeseries: any, chartType: 'line' | 'bar' = 'li
   }));
 
   return {
+    backgroundColor: 'transparent',
     tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
-    legend: { bottom: 0, data: categories },
-    xAxis: { type: 'category', boundaryGap: chartType === 'bar', data: dates.map((d) => new Date(String(d)).toLocaleDateString()) },
-    yAxis: { type: 'value', name: 'Jobs Posted' },
+    legend: { bottom: 0, textStyle: { color: '#9ca3af' } },
+    xAxis: {
+      type: 'category',
+      boundaryGap: chartType === 'bar',
+      data: dates.map((d) => new Date(String(d)).toLocaleDateString()),
+      axisLine: { lineStyle: { color: '#374151' } },
+      axisLabel: { color: '#6b7280' },
+    },
+    yAxis: {
+      type: 'value',
+      axisLine: { lineStyle: { color: '#374151' } },
+      splitLine: { lineStyle: { color: '#374151' } },
+      axisLabel: { color: '#6b7280' },
+    },
     series,
-    grid: { left: '3%', right: '4%', bottom: '15%', containLabel: true },
+    grid: { left: '3%', right: '4%', bottom: '12%', top: '5%', containLabel: true },
   };
 }
 
@@ -333,7 +378,6 @@ function getSourceStackChartOption(timeseries: any, mode: 'stack' | 'line' = 'st
     type: 'line',
     stack: mode === 'stack' ? 'Total' : undefined,
     areaStyle: mode === 'stack' ? {} : undefined,
-    emphasis: { focus: 'series' },
     smooth: true,
     data: dates.map((date) => {
       const item = timeseries.jobsBySource.find((d: any) => d.date === date && d.source === source);
@@ -342,12 +386,24 @@ function getSourceStackChartOption(timeseries: any, mode: 'stack' | 'line' = 'st
   }));
 
   return {
-    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
-    legend: { bottom: 0, data: sources },
-    xAxis: { type: 'category', boundaryGap: false, data: dates.map((d) => new Date(String(d)).toLocaleDateString()) },
-    yAxis: { type: 'value', name: mode === 'stack' ? 'Total Jobs' : 'Jobs' },
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'axis' },
+    legend: { bottom: 0, textStyle: { color: '#9ca3af' } },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: dates.map((d) => new Date(String(d)).toLocaleDateString()),
+      axisLine: { lineStyle: { color: '#374151' } },
+      axisLabel: { color: '#6b7280' },
+    },
+    yAxis: {
+      type: 'value',
+      axisLine: { lineStyle: { color: '#374151' } },
+      splitLine: { lineStyle: { color: '#374151' } },
+      axisLabel: { color: '#6b7280' },
+    },
     series,
-    grid: { left: '3%', right: '4%', bottom: '12%', containLabel: true },
+    grid: { left: '3%', right: '4%', bottom: '10%', top: '5%', containLabel: true },
   };
 }
 
@@ -363,8 +419,7 @@ function getSalaryTrendsChartOption(timeseries: any, activeSeries: string[] = ['
       type: 'line',
       smooth: true,
       data: data.map((d: any) => d.avg_salary),
-      areaStyle: { color: 'rgba(99, 102, 241, 0.1)' },
-      itemStyle: { color: '#6366f1' },
+      itemStyle: { color: '#3b82f6' },
     },
     {
       name: 'Median',
@@ -379,19 +434,29 @@ function getSalaryTrendsChartOption(timeseries: any, activeSeries: string[] = ['
       smooth: true,
       data: data.map((d: any) => d.max_salary),
       itemStyle: { color: '#f59e0b' },
-      lineStyle: { type: 'dashed' },
     },
   ];
 
   const filteredSeries = allSeries.filter((s) => activeSeries.includes(s.name));
 
   return {
+    backgroundColor: 'transparent',
     tooltip: { trigger: 'axis' },
-    legend: { data: activeSeries },
-    xAxis: { type: 'category', data: dates },
-    yAxis: { type: 'value', name: 'Salary ($)', axisLabel: { formatter: (val: number) => `$${(val / 1000).toFixed(0)}k` } },
+    legend: { data: activeSeries, textStyle: { color: '#9ca3af' } },
+    xAxis: {
+      type: 'category',
+      data: dates,
+      axisLine: { lineStyle: { color: '#374151' } },
+      axisLabel: { color: '#6b7280' },
+    },
+    yAxis: {
+      type: 'value',
+      axisLine: { lineStyle: { color: '#374151' } },
+      splitLine: { lineStyle: { color: '#374151' } },
+      axisLabel: { color: '#6b7280', formatter: (val: number) => `$${(val / 1000).toFixed(0)}k` },
+    },
     series: filteredSeries,
-    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+    grid: { left: '3%', right: '4%', bottom: '3%', top: '8%', containLabel: true },
   };
 }
 
@@ -400,24 +465,37 @@ function getHeatmapChartOption(timeseries: any) {
 
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const hours = Array.from({ length: 24 }, (_, i) => `${i}:00`);
-
   const data = timeseries.hourlyPatterns.map((item: any) => [item.hour, item.day_of_week, item.count || 0]);
 
   return {
+    backgroundColor: 'transparent',
     tooltip: { position: 'top' },
-    grid: { height: '85%', top: '2%' },
-    xAxis: { type: 'category', data: hours, splitArea: { show: true } },
-    yAxis: { type: 'category', data: days, splitArea: { show: true } },
+    grid: { height: '80%', top: '5%' },
+    xAxis: {
+      type: 'category',
+      data: hours,
+      splitArea: { show: true },
+      axisLine: { lineStyle: { color: '#374151' } },
+      axisLabel: { color: '#6b7280' },
+    },
+    yAxis: {
+      type: 'category',
+      data: days,
+      splitArea: { show: true },
+      axisLine: { lineStyle: { color: '#374151' } },
+      axisLabel: { color: '#6b7280' },
+    },
     visualMap: {
       min: 0,
       max: Math.max(...data.map((d: any) => d[2]), 1),
       calculable: true,
       orient: 'horizontal',
       left: 'center',
-      bottom: '0%',
-      inRange: { color: ['#e0f2fe', '#0ea5e9', '#0369a1'] },
+      bottom: '2%',
+      textStyle: { color: '#9ca3af' },
+      inRange: { color: ['#1e293b', '#0ea5e9', '#0369a1'] },
     },
-    series: [{ name: 'Jobs Posted', type: 'heatmap', data, label: { show: false }, emphasis: { itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0, 0, 0, 0.5)' } } }],
+    series: [{ type: 'heatmap', data, label: { show: false } }],
   };
 }
 
@@ -428,31 +506,39 @@ function getCategoryChartOption(distribution: any, chartType: 'pie' | 'bar' = 'p
 
   if (chartType === 'bar') {
     return {
-      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
-      xAxis: { type: 'value' },
-      yAxis: { type: 'category', data: data.map((d: any) => d.name).reverse() },
+      backgroundColor: 'transparent',
+      tooltip: { trigger: 'axis' },
+      xAxis: {
+        type: 'value',
+        axisLine: { lineStyle: { color: '#374151' } },
+        splitLine: { lineStyle: { color: '#374151' } },
+        axisLabel: { color: '#6b7280' },
+      },
+      yAxis: {
+        type: 'category',
+        data: data.map((d: any) => d.name).reverse(),
+        axisLine: { lineStyle: { color: '#374151' } },
+        axisLabel: { color: '#6b7280' },
+      },
       series: [
         {
           type: 'bar',
           data: data.map((d: any) => d.value).reverse(),
-          itemStyle: { borderRadius: [0, 4, 4, 0] },
-          label: { show: true, position: 'right' },
+          itemStyle: { color: '#3b82f6' },
         },
       ],
-      grid: { left: '25%', right: '10%', bottom: '3%', top: '3%', containLabel: true },
+      grid: { left: '25%', right: '5%', bottom: '3%', top: '3%' },
     };
   }
 
   return {
-    tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'item' },
     series: [
       {
         type: 'pie',
         radius: ['40%', '70%'],
-        avoidLabelOverlap: false,
-        itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
-        label: { show: true, formatter: '{b}\n{d}%' },
-        emphasis: { label: { show: true, fontSize: 14, fontWeight: 'bold' } },
+        label: { color: '#9ca3af' },
         data: data.map((d: any) => ({ value: d.value, name: d.name })),
       },
     ],
@@ -463,13 +549,13 @@ function getLocationChartOption(distribution: any) {
   if (!distribution?.locationTypes) return {};
 
   return {
+    backgroundColor: 'transparent',
     tooltip: { trigger: 'item' },
     series: [
       {
         type: 'pie',
         radius: ['40%', '70%'],
-        itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
-        label: { formatter: '{b}\n{d}%' },
+        label: { color: '#9ca3af' },
         data: distribution.locationTypes.map((d: any) => ({ value: d.value, name: d.name })),
       },
     ],
@@ -486,7 +572,6 @@ function getLocationTrendsOption(timeseries: any) {
     name: type,
     type: 'line',
     smooth: true,
-    areaStyle: { opacity: 0.4 },
     data: dates.map((date) => {
       const item = timeseries.locationTypeTrends.find((d: any) => d.date === date && d.location_type === type);
       return item ? item.count : 0;
@@ -494,12 +579,24 @@ function getLocationTrendsOption(timeseries: any) {
   }));
 
   return {
+    backgroundColor: 'transparent',
     tooltip: { trigger: 'axis' },
-    legend: { data: locationTypes, bottom: 0 },
-    xAxis: { type: 'category', boundaryGap: false, data: dates.map((d) => new Date(String(d)).toLocaleDateString()) },
-    yAxis: { type: 'value' },
+    legend: { bottom: 0, textStyle: { color: '#9ca3af' } },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: dates.map((d) => new Date(String(d)).toLocaleDateString()),
+      axisLine: { lineStyle: { color: '#374151' } },
+      axisLabel: { color: '#6b7280' },
+    },
+    yAxis: {
+      type: 'value',
+      axisLine: { lineStyle: { color: '#374151' } },
+      splitLine: { lineStyle: { color: '#374151' } },
+      axisLabel: { color: '#6b7280' },
+    },
     series,
-    grid: { left: '3%', right: '4%', bottom: '15%', containLabel: true },
+    grid: { left: '3%', right: '4%', bottom: '12%', top: '5%', containLabel: true },
   };
 }
 
@@ -511,28 +608,26 @@ function getQualitySparklineOption(timeseries: any) {
   const values = data.map((d: any) => Number(d.avg_quality || 0).toFixed(1));
 
   return {
-    xAxis: { type: 'category', data: dates },
-    yAxis: { type: 'value', name: 'Quality %' },
-    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-    tooltip: { trigger: 'axis', formatter: '{b}: {c}%' },
+    backgroundColor: 'transparent',
+    xAxis: {
+      type: 'category',
+      data: dates,
+      axisLine: { lineStyle: { color: '#374151' } },
+      axisLabel: { color: '#6b7280' },
+    },
+    yAxis: {
+      type: 'value',
+      axisLine: { lineStyle: { color: '#374151' } },
+      splitLine: { lineStyle: { color: '#374151' } },
+      axisLabel: { color: '#6b7280' },
+    },
+    grid: { left: '3%', right: '4%', bottom: '3%', top: '5%', containLabel: true },
+    tooltip: { trigger: 'axis' },
     series: [
       {
         type: 'line',
         smooth: true,
         data: values,
-        areaStyle: {
-          color: {
-            type: 'linear',
-            x: 0,
-            y: 0,
-            x2: 0,
-            y2: 1,
-            colorStops: [
-              { offset: 0, color: 'rgba(249, 115, 22, 0.3)' },
-              { offset: 1, color: 'rgba(249, 115, 22, 0.05)' },
-            ],
-          },
-        },
         itemStyle: { color: '#f97316' },
       },
     ],

@@ -40,6 +40,7 @@ export default function USAMapChart({ data, style }: USAMapChartProps) {
   const maxValue = Math.max(...data.data.map((d: any) => d.value), 1);
 
   const option = {
+    backgroundColor: 'transparent',
     tooltip: {
       trigger: 'item',
       formatter: (params: any) => {
@@ -47,7 +48,10 @@ export default function USAMapChart({ data, style }: USAMapChartProps) {
           return `${params.name}: ${params.value.toLocaleString()} jobs`;
         }
         return `${params.name}: 0 jobs`;
-      }
+      },
+      backgroundColor: '#1f2937',
+      borderColor: '#374151',
+      textStyle: { color: '#e5e7eb' }
     },
     visualMap: {
       min: 0,
@@ -56,8 +60,9 @@ export default function USAMapChart({ data, style }: USAMapChartProps) {
       bottom: '5%',
       text: ['High', 'Low'],
       calculable: true,
+      textStyle: { color: '#9ca3af' },
       inRange: {
-        color: ['#e0f2fe', '#38bdf8', '#0284c7', '#0369a1', '#075985']
+        color: ['#1e293b', '#0ea5e9', '#0369a1', '#075985']
       }
     },
     series: [

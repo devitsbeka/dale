@@ -1,5 +1,5 @@
 /**
- * Admin Jobs Page - Advanced job management table with bulk operations
+ * Admin Jobs Page - Professional job management interface
  */
 
 'use client';
@@ -51,7 +51,6 @@ export default function AdminJobsPage() {
       });
 
       if (response.ok) {
-        alert('Jobs deleted successfully');
         fetchJobs();
       } else {
         const error = await response.json();
@@ -72,7 +71,6 @@ export default function AdminJobsPage() {
       });
 
       if (response.ok) {
-        alert('Jobs updated successfully');
         fetchJobs();
       } else {
         const error = await response.json();
@@ -85,29 +83,50 @@ export default function AdminJobsPage() {
   };
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Job Management</h2>
-        <div className="text-sm text-gray-500">
-          {total.toLocaleString()} total jobs
+    <div className="flex flex-col h-full">
+      {/* Header Bar */}
+      <div className="h-16 border-b border-gray-800 flex items-center justify-between px-6">
+        <div>
+          <h1 className="text-base font-semibold text-gray-100">Job Management</h1>
+          <p className="text-xs text-gray-500 mt-0.5">
+            {loading ? 'Loading...' : `${total.toLocaleString()} total jobs`}
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={fetchJobs}
+            className="px-3 py-1.5 text-xs font-medium bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 transition-colors"
+          >
+            Refresh
+          </button>
+          <button
+            className="px-3 py-1.5 text-xs font-medium bg-blue-600 hover:bg-blue-500 text-white transition-colors"
+          >
+            Export Selected
+          </button>
         </div>
       </div>
 
-      {loading && <div className="text-center py-8">Loading jobs...</div>}
-
-      {!loading && (
-        <JobsTable
-          jobs={jobs}
-          total={total}
-          page={page}
-          pageSize={pageSize}
-          onPageChange={setPage}
-          onPageSizeChange={setPageSize}
-          onFiltersChange={setFilters}
-          onBulkDelete={handleBulkDelete}
-          onBulkUpdate={handleBulkUpdate}
-        />
-      )}
+      {/* Content */}
+      <div className="flex-1 overflow-auto">
+        {loading ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-gray-500 text-sm">Loading jobs...</div>
+          </div>
+        ) : (
+          <JobsTable
+            jobs={jobs}
+            total={total}
+            page={page}
+            pageSize={pageSize}
+            onPageChange={setPage}
+            onPageSizeChange={setPageSize}
+            onFiltersChange={setFilters}
+            onBulkDelete={handleBulkDelete}
+            onBulkUpdate={handleBulkUpdate}
+          />
+        )}
+      </div>
     </div>
   );
 }
