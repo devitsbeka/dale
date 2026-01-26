@@ -126,16 +126,13 @@ export async function GET(request: NextRequest) {
         jobCount: data.count
       }));
 
-    // Limit to 50 most recent jobs
-    const limitedJobs = stateJobs.slice(0, 50);
-
     const responseData = {
       state,
       totalJobs: stateJobs.length,
       avgSalary,
       topCity,
       topEmployers,
-      jobs: limitedJobs,
+      jobs: stateJobs,  // Return all jobs (no limit)
       filters: {
         minSalary: minSalary ? parseInt(minSalary) : null,
         maxSalary: maxSalary ? parseInt(maxSalary) : null
