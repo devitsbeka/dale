@@ -289,7 +289,7 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
           min: 1,
           max: 5
         },
-        zoom: 3.54,
+        zoom: 4.2,
         label: {
           show: false,
           emphasis: {
@@ -346,12 +346,20 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
             opacity: 1;
           }
         }
+        .usa-map-panel-scroll {
+          scrollbar-width: none; /* Firefox */
+          -ms-overflow-style: none; /* IE/Edge */
+        }
+        .usa-map-panel-scroll::-webkit-scrollbar {
+          display: none; /* Chrome/Safari/Opera */
+        }
       `}} />
       <div className="relative flex gap-4" style={style}>
       {/* Map */}
       <div
-        className="w-2/3 relative z-0"
+        className="relative z-0"
         style={{
+          width: '70%',
           transition: 'width 600ms cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       >
@@ -368,7 +376,7 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
           isDark ? 'border-gray-800 bg-gray-950' : 'border-gray-200 bg-white'
         }`}
         style={{
-          width: '33.333333%',
+          width: '30%',
           opacity: 1,
           borderLeftWidth: '1px',
           paddingLeft: '1rem',
@@ -377,7 +385,7 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
         }}
       >
         {((selectedState && stateInfo) || !selectedState) && (
-        <div className="overflow-y-auto h-full"
+        <div className="overflow-y-auto h-full usa-map-panel-scroll"
           style={{
             animation: 'slideInRight 500ms cubic-bezier(0.4, 0, 0.2, 1) 150ms both'
           }}
