@@ -153,9 +153,9 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
       trigger: 'item',
       formatter: (params: any) => {
         if (params.value) {
-          return `${params.name}<br/>Avg Salary: $${params.value.toLocaleString()}<br/>Jobs: ${params.data?.jobCount || 0}`;
+          return `${params.name}: ${params.value.toLocaleString()} jobs`;
         }
-        return `${params.name}<br/>Avg Salary: N/A<br/>Jobs: 0`;
+        return `${params.name}: 0 jobs`;
       },
       backgroundColor: isDark ? '#1f2937' : '#ffffff',
       borderColor: isDark ? '#374151' : '#e5e7eb',
@@ -166,13 +166,10 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
       max: maxValue,
       left: 'left',
       bottom: '5%',
-      text: ['High Salary', 'Low Salary'],
+      text: ['High', 'Low'],
       calculable: true,
       textStyle: {
         color: isDark ? '#9ca3af' : '#6b7280'
-      },
-      formatter: (value: number) => {
-        return value > 0 ? `$${Math.round(value / 1000)}k` : '$0';
       },
       inRange: {
         // Clean monochromatic gradient: light grey → dark grey
