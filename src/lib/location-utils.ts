@@ -44,9 +44,11 @@ export function extractState(location: string | null): string | null {
     }
   }
 
-  // Priority 2: Match full state name
+  // Priority 2: Match full state name with WORD BOUNDARIES (not substring)
   for (const [fullName, abbr] of Object.entries(stateAbbreviations)) {
-    if (normalized.toLowerCase().includes(fullName.toLowerCase())) {
+    // Use word boundary regex to avoid partial matches
+    const stateRegex = new RegExp(`\\b${fullName}\\b`, 'i');
+    if (stateRegex.test(normalized)) {
       return abbr;
     }
   }
@@ -84,12 +86,20 @@ export function extractCity(location: string | null): string | null {
 
   const normalized = location.trim();
 
-  // Try to extract city from "City, ST" or "City, State" format
+  // Handle "City, ST" or "City, State" format
   const parts = normalized.split(',').map(p => p.trim());
-  if (parts.length >= 1) {
-    // First part is typically the city
-    return parts[0];
+  if (parts.length >= 2) {
+    // First part is city, unless it's a country
+    const city = parts[0];
+
+    // Exclude invalid city names
+    if (city.length < 2 || city.toLowerCase() === 'remote' || city.toLowerCase() === 'worldwide') {
+      return null;
+    }
+
+    return city;
   }
 
+  // Single token - could be city or state, return null to be safe
   return null;
 }

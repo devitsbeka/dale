@@ -5,6 +5,8 @@ import dynamic from 'next/dynamic';
 import * as echarts from 'echarts';
 import { stateData, getCostOfLivingLabel, stateNameToAbbr } from '@/lib/state-data';
 import { extractCity } from '@/lib/location-utils';
+import { formatJobText } from '@/lib/text-formatting';
+import { getCategoryLabel } from '@/lib/category-utils';
 
 const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
 
@@ -43,6 +45,11 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
   const [stateJobs, setStateJobs] = useState<StateJob[]>([]);
   const [loadingJobs, setLoadingJobs] = useState(false);
   const [displayedJobsCount, setDisplayedJobsCount] = useState(0);
+  const [salaryRange, setSalaryRange] = useState<{min: number; max: number}>({
+    min: 0,
+    max: 300000
+  });
+  const [appliedSalaryRange, setAppliedSalaryRange] = useState<{min: number; max: number} | null>(null);
   const jobsCache = useRef<Record<string, StateJob[]>>({});
 
   useEffect(() => {
@@ -68,8 +75,12 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
 
   const fetchStateJobs = async (state: string) => {
     // Check cache first
-    if (jobsCache.current[state]) {
-      const jobs = jobsCache.current[state];
+    const cacheKey = appliedSalaryRange
+      ? `${state}:${appliedSalaryRange.min}-${appliedSalaryRange.max}`
+      : state;
+
+    if (jobsCache.current[cacheKey]) {
+      const jobs = jobsCache.current[cacheKey];
       setStateJobs(jobs);
       setDisplayedJobsCount(0);
 
@@ -89,12 +100,18 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
     setLoadingJobs(true);
     setDisplayedJobsCount(0);
     try {
-      const response = await fetch(`/api/admin/analytics/state-jobs?state=${state}`);
+      const params = new URLSearchParams({ state });
+      if (appliedSalaryRange) {
+        params.append('minSalary', appliedSalaryRange.min.toString());
+        params.append('maxSalary', appliedSalaryRange.max.toString());
+      }
+
+      const response = await fetch(`/api/admin/analytics/state-jobs?${params}`);
       const result = await response.json();
       const jobs = result.jobs || [];
 
       // Cache the results
-      jobsCache.current[state] = jobs;
+      jobsCache.current[cacheKey] = jobs;
       setStateJobs(jobs);
 
       // Progressively reveal jobs with staggered animation
@@ -154,9 +171,20 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
       bottom: '5%',
       text: ['High', 'Low'],
       calculable: true,
-      textStyle: { color: '#9ca3af' },
+      textStyle: {
+        color: isDark ? '#9ca3af' : '#6b7280'
+      },
       inRange: {
-        color: ['#1e293b', '#0ea5e9', '#0369a1', '#075985']
+        // Clean monochromatic gradient: light grey → dark grey
+        color: isDark
+          ? ['#374151', '#4b5563', '#6b7280', '#9ca3af', '#d1d5db']  // Dark mode: dark to light grey
+          : ['#f3f4f6', '#e5e7eb', '#d1d5db', '#9ca3af', '#6b7280']  // Light mode: light to dark grey
+      },
+      // Make the control handle more visible
+      controller: {
+        inRange: {
+          color: isDark ? '#9ca3af' : '#4b5563'
+        }
       }
     },
     series: [
@@ -179,11 +207,12 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
           }
         },
         itemStyle: {
-          borderColor: '#fff',
+          borderColor: isDark ? '#374151' : '#d1d5db',
           borderWidth: 1,
-          areaColor: '#e5e7eb',
+          // Base area color for all states (very light grey)
+          areaColor: isDark ? '#1f2937' : '#f9fafb',
           emphasis: {
-            areaColor: '#0ea5e9',
+            areaColor: isDark ? '#3b82f6' : '#60a5fa',
             shadowOffsetX: 0,
             shadowOffsetY: 0,
             shadowBlur: 20,
@@ -331,7 +360,7 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
                 {selectedJob.category && (
                   <div className={`border p-2 ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
                     <div className={`text-[10px] uppercase tracking-wide ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>Category</div>
-                    <div className={`text-xs font-medium mt-0.5 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{selectedJob.category}</div>
+                    <div className={`text-xs font-medium mt-0.5 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{getCategoryLabel(selectedJob.category)}</div>
                   </div>
                 )}
                 {selectedJob.experienceLevel && (
@@ -381,8 +410,10 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
               <div>
                 <h4 className={`text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>Description</h4>
                 <div
-                  className={`text-[11px] leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-700'}`}
-                  dangerouslySetInnerHTML={{ __html: selectedJob.description.substring(0, 800) + (selectedJob.description.length > 800 ? '...' : '') }}
+                  className={`text-[11px] leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-700'} whitespace-pre-wrap`}
+                  dangerouslySetInnerHTML={{
+                    __html: formatJobText(selectedJob.description, 800)
+                  }}
                 />
               </div>
 
@@ -391,8 +422,10 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
                 <div>
                   <h4 className={`text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>Requirements</h4>
                   <div
-                    className={`text-[11px] leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-700'}`}
-                    dangerouslySetInnerHTML={{ __html: selectedJob.requirements.substring(0, 600) + (selectedJob.requirements.length > 600 ? '...' : '') }}
+                    className={`text-[11px] leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-700'} whitespace-pre-wrap`}
+                    dangerouslySetInnerHTML={{
+                      __html: formatJobText(selectedJob.requirements, 600)
+                    }}
                   />
                 </div>
               )}
@@ -402,8 +435,10 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
                 <div>
                   <h4 className={`text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>Benefits</h4>
                   <div
-                    className={`text-[11px] leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-700'}`}
-                    dangerouslySetInnerHTML={{ __html: selectedJob.benefits.substring(0, 400) + (selectedJob.benefits.length > 400 ? '...' : '') }}
+                    className={`text-[11px] leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-700'} whitespace-pre-wrap`}
+                    dangerouslySetInnerHTML={{
+                      __html: formatJobText(selectedJob.benefits, 400)
+                    }}
                   />
                 </div>
               )}
@@ -446,6 +481,65 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
                       <span>{city}</span>
                     </div>
                   ))}
+                </div>
+              </div>
+
+              {/* Salary Filter */}
+              <div className="mb-4">
+                <h4 className={`text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>
+                  Salary Range
+                </h4>
+                <div className="space-y-2">
+                  <div className="flex gap-2 items-center">
+                    <input
+                      type="number"
+                      value={salaryRange.min}
+                      onChange={(e) => setSalaryRange(prev => ({ ...prev, min: parseInt(e.target.value) || 0 }))}
+                      className={`w-full px-2 py-1 text-xs border ${
+                        isDark ? 'bg-gray-900 border-gray-800 text-gray-300' : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                      placeholder="Min"
+                    />
+                    <span className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>-</span>
+                    <input
+                      type="number"
+                      value={salaryRange.max}
+                      onChange={(e) => setSalaryRange(prev => ({ ...prev, max: parseInt(e.target.value) || 300000 }))}
+                      className={`w-full px-2 py-1 text-xs border ${
+                        isDark ? 'bg-gray-900 border-gray-800 text-gray-300' : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                      placeholder="Max"
+                    />
+                  </div>
+                  <button
+                    onClick={() => {
+                      setAppliedSalaryRange(salaryRange);
+                      fetchStateJobs(selectedState!);
+                    }}
+                    className={`w-full text-xs py-1 px-2 border ${
+                      isDark
+                        ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'
+                        : 'bg-blue-500 text-white border-blue-500 hover:bg-blue-600'
+                    }`}
+                  >
+                    Apply Filter
+                  </button>
+                  {appliedSalaryRange && (
+                    <button
+                      onClick={() => {
+                        setAppliedSalaryRange(null);
+                        setSalaryRange({ min: 0, max: 300000 });
+                        fetchStateJobs(selectedState!);
+                      }}
+                      className={`w-full text-xs py-1 px-2 border ${
+                        isDark
+                          ? 'border-gray-700 text-gray-400 hover:bg-gray-800'
+                          : 'border-gray-300 text-gray-600 hover:bg-gray-50'
+                      }`}
+                    >
+                      Clear Filter
+                    </button>
+                  )}
                 </div>
               </div>
 

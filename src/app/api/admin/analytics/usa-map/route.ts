@@ -53,17 +53,20 @@ export async function GET() {
       }
     }
 
-    // Convert to array format for ECharts (use full state names for map matching)
-    const data = Object.entries(stateCounts).map(([state, count]) => ({
-      name: abbrToStateName[state] || state, // Convert abbreviation to full name
-      value: count
+    // Create complete data array with ALL states (including 0-count states)
+    const data = Object.entries(abbrToStateName).map(([abbr, name]) => ({
+      name: name,
+      value: stateCounts[abbr] || 0  // 0 for states with no jobs
     })).sort((a, b) => b.value - a.value);
 
+    // Separate stats for states with actual jobs
+    const statesWithJobs = data.filter(d => d.value > 0);
+
     return NextResponse.json({
-      data,
+      data,  // All 51 states
       totalJobs: onsiteJobs.length,
       jobsWithState: data.reduce((sum, item) => sum + item.value, 0),
-      topStates: data.slice(0, 10)
+      topStates: statesWithJobs.slice(0, 10)  // Top 10 excluding 0-count states
     });
   } catch (error) {
     console.error('Error fetching USA map data:', error);

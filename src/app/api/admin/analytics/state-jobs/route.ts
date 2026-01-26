@@ -15,6 +15,8 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const state = searchParams.get('state');
+    const minSalary = searchParams.get('minSalary');
+    const maxSalary = searchParams.get('maxSalary');
 
     if (!state) {
       return NextResponse.json(
@@ -23,7 +25,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const cacheKey = `state-jobs:${state.toUpperCase()}`;
+    const cacheKey = `state-jobs:${state.toUpperCase()}${minSalary ? `:min${minSalary}` : ''}${maxSalary ? `:max${maxSalary}` : ''}`;
     const now = Date.now();
 
     // Check cache
@@ -37,12 +39,22 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    // Build where clause for salary filtering
+    const salaryWhere: any = {};
+    if (minSalary) {
+      salaryWhere.salaryMax = { gte: parseInt(minSalary) };
+    }
+    if (maxSalary) {
+      salaryWhere.salaryMin = { lte: parseInt(maxSalary) };
+    }
+
     // Get all onsite jobs with locations
     const onsiteJobs = await prisma.job.findMany({
       where: {
         locationType: 'onsite',
         isActive: true,
-        location: { not: null }
+        location: { not: null },
+        ...salaryWhere
       },
       select: {
         id: true,
@@ -81,6 +93,10 @@ export async function GET(request: NextRequest) {
       state,
       totalJobs: stateJobs.length,
       jobs: limitedJobs,
+      filters: {
+        minSalary: minSalary ? parseInt(minSalary) : null,
+        maxSalary: maxSalary ? parseInt(maxSalary) : null
+      }
     };
 
     // Update cache
