@@ -146,25 +146,25 @@ export default function AdminAnalyticsPage() {
         <div className="bg-blue-50 rounded-lg p-6">
           <div className="text-sm font-medium text-blue-600 mb-2">Total Jobs</div>
           <div className="text-3xl font-bold text-blue-900">
-            {stats?.totalJobs?.toLocaleString() || 0}
+            {stats?.totalJobs ? Number(stats.totalJobs).toLocaleString() : 0}
           </div>
         </div>
         <div className="bg-green-50 rounded-lg p-6">
           <div className="text-sm font-medium text-green-600 mb-2">Active Jobs</div>
           <div className="text-3xl font-bold text-green-900">
-            {stats?.activeJobs?.toLocaleString() || 0}
+            {stats?.activeJobs ? Number(stats.activeJobs).toLocaleString() : 0}
           </div>
         </div>
         <div className="bg-purple-50 rounded-lg p-6">
           <div className="text-sm font-medium text-purple-600 mb-2">Avg Salary</div>
           <div className="text-3xl font-bold text-purple-900">
-            ${stats?.avgSalary?.toLocaleString() || 0}
+            ${stats?.avgSalary ? Number(stats.avgSalary).toLocaleString() : 0}
           </div>
         </div>
         <div className="bg-orange-50 rounded-lg p-6">
           <div className="text-sm font-medium text-orange-600 mb-2">Quality Score</div>
           <div className="text-3xl font-bold text-orange-900">
-            {stats?.avgQualityScore?.toFixed(1) || 0}
+            {stats?.avgQualityScore ? Number(stats.avgQualityScore).toFixed(1) : '0.0'}
           </div>
         </div>
       </div>
