@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get all onsite jobs with locations
-    const onsiteJobs = await prisma.job.findMany({
+    const allOnsiteJobs = await prisma.job.findMany({
       where: {
         locationType: 'onsite',
         isActive: true,
@@ -75,6 +75,9 @@ export async function GET(request: NextRequest) {
         { id: 'asc' }
       ]
     });
+
+    // Filter to only US jobs (exclude international locations)
+    const onsiteJobs = allOnsiteJobs.filter(job => extractState(job.location) !== null);
 
     // Calculate nationwide average salary from BLS data
     const allStateSalaries = getAllStateSalaries();
