@@ -74,8 +74,15 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
 
   useEffect(() => {
     if (selectedState) {
+      // Clear old data immediately to prevent showing wrong state's data
+      setStateJobs([]);
+      setStateAvgSalary(null);
+      setStateTopCity(null);
+      setStateTopEmployers([]);
+      setDisplayedJobsCount(0);
       setSelectedEmploymentType('full-time');
       setSelectedCompany(null);
+      setLoadingJobs(true);
       fetchStateJobs(selectedState);
     }
   }, [selectedState]);
@@ -88,21 +95,12 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
       setStateAvgSalary(cached.avgSalary);
       setStateTopCity(cached.topCity);
       setStateTopEmployers(cached.topEmployers);
-      setDisplayedJobsCount(0);
 
-      // Progressively reveal cached jobs (faster)
+      // Show all jobs instantly
       const filteredJobs = cached.jobs.filter((job: StateJob) =>
         job.employmentType?.toLowerCase() === 'full-time'
       );
-      if (filteredJobs.length > 0) {
-        const revealJobs = async () => {
-          for (let i = 1; i <= Math.min(filteredJobs.length, 50); i++) {
-            await new Promise(resolve => setTimeout(resolve, 10));
-            setDisplayedJobsCount(i);
-          }
-        };
-        revealJobs();
-      }
+      setDisplayedJobsCount(filteredJobs.length);
       return;
     }
 
@@ -125,19 +123,11 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
       setStateTopCity(result.topCity);
       setStateTopEmployers(result.topEmployers || []);
 
-      // Progressively reveal jobs - show first 50
+      // Show all jobs instantly
       const filteredJobs = jobs.filter((job: StateJob) =>
         job.employmentType?.toLowerCase() === 'full-time'
       );
-      if (filteredJobs.length > 0) {
-        const revealJobs = async () => {
-          for (let i = 1; i <= Math.min(filteredJobs.length, 50); i++) {
-            await new Promise(resolve => setTimeout(resolve, 20));
-            setDisplayedJobsCount(i);
-          }
-        };
-        revealJobs();
-      }
+      setDisplayedJobsCount(filteredJobs.length);
     } catch (error) {
       console.error('Error fetching USA jobs:', error);
       setStateJobs([]);
@@ -157,21 +147,13 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
       setStateAvgSalary(cached.avgSalary);
       setStateTopCity(cached.topCity);
       setStateTopEmployers(cached.topEmployers);
-      setDisplayedJobsCount(0);
 
-      // Progressively reveal cached jobs (faster) - filter by employment type
+      // Show all jobs instantly for cached data
       const filteredJobs = cached.jobs.filter((job: StateJob) =>
         job.employmentType?.toLowerCase() === 'full-time'
       );
-      if (filteredJobs.length > 0) {
-        const revealJobs = async () => {
-          for (let i = 1; i <= filteredJobs.length; i++) {
-            await new Promise(resolve => setTimeout(resolve, 15));
-            setDisplayedJobsCount(i);
-          }
-        };
-        revealJobs();
-      }
+      setDisplayedJobsCount(filteredJobs.length);
+      setLoadingJobs(false);
       return;
     }
 
@@ -194,19 +176,11 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
       setStateTopCity(result.topCity);
       setStateTopEmployers(result.topEmployers || []);
 
-      // Progressively reveal jobs with staggered animation - filter by employment type
+      // Show all jobs instantly - filter by employment type
       const filteredJobs = jobs.filter((job: StateJob) =>
         job.employmentType?.toLowerCase() === 'full-time'
       );
-      if (filteredJobs.length > 0) {
-        const revealJobs = async () => {
-          for (let i = 1; i <= filteredJobs.length; i++) {
-            await new Promise(resolve => setTimeout(resolve, 30));
-            setDisplayedJobsCount(i);
-          }
-        };
-        revealJobs();
-      }
+      setDisplayedJobsCount(filteredJobs.length);
     } catch (error) {
       console.error('Error fetching state jobs:', error);
       setStateJobs([]);
@@ -336,16 +310,6 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
             opacity: 1;
           }
         }
-        @keyframes slideInDown {
-          from {
-            transform: translateY(-10px);
-            opacity: 0;
-          }
-          to {
-            transform: translateY(0);
-            opacity: 1;
-          }
-        }
         .usa-map-panel-scroll {
           scrollbar-width: none; /* Firefox */
           -ms-overflow-style: none; /* IE/Edge */
@@ -359,7 +323,7 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
       <div
         className="relative z-0"
         style={{
-          width: '70%',
+          width: '64%',
           transition: 'width 600ms cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       >
@@ -376,7 +340,7 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
           isDark ? 'border-gray-800 bg-gray-950' : 'border-gray-200 bg-white'
         }`}
         style={{
-          width: '30%',
+          width: '36%',
           opacity: 1,
           borderLeftWidth: '1px',
           paddingLeft: '1rem',
@@ -753,7 +717,15 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
                     (!selectedCompany || job.company === selectedCompany)
                   );
 
-                  return filteredJobs.length === 0 && !loadingJobs ? (
+                  if (loadingJobs && filteredJobs.length === 0) {
+                    return (
+                      <div className="flex items-center justify-center py-8">
+                        <div className={`inline-block animate-spin rounded-full h-8 w-8 border-b-2 ${isDark ? 'border-blue-400' : 'border-blue-600'}`}></div>
+                      </div>
+                    );
+                  }
+
+                  return filteredJobs.length === 0 ? (
                     <div className={`text-xs py-4 ${isDark ? 'text-gray-600' : 'text-gray-500'}`}>
                       No {selectedEmploymentType} jobs found in this state
                     </div>
@@ -768,9 +740,6 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
                             ? 'border-gray-800 bg-gray-900/30 hover:bg-gray-900/50 hover:border-blue-500'
                             : 'border-gray-200 bg-gray-50 hover:bg-gray-100 hover:border-blue-400'
                         }`}
-                        style={{
-                          animation: `slideInDown 300ms cubic-bezier(0.4, 0, 0.2, 1) both`
-                        }}
                       >
                         <div className="flex items-start gap-2">
                           {job.companyLogo && (
