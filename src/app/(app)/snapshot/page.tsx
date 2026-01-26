@@ -110,7 +110,7 @@ export default function SnapshotPage() {
             />
             <StatCard
               label="Data Quality"
-              value={`${(data?.overview?.avgQualityScore || 0).toFixed(1)}%`}
+              value={`${Number(data?.overview?.avgQualityScore || 0).toFixed(1)}%`}
               change="+2%"
               changeType="positive"
               icon="⭐"
