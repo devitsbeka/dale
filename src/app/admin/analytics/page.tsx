@@ -23,6 +23,12 @@ export default function AdminAnalyticsPage() {
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState(30);
 
+  // Chart-specific controls
+  const [timelineChartType, setTimelineChartType] = useState<'line' | 'bar'>('line');
+  const [salaryChartSeries, setSalaryChartSeries] = useState<string[]>(['Average', 'Median', 'Max']);
+  const [categoryChartType, setCategoryChartType] = useState<'pie' | 'bar'>('pie');
+  const [sourceStackMode, setSourceStackMode] = useState<'stack' | 'line'>('stack');
+
   useEffect(() => {
     fetchAnalytics();
   }, [dateRange]);
@@ -99,18 +105,96 @@ export default function AdminAnalyticsPage() {
       </div>
 
       {/* Main Timeline Chart */}
-      <ChartCard title="Jobs Posted Over Time" description="Daily new job listings by category">
-        <ReactECharts option={getTimelineChartOption(data?.timeseries)} style={{ height: '400px' }} />
+      <ChartCard
+        title="Jobs Posted Over Time"
+        description="Daily new job listings by category"
+        actions={
+          <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
+            <button
+              onClick={() => setTimelineChartType('line')}
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                timelineChartType === 'line'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Line
+            </button>
+            <button
+              onClick={() => setTimelineChartType('bar')}
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                timelineChartType === 'bar'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Bar
+            </button>
+          </div>
+        }
+      >
+        <ReactECharts option={getTimelineChartOption(data?.timeseries, timelineChartType)} style={{ height: '400px' }} />
       </ChartCard>
 
       {/* Two Column Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ChartCard title="Jobs by Source" description="Stacked area showing contribution by platform">
-          <ReactECharts option={getSourceStackChartOption(data?.timeseries)} style={{ height: '350px' }} />
+        <ChartCard
+          title="Jobs by Source"
+          description="Stacked area showing contribution by platform"
+          actions={
+            <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
+              <button
+                onClick={() => setSourceStackMode('stack')}
+                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                  sourceStackMode === 'stack'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Stacked
+              </button>
+              <button
+                onClick={() => setSourceStackMode('line')}
+                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                  sourceStackMode === 'line'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Lines
+              </button>
+            </div>
+          }
+        >
+          <ReactECharts option={getSourceStackChartOption(data?.timeseries, sourceStackMode)} style={{ height: '350px' }} />
         </ChartCard>
 
-        <ChartCard title="Salary Trends" description="Average, median, and maximum salaries">
-          <ReactECharts option={getSalaryTrendsChartOption(data?.timeseries)} style={{ height: '350px' }} />
+        <ChartCard
+          title="Salary Trends"
+          description="Average, median, and maximum salaries"
+          actions={
+            <div className="flex gap-1">
+              {['Average', 'Median', 'Max'].map((series) => (
+                <button
+                  key={series}
+                  onClick={() => {
+                    setSalaryChartSeries((prev) =>
+                      prev.includes(series) ? prev.filter((s) => s !== series) : [...prev, series]
+                    );
+                  }}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                    salaryChartSeries.includes(series)
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  {series}
+                </button>
+              ))}
+            </div>
+          }
+        >
+          <ReactECharts option={getSalaryTrendsChartOption(data?.timeseries, salaryChartSeries)} style={{ height: '350px' }} />
         </ChartCard>
       </div>
 
@@ -126,8 +210,35 @@ export default function AdminAnalyticsPage() {
 
       {/* Three Column Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <ChartCard title="Top Categories" description="Most popular job categories">
-          <ReactECharts option={getCategoryChartOption(data?.distribution)} style={{ height: '300px' }} />
+        <ChartCard
+          title="Top Categories"
+          description="Most popular job categories"
+          actions={
+            <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
+              <button
+                onClick={() => setCategoryChartType('pie')}
+                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                  categoryChartType === 'pie'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Pie
+              </button>
+              <button
+                onClick={() => setCategoryChartType('bar')}
+                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                  categoryChartType === 'bar'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Bar
+              </button>
+            </div>
+          }
+        >
+          <ReactECharts option={getCategoryChartOption(data?.distribution, categoryChartType)} style={{ height: '300px' }} />
         </ChartCard>
 
         <ChartCard title="Work Location" description="Remote vs onsite distribution">
@@ -168,12 +279,15 @@ function KPICard({ title, value, color }: any) {
   );
 }
 
-function ChartCard({ title, description, children }: any) {
+function ChartCard({ title, description, actions, children }: any) {
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-        <p className="text-sm text-gray-500 mt-1">{description}</p>
+      <div className="mb-4 flex items-start justify-between">
+        <div className="flex-1">
+          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+          <p className="text-sm text-gray-500 mt-1">{description}</p>
+        </div>
+        {actions && <div className="flex items-center gap-2 ml-4">{actions}</div>}
       </div>
       {children}
     </div>
@@ -181,7 +295,7 @@ function ChartCard({ title, description, children }: any) {
 }
 
 // Chart Options
-function getTimelineChartOption(timeseries: any) {
+function getTimelineChartOption(timeseries: any, chartType: 'line' | 'bar' = 'line') {
   if (!timeseries?.jobsByCategory) return {};
 
   const dates = [...new Set(timeseries.jobsByCategory.map((d: any) => d.date))].sort();
@@ -189,9 +303,9 @@ function getTimelineChartOption(timeseries: any) {
 
   const series = categories.map((category) => ({
     name: category,
-    type: 'line',
-    smooth: true,
-    areaStyle: { opacity: 0.3 },
+    type: chartType,
+    smooth: chartType === 'line',
+    areaStyle: chartType === 'line' ? { opacity: 0.3 } : undefined,
     data: dates.map((date) => {
       const item = timeseries.jobsByCategory.find((d: any) => d.date === date && d.category === category);
       return item ? item.count : 0;
@@ -201,14 +315,14 @@ function getTimelineChartOption(timeseries: any) {
   return {
     tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
     legend: { bottom: 0, data: categories },
-    xAxis: { type: 'category', boundaryGap: false, data: dates.map((d) => new Date(String(d)).toLocaleDateString()) },
+    xAxis: { type: 'category', boundaryGap: chartType === 'bar', data: dates.map((d) => new Date(String(d)).toLocaleDateString()) },
     yAxis: { type: 'value', name: 'Jobs Posted' },
     series,
     grid: { left: '3%', right: '4%', bottom: '15%', containLabel: true },
   };
 }
 
-function getSourceStackChartOption(timeseries: any) {
+function getSourceStackChartOption(timeseries: any, mode: 'stack' | 'line' = 'stack') {
   if (!timeseries?.jobsBySource) return {};
 
   const dates = [...new Set(timeseries.jobsBySource.map((d: any) => d.date))].sort();
@@ -217,9 +331,10 @@ function getSourceStackChartOption(timeseries: any) {
   const series = sources.map((source) => ({
     name: source,
     type: 'line',
-    stack: 'Total',
-    areaStyle: {},
+    stack: mode === 'stack' ? 'Total' : undefined,
+    areaStyle: mode === 'stack' ? {} : undefined,
     emphasis: { focus: 'series' },
+    smooth: true,
     data: dates.map((date) => {
       const item = timeseries.jobsBySource.find((d: any) => d.date === date && d.source === source);
       return item ? item.count : 0;
@@ -230,48 +345,52 @@ function getSourceStackChartOption(timeseries: any) {
     tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
     legend: { bottom: 0, data: sources },
     xAxis: { type: 'category', boundaryGap: false, data: dates.map((d) => new Date(String(d)).toLocaleDateString()) },
-    yAxis: { type: 'value', name: 'Total Jobs' },
+    yAxis: { type: 'value', name: mode === 'stack' ? 'Total Jobs' : 'Jobs' },
     series,
     grid: { left: '3%', right: '4%', bottom: '12%', containLabel: true },
   };
 }
 
-function getSalaryTrendsChartOption(timeseries: any) {
+function getSalaryTrendsChartOption(timeseries: any, activeSeries: string[] = ['Average', 'Median', 'Max']) {
   if (!timeseries?.salaryTrends) return {};
 
   const data = timeseries.salaryTrends;
   const dates = data.map((d: any) => new Date(String(d.date)).toLocaleDateString());
 
+  const allSeries = [
+    {
+      name: 'Average',
+      type: 'line',
+      smooth: true,
+      data: data.map((d: any) => d.avg_salary),
+      areaStyle: { color: 'rgba(99, 102, 241, 0.1)' },
+      itemStyle: { color: '#6366f1' },
+    },
+    {
+      name: 'Median',
+      type: 'line',
+      smooth: true,
+      data: data.map((d: any) => d.median_salary),
+      itemStyle: { color: '#10b981' },
+    },
+    {
+      name: 'Max',
+      type: 'line',
+      smooth: true,
+      data: data.map((d: any) => d.max_salary),
+      itemStyle: { color: '#f59e0b' },
+      lineStyle: { type: 'dashed' },
+    },
+  ];
+
+  const filteredSeries = allSeries.filter((s) => activeSeries.includes(s.name));
+
   return {
     tooltip: { trigger: 'axis' },
-    legend: { data: ['Average', 'Median', 'Max'] },
+    legend: { data: activeSeries },
     xAxis: { type: 'category', data: dates },
     yAxis: { type: 'value', name: 'Salary ($)', axisLabel: { formatter: (val: number) => `$${(val / 1000).toFixed(0)}k` } },
-    series: [
-      {
-        name: 'Average',
-        type: 'line',
-        smooth: true,
-        data: data.map((d: any) => d.avg_salary),
-        areaStyle: { color: 'rgba(99, 102, 241, 0.1)' },
-        itemStyle: { color: '#6366f1' },
-      },
-      {
-        name: 'Median',
-        type: 'line',
-        smooth: true,
-        data: data.map((d: any) => d.median_salary),
-        itemStyle: { color: '#10b981' },
-      },
-      {
-        name: 'Max',
-        type: 'line',
-        smooth: true,
-        data: data.map((d: any) => d.max_salary),
-        itemStyle: { color: '#f59e0b' },
-        lineStyle: { type: 'dashed' },
-      },
-    ],
+    series: filteredSeries,
     grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
   };
 }
@@ -302,10 +421,27 @@ function getHeatmapChartOption(timeseries: any) {
   };
 }
 
-function getCategoryChartOption(distribution: any) {
+function getCategoryChartOption(distribution: any, chartType: 'pie' | 'bar' = 'pie') {
   if (!distribution?.categories) return {};
 
   const data = distribution.categories.slice(0, 10);
+
+  if (chartType === 'bar') {
+    return {
+      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+      xAxis: { type: 'value' },
+      yAxis: { type: 'category', data: data.map((d: any) => d.name).reverse() },
+      series: [
+        {
+          type: 'bar',
+          data: data.map((d: any) => d.value).reverse(),
+          itemStyle: { borderRadius: [0, 4, 4, 0] },
+          label: { show: true, position: 'right' },
+        },
+      ],
+      grid: { left: '25%', right: '10%', bottom: '3%', top: '3%', containLabel: true },
+    };
+  }
 
   return {
     tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
