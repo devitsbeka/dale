@@ -74,10 +74,13 @@ export default function JobLoadPage() {
   const [hasApiKey, setHasApiKey] = useState(false);
   const [actorConfigs, setActorConfigs] = useState<ActorConfig[]>([]);
   const [availableActors, setAvailableActors] = useState<ActorInfo[]>([]);
+  const [loadingActors, setLoadingActors] = useState(true);
 
   // Load API key and actor configs from localStorage on mount
   useEffect(() => {
     const initializeData = async () => {
+      setLoadingActors(true);
+
       // Load API key
       const savedKey = localStorage.getItem('apify_api_token');
       if (savedKey) {
@@ -86,31 +89,51 @@ export default function JobLoadPage() {
         setHasApiKey(true);
       }
 
-      // Load actor configs from localStorage
-      const savedConfigs = localStorage.getItem('apify_actor_configs');
-      let hasStoredConfigs = false;
-
-      if (savedConfigs) {
-        try {
-          const parsedConfigs = JSON.parse(savedConfigs);
-          if (parsedConfigs && parsedConfigs.length > 0) {
-            setActorConfigs(parsedConfigs);
-            hasStoredConfigs = true;
-          }
-        } catch (error) {
-          console.error('Failed to load actor configs:', error);
-        }
-      }
-
-      // Fetch available actors from API
+      // Fetch available actors from API first
       try {
         const response = await fetch('/api/jobload/trigger');
         if (response.ok) {
           const data: AvailableActorsResponse = await response.json();
           setAvailableActors(data.actors);
 
-          // Initialize actor configs if not already loaded from localStorage
-          if (!hasStoredConfigs) {
+          // Load actor configs from localStorage
+          const savedConfigs = localStorage.getItem('apify_actor_configs');
+
+          if (savedConfigs) {
+            try {
+              const parsedConfigs = JSON.parse(savedConfigs);
+              if (parsedConfigs && parsedConfigs.length > 0) {
+                // Merge saved configs with current actors to handle any changes
+                const mergedConfigs = data.actors.map((actor) => {
+                  const saved = parsedConfigs.find((c: ActorConfig) => c.id === actor.id);
+                  return saved || {
+                    ...actor,
+                    enabled: true,
+                    customMaxResults: actor.maxResults,
+                  };
+                });
+                setActorConfigs(mergedConfigs);
+              } else {
+                // Initialize with default configs
+                const initialConfigs: ActorConfig[] = data.actors.map((actor) => ({
+                  ...actor,
+                  enabled: true,
+                  customMaxResults: actor.maxResults,
+                }));
+                setActorConfigs(initialConfigs);
+              }
+            } catch (error) {
+              console.error('Failed to parse actor configs:', error);
+              // Initialize with default configs on error
+              const initialConfigs: ActorConfig[] = data.actors.map((actor) => ({
+                ...actor,
+                enabled: true,
+                customMaxResults: actor.maxResults,
+              }));
+              setActorConfigs(initialConfigs);
+            }
+          } else {
+            // Initialize with default configs if no saved configs
             const initialConfigs: ActorConfig[] = data.actors.map((actor) => ({
               ...actor,
               enabled: true,
@@ -118,9 +141,13 @@ export default function JobLoadPage() {
             }));
             setActorConfigs(initialConfigs);
           }
+        } else {
+          console.error('Failed to fetch actors:', response.status);
         }
       } catch (error) {
         console.error('Failed to fetch available actors:', error);
+      } finally {
+        setLoadingActors(false);
       }
     };
 
@@ -710,7 +737,19 @@ export default function JobLoadPage() {
 
                 {/* Actor Cards */}
                 <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
-                  {actorConfigs.map((config) => (
+                  {loadingActors ? (
+                    <div className="text-center py-8">
+                      <Loader2 className="w-8 h-8 text-blue-500 animate-spin mx-auto mb-2" />
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Loading actors...</p>
+                    </div>
+                  ) : actorConfigs.length === 0 ? (
+                    <div className="text-center py-8">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        No actors available. Please refresh the page.
+                      </p>
+                    </div>
+                  ) : (
+                    actorConfigs.map((config) => (
                     <div
                       key={config.id}
                       className={`p-4 rounded-lg border-2 transition-all ${
@@ -794,7 +833,8 @@ export default function JobLoadPage() {
                         </div>
                       )}
                     </div>
-                  ))}
+                    ))
+                  )}
                 </div>
 
                 <div className="flex gap-3">
