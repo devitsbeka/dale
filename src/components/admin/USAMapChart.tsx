@@ -71,7 +71,7 @@ export default function USAMapChart({ data, style }: USAMapChartProps) {
           min: 1,
           max: 5
         },
-        zoom: 1.3,
+        zoom: 1.56,
         label: {
           show: false,
           emphasis: {
