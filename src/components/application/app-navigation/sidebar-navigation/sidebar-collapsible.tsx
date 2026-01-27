@@ -219,7 +219,7 @@ export const SidebarCollapsible = ({
                             </button>
                         ) : (
                             <>
-                                <img src="/logo.svg" alt="Dale" className="h-[22px] w-auto" />
+                                <img src="/logo.svg" alt="Dale" className="h-[21px] w-auto" />
                                 <button
                                     onClick={() => setIsCollapsed(!isCollapsed)}
                                     className="text-gray-400 hover:text-gray-900 transition-colors"
