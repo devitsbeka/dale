@@ -12,6 +12,7 @@ import { useState, useEffect, useRef } from 'react';
 import ReactECharts from 'echarts-for-react';
 import * as echarts from 'echarts';
 import { stateData, stateNameToAbbr } from '@/lib/state-data';
+import { VisaCategoryDetail } from './VisaCategoryDetail';
 
 type ViewLevel = 'world' | 'us-states' | 'country-cities';
 
@@ -459,6 +460,8 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
   const [selectedCountryData, setSelectedCountryData] = useState<CountryData | null>(null);
   const [selectedVisaCategory, setSelectedVisaCategory] = useState<string | null>(null);
+  const [showVisaDetail, setShowVisaDetail] = useState(false);
+  const [selectedVisaId, setSelectedVisaId] = useState<string | null>(null);
   const chartRef = useRef<any>(null);
 
   // Load all maps on mount
@@ -531,6 +534,21 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
       // Clicked a city marker
       setSelectedCity(params.name);
       fetchCityJobs(selectedRegion!, params.name);
+    }
+  };
+
+  // Helper function to fetch visa category ID by country and visa name
+  const fetchVisaCategoryId = async (countryCode: string, visaName: string): Promise<string | null> => {
+    try {
+      const response = await fetch(`/api/visa-categories?country=${countryCode}`);
+      const data = await response.json();
+      const category = data.visaCategories?.find((v: any) =>
+        v.shortName === visaName || v.name.includes(visaName)
+      );
+      return category?.id || null;
+    } catch (error) {
+      console.error('Error fetching visa category ID:', error);
+      return null;
     }
   };
 
@@ -900,13 +918,25 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
                   {selectedCountryData.visaCategories.map((visa) => (
                     <button
                       key={visa}
-                      onClick={() => setSelectedVisaCategory(selectedVisaCategory === visa ? null : visa)}
+                      onClick={async () => {
+                        // Fetch visa category ID and open modal
+                        const countryCode = selectedRegion || '';
+                        // Convert country name to ISO code (simplified)
+                        const isoCode = countryCode === 'United States' || countryCode === 'United States of America' ? 'USA' :
+                                       countryCode === 'United Kingdom' || countryCode === 'United Kingdom of Great Britain and Northern Ireland' ? 'GBR' :
+                                       countryCode === 'Canada' ? 'CAN' :
+                                       countryCode === 'Germany' ? 'DEU' :
+                                       countryCode === 'France' ? 'FRA' :
+                                       countryCode.substring(0, 3).toUpperCase();
+
+                        const id = await fetchVisaCategoryId(isoCode, visa);
+                        if (id) {
+                          setSelectedVisaId(id);
+                          setShowVisaDetail(true);
+                        }
+                      }}
                       className={`px-3 py-1.5 text-xs font-medium border transition-colors ${
-                        selectedVisaCategory === visa
-                          ? isDark
-                            ? 'bg-blue-600 border-blue-600 text-white'
-                            : 'bg-blue-500 border-blue-500 text-white'
-                          : isDark
+                        isDark
                           ? 'border-gray-700 bg-gray-800 text-gray-300 hover:bg-gray-700'
                           : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                       }`}
@@ -1005,6 +1035,19 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
           )}
         </div>
         </div>
+      )}
+
+      {/* Visa Detail Modal */}
+      {showVisaDetail && selectedVisaId && (
+        <VisaCategoryDetail
+          visaCategoryId={selectedVisaId}
+          countryCode={selectedRegion || ''}
+          onClose={() => {
+            setShowVisaDetail(false);
+            setSelectedVisaId(null);
+          }}
+          isDark={isDark}
+        />
       )}
     </div>
   );

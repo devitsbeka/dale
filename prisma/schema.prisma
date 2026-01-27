@@ -274,9 +274,14 @@ model Job {
   // Full-text search (computed by PostgreSQL trigger)
   searchVector    String?  @db.Text
 
+  // Visa sponsorship
+  visaSponsorshipOffered Boolean @default(false)
+  visaSponsorshipNote    String?
+
   // Relations
   savedBy         SavedJob[]
   applications    JobApplication[]
+  visaEligibility JobVisaEligibility[]
 
   @@unique([source, externalId])
   @@index([source])
@@ -429,4 +434,89 @@ model JobAlert {
   @@index([userId])
   @@index([isActive])
   @@map("job_alerts")
+}
+
+// ============================================
+// VISA CATEGORIES MODELS
+// ============================================
+
+model VisaCategory {
+  id                    String   @id @default(cuid())
+
+  // Basic Info
+  countryCode           String   // ISO 3166-1 alpha-3 (USA, CAN, GBR, etc.)
+  countryName           String   // Full country name
+  name                  String   // e.g., "H-1B Specialty Occupation"
+  shortName             String   // e.g., "H-1B"
+  type                  String   // work, business, student, family, investment, freelance
+
+  // Detailed Information
+  description           String   @db.Text
+  eligibilityCriteria   String[] // Array of criteria strings
+  requiredDocuments     String[] // List of required documents
+  applicationSteps      String[] // Step-by-step process
+
+  // Processing & Timeline
+  processingTimeMin     Int?     // Minimum days
+  processingTimeMax     Int?     // Maximum days
+  processingTimeNote    String?  // Additional notes on timing
+  validityYears         Int?     // How many years visa is valid
+  renewalPossible       Boolean  @default(false)
+
+  // Financial Requirements
+  costApplicationUSD    Int?     // Application fee in USD
+  costTotalEstimateUSD  Int?     // Total estimated cost (fees, medical, translations, etc.)
+  costBreakdown         Json?    // Detailed cost breakdown as JSON
+  salaryMinUSD          Int?     // Minimum salary requirement
+  financialProofUSD     Int?     // Bank balance requirement
+
+  // Success Metrics
+  approvalRate          Float?   // 0-100% success rate
+  averageApprovalDays   Int?     // Average time to approval
+  annualQuota           Int?     // Annual visa quota if applicable
+
+  // Additional Details
+  pathToPermanence      Boolean  @default(false) // Can lead to permanent residence
+  familyIncluded        Boolean  @default(false) // Can bring family
+  workRights            String?  // Work authorization details
+  restrictions          String[] // List of restrictions
+
+  // Advantages & Disadvantages
+  pros                  String[] // Benefits of this visa type
+  cons                  String[] // Drawbacks or challenges
+  commonRejectionReasons String[] // Why applications get rejected
+
+  // Data Sources & Metadata
+  officialUrl           String?  // Official government immigration page
+  lastUpdated           DateTime @default(now())
+  dataSource            String?  // Where information was sourced
+  verified              Boolean  @default(false) // Admin verification flag
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // Relations
+  jobsEligible          JobVisaEligibility[]
+
+  @@unique([countryCode, shortName])
+  @@index([countryCode])
+  @@index([type])
+  @@map("visa_categories")
+}
+
+// Link jobs to visa categories they sponsor
+model JobVisaEligibility {
+  id              String   @id @default(cuid())
+  jobId           String
+  visaCategoryId  String
+  sponsorConfirmed Boolean @default(false) // Company confirms sponsorship
+  notes           String?  // Additional notes about sponsorship
+
+  job             Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  visaCategory    VisaCategory @relation(fields: [visaCategoryId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime @default(now())
+
+  @@unique([jobId, visaCategoryId])
+  @@map("job_visa_eligibility")
 }
