@@ -10,7 +10,7 @@ import dynamic from 'next/dynamic';
 import { Select } from '@/components/base/select/select';
 
 const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
-const USAMapChart = dynamic(() => import('@/components/admin/USAMapChart'), { ssr: false });
+const WorldMapChart = dynamic(() => import('@/components/admin/WorldMapChart'), { ssr: false });
 
 interface SnapshotData {
   overview: any;
@@ -152,7 +152,7 @@ export default function SnapshotPage() {
           <div className="space-y-8">
             {/* USA Map Chart */}
             <ChartCard title="Jobs by State" description="Geographic distribution of tech jobs across the United States">
-              <USAMapChart data={data?.usaMap} style={{ height: '600px' }} isDark={false} />
+              <WorldMapChart data={data?.usaMap} style={{ height: '600px' }} isDark={false} />
             </ChartCard>
 
             {/* Stacked Area Chart */}

@@ -6,7 +6,7 @@
 
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import USAMapChart from '@/components/admin/USAMapChart';
+import WorldMapChart from '@/components/admin/WorldMapChart';
 import { useAdminTheme } from '@/contexts/AdminThemeContext';
 
 const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
@@ -223,7 +223,7 @@ export default function AdminAnalyticsPage() {
             title="Onsite Jobs by State"
             subtitle={`${data?.usaMap?.jobsWithState || 0} jobs across ${data?.usaMap?.data?.length || 0} states`}
           >
-            <USAMapChart data={data?.usaMap} style={{ height: '500px' }} isDark={isDark} />
+            <WorldMapChart data={data?.usaMap} style={{ height: '500px' }} isDark={isDark} />
           </ChartPanel>
 
           {/* Three Column */}
