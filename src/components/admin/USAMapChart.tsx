@@ -38,8 +38,11 @@ interface StateJob {
   source: string;
 }
 
+type MapMetric = 'compensation' | 'quality-of-life' | 'low-tax';
+
 export default function USAMapChart({ data, style, isDark = true }: USAMapChartProps) {
   const [mapRegistered, setMapRegistered] = useState(false);
+  const [selectedMetric, setSelectedMetric] = useState<MapMetric>('compensation');
   const [selectedState, setSelectedState] = useState<string | null>(null);
   const [selectedJob, setSelectedJob] = useState<StateJob | null>(null);
   const [stateJobs, setStateJobs] = useState<StateJob[]>([]);
@@ -356,8 +359,74 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
     });
   };
 
-  const mapData = getMapData();
+  // Prepare map data based on selected metric
+  const mapData = getMapData().map((stateInfo: any) => {
+    const stateAbbr = Object.entries(stateNameToAbbr).find(
+      ([name]) => name === stateInfo.name
+    )?.[1];
+
+    const state = stateAbbr ? stateData[stateAbbr] : null;
+
+    let value = stateInfo.value; // Default: salary
+    if (selectedMetric === 'quality-of-life' && state) {
+      value = state.qualityOfLife;
+    } else if (selectedMetric === 'low-tax' && state) {
+      // Invert tax rate so lower tax = higher score
+      value = 15 - state.stateTaxRate; // Max tax ~15%, so 0 tax = 15 points
+    }
+
+    return {
+      ...stateInfo,
+      value,
+      originalValue: stateInfo.value // Keep salary for reference
+    };
+  });
+
   const maxValue = Math.max(...mapData.map((d: any) => d.value), 1);
+  const minValue = Math.min(...mapData.map((d: any) => d.value), 0);
+
+  // Dynamic labels based on metric
+  const metricConfig = {
+    'compensation': {
+      highLabel: 'High Salary',
+      lowLabel: 'Low Salary',
+      formatter: (value: number) => value > 0 ? `$${Math.round(value / 1000)}k` : '$0',
+      tooltip: (params: any, jobCount: number) => {
+        if (params.value) {
+          return `${params.name}<br/>Avg Salary: $${params.value.toLocaleString()}<br/>Jobs: ${jobCount}`;
+        }
+        return `${params.name}<br/>Avg Salary: $0<br/>Jobs: 0`;
+      }
+    },
+    'quality-of-life': {
+      highLabel: 'Best QoL',
+      lowLabel: 'Lower QoL',
+      formatter: (value: number) => value > 0 ? `${value.toFixed(0)}` : '0',
+      tooltip: (params: any, jobCount: number) => {
+        if (params.value) {
+          return `${params.name}<br/>Quality of Life: ${params.value.toFixed(0)}/100<br/>Jobs: ${jobCount}`;
+        }
+        return `${params.name}<br/>Quality of Life: N/A<br/>Jobs: 0`;
+      }
+    },
+    'low-tax': {
+      highLabel: 'Lowest Tax',
+      lowLabel: 'Higher Tax',
+      formatter: (value: number) => {
+        const taxRate = 15 - value;
+        return taxRate >= 0 ? `${taxRate.toFixed(1)}%` : '0%';
+      },
+      tooltip: (params: any, jobCount: number) => {
+        const taxRate = 15 - params.value;
+        if (params.value >= 0) {
+          return `${params.name}<br/>State Tax: ${taxRate.toFixed(1)}%<br/>Jobs: ${jobCount}`;
+        }
+        return `${params.name}<br/>State Tax: N/A<br/>Jobs: 0`;
+      }
+    }
+  };
+
+  const currentConfig = metricConfig[selectedMetric];
 
   const option = {
     backgroundColor: 'transparent',
@@ -365,31 +434,26 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
       trigger: 'item',
       formatter: (params: any) => {
         const jobCount = params.data?.jobCount || 0;
-        if (params.value) {
-          return `${params.name}<br/>Avg Salary: $${params.value.toLocaleString()}<br/>Jobs: ${jobCount}`;
-        }
-        return `${params.name}<br/>Avg Salary: $0<br/>Jobs: 0`;
+        return currentConfig.tooltip(params, jobCount);
       },
       backgroundColor: isDark ? '#1f2937' : '#ffffff',
       borderColor: isDark ? '#374151' : '#e5e7eb',
       textStyle: { color: isDark ? '#e5e7eb' : '#1f2937' }
     },
     visualMap: {
-      min: 0,
+      min: selectedMetric === 'low-tax' ? minValue : 0,
       max: maxValue,
       orient: 'horizontal',  // Horizontal orientation
       left: 'center',
       bottom: '3%',
-      text: ['High Salary', 'Low Salary'],
+      text: [currentConfig.highLabel, currentConfig.lowLabel],
       calculable: true,
       itemWidth: 20,  // Width of the color bar
       itemHeight: 140, // Height becomes length in horizontal mode
       textStyle: {
         color: isDark ? '#9ca3af' : '#6b7280'
       },
-      formatter: (value: number) => {
-        return value > 0 ? `$${Math.round(value / 1000)}k` : '$0';
-      },
+      formatter: currentConfig.formatter,
       inRange: {
         // Very subtle low-contrast pastel greens: barely noticeable gradient
         color: isDark
@@ -464,7 +528,54 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
           display: none; /* Chrome/Safari/Opera */
         }
       `}} />
-      <div className="relative flex gap-4" style={style}>
+      <div className="relative flex flex-col gap-4" style={style}>
+      {/* Metric Tabs */}
+      <div className="flex gap-2 justify-center">
+        <button
+          onClick={() => setSelectedMetric('compensation')}
+          className={`px-4 py-2 text-sm font-medium transition-all ${
+            selectedMetric === 'compensation'
+              ? isDark
+                ? 'bg-blue-600 text-white border border-blue-600'
+                : 'bg-blue-500 text-white border border-blue-500'
+              : isDark
+              ? 'bg-gray-800 text-gray-300 border border-gray-700 hover:bg-gray-750'
+              : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+          }`}
+        >
+          Compensation
+        </button>
+        <button
+          onClick={() => setSelectedMetric('quality-of-life')}
+          className={`px-4 py-2 text-sm font-medium transition-all ${
+            selectedMetric === 'quality-of-life'
+              ? isDark
+                ? 'bg-blue-600 text-white border border-blue-600'
+                : 'bg-blue-500 text-white border border-blue-500'
+              : isDark
+              ? 'bg-gray-800 text-gray-300 border border-gray-700 hover:bg-gray-750'
+              : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+          }`}
+        >
+          Quality of Life
+        </button>
+        <button
+          onClick={() => setSelectedMetric('low-tax')}
+          className={`px-4 py-2 text-sm font-medium transition-all ${
+            selectedMetric === 'low-tax'
+              ? isDark
+                ? 'bg-blue-600 text-white border border-blue-600'
+                : 'bg-blue-500 text-white border border-blue-500'
+              : isDark
+              ? 'bg-gray-800 text-gray-300 border border-gray-700 hover:bg-gray-750'
+              : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+          }`}
+        >
+          Lowest Tax
+        </button>
+      </div>
+
+      <div className="flex gap-4">
       {/* Map */}
       <div
         className="relative z-0"
@@ -977,6 +1088,7 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
         </div>
         )}
       </div>
+    </div>
     </div>
     </>
   );
