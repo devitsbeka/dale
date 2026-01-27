@@ -1295,23 +1295,16 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
               {/* Overview Tab Content */}
               {countryTab === 'overview' && (
                 <div className="space-y-3">
-                  {/* Dale Rank - Highlighted Widget */}
+                  {/* Dale Rank */}
                   {(selectedCountryData.daleRank ?? 0) > 0 && (
                     <div className={`p-3 border ${isDark ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'}`}>
-                      <div className="flex items-center justify-between mb-2">
-                        <div className={`text-xs font-medium ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
-                          Dale Rank
-                        </div>
-                        <div className={`text-lg font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
-                          {selectedCountryData.daleRank!.toFixed(1)}
-                          <span className={`text-xs font-normal ml-0.5 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>/10</span>
-                        </div>
+                      <div className={`text-xs font-medium mb-1 ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
+                        Dale Rank
                       </div>
-                      <div className={`h-1 ${isDark ? 'bg-gray-800' : 'bg-gray-200'} overflow-hidden`}>
-                        <div
-                          className={`h-full ${isDark ? 'bg-gray-600' : 'bg-gray-400'} transition-all`}
-                          style={{ width: `${(selectedCountryData.daleRank! / 10) * 100}%` }}
-                        />
+                      <div className="flex items-center justify-between mt-0.5">
+                        <div className={`text-sm font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                          {selectedCountryData.daleRank!.toFixed(1)}/10
+                        </div>
                       </div>
                     </div>
                   )}
