@@ -73,6 +73,7 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
   const [usajobsData, setUsajobsData] = useState<StateJob[]>([]);
   const jobsCache = useRef<Record<string, { jobs: StateJob[]; avgSalary: number | null; topCity: string | null; topEmployers: Array<{ company: string; logo: string | null; jobCount: number }> }>>({});
   const mapsLoadedRef = useRef(false);
+  const chartRef = useRef<any>(null);
 
   useEffect(() => {
     // Register both US and world maps on mount (only once)
@@ -132,6 +133,21 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only load once on mount - ref prevents re-registration
+
+  useEffect(() => {
+    // Highlight selected country on map
+    if (chartRef.current && selectedCountry !== 'US' && mapRegistered) {
+      const chart = chartRef.current;
+      // Dispatch select action to highlight the country
+      setTimeout(() => {
+        chart.dispatchAction({
+          type: 'select',
+          seriesIndex: 0,
+          name: countryNameMap[selectedCountry]
+        });
+      }, 100);
+    }
+  }, [selectedCountry, mapRegistered]);
 
   useEffect(() => {
     // Fetch USA-wide stats on mount
@@ -621,6 +637,18 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
             borderWidth: 0
           }
         },
+        select: {
+          label: {
+            show: true,
+            color: isDark ? '#000' : '#000'
+          },
+          itemStyle: {
+            areaColor: isDark ? '#fbbf24' : '#fcd34d',  // Yellow highlight
+            borderColor: isDark ? '#f59e0b' : '#f59e0b',
+            borderWidth: 3
+          }
+        },
+        selectedMode: 'single',
         data: mapData
       }
     ]
@@ -748,6 +776,9 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
           key={`map-${selectedCountry}`}
           option={option}
           onEvents={{ click: handleStateClick }}
+          onChartReady={(chart: any) => {
+            chartRef.current = chart;
+          }}
           style={{
             height: style?.height || '500px',
             transition: 'opacity 400ms ease-in-out',
