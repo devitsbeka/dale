@@ -82,7 +82,7 @@ export const SidebarNavigationSimple = ({
 
             <NavList activeUrl={activeUrl} items={items} />
 
-            <div className="mt-auto flex flex-col gap-4 px-2 py-4 lg:px-4 lg:py-6">
+            <div className="mt-auto flex flex-col gap-4 px-2 pb-4 lg:px-4 lg:pb-6">
                 {/* Theme Toggle */}
                 <div className="flex items-center justify-between rounded-lg bg-secondary px-3 py-2">
                     <div className="flex items-center gap-2">
@@ -121,9 +121,9 @@ export const SidebarNavigationSimple = ({
                 )}
 
                 {featureCard}
-
-                {showAccountCard && <NavAccountCard />}
             </div>
+
+            {showAccountCard && <NavAccountCard />}
         </aside>
     );
 

@@ -175,7 +175,7 @@ export const NavAccountCard = ({
 
     if (authLoading) {
         return (
-            <div className="relative flex items-center gap-3 rounded-xl p-3 ring-1 ring-secondary ring-inset">
+            <div className="relative flex items-center gap-3 border-t border-secondary px-3 h-15">
                 <div className="flex items-center gap-3 w-full">
                     <div className="size-10 rounded-full bg-secondary animate-pulse" />
                     <div className="flex-1 space-y-2">
@@ -192,7 +192,7 @@ export const NavAccountCard = ({
     }
 
     return (
-        <div ref={triggerRef} className="relative flex items-center gap-3 rounded-xl p-3 ring-1 ring-secondary ring-inset">
+        <div ref={triggerRef} className="relative flex items-center gap-3 border-t border-secondary px-3 h-15">
             <AvatarLabelGroup
                 size="md"
                 src={userAvatar}
