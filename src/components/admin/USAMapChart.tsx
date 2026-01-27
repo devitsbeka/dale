@@ -64,24 +64,40 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
     if (typeof window !== 'undefined') {
       setMapRegistered(false);
 
+      const mapName = `MAP_${selectedCountry}`;
+
       if (selectedCountry === 'US') {
         // Load US states map
         fetch('https://raw.githubusercontent.com/python-visualization/folium/master/examples/data/us-states.json')
           .then(response => response.json())
           .then(usaJson => {
-            echarts.registerMap('MAP', usaJson);
-            setMapRegistered(true);
+            try {
+              echarts.registerMap(mapName, usaJson);
+              setMapRegistered(true);
+            } catch (error) {
+              console.error('Error registering US map:', error);
+            }
           })
-          .catch(error => console.error('Error loading US map:', error));
+          .catch(error => {
+            console.error('Error loading US map:', error);
+            setMapRegistered(true); // Still set to true to show something
+          });
       } else {
         // Load world countries map for other countries
         fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
           .then(response => response.json())
           .then(worldJson => {
-            echarts.registerMap('MAP', worldJson);
-            setMapRegistered(true);
+            try {
+              echarts.registerMap(mapName, worldJson);
+              setMapRegistered(true);
+            } catch (error) {
+              console.error('Error registering world map:', error);
+            }
           })
-          .catch(error => console.error('Error loading world map:', error));
+          .catch(error => {
+            console.error('Error loading world map:', error);
+            setMapRegistered(true); // Still set to true to show something
+          });
       }
     }
   }, [selectedCountry]);
@@ -328,9 +344,19 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
   const handleStateClick = (params: any) => {
     // Only handle intentional user clicks, not programmatic events
     if (params.name && params.event && params.event.type === 'click') {
-      // Convert full state name to abbreviation
-      const stateAbbr = stateNameToAbbr[params.name] || params.name;
-      setSelectedState(stateAbbr);
+      // Check if we're on world map and clicked United States
+      if (selectedCountry !== 'US' && (params.name === 'United States of America' || params.name === 'United States' || params.name === 'USA')) {
+        // Zoom into US state view
+        setSelectedCountry('US');
+        return;
+      }
+
+      // If we're in US view, handle state selection
+      if (selectedCountry === 'US') {
+        // Convert full state name to abbreviation
+        const stateAbbr = stateNameToAbbr[params.name] || params.name;
+        setSelectedState(stateAbbr);
+      }
     }
   };
 
@@ -344,8 +370,13 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
 
   // Calculate dynamic map data with USAJobs counts
   const getMapData = () => {
+    // For non-US countries, return empty data for now
+    if (selectedCountry !== 'US') {
+      return [];
+    }
+
     if (!enabledSources.usajobs || usajobsData.length === 0) {
-      return data.data;
+      return data.data || [];
     }
 
     // Count USAJobs by state
@@ -360,7 +391,7 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
     console.log('[USAJobs] State counts:', usajobsStateCounts);
 
     // Merge counts with original data
-    return data.data.map((stateData: any) => {
+    return (data.data || []).map((stateData: any) => {
       const stateAbbr = Object.entries(stateNameToAbbr).find(
         ([name]) => name === stateData.name
       )?.[1];
@@ -505,7 +536,7 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
       {
         name: 'Onsite Jobs',
         type: 'map',
-        map: 'MAP',
+        map: `MAP_${selectedCountry}`,
         roam: 'move',  // Only allow panning, not scroll zoom
         center: selectedCountry === 'US' ? [-92, 38] : [0, 30],  // US center or world center
         scaleLimit: {
