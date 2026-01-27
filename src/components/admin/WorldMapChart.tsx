@@ -37,6 +37,74 @@ interface WorldMapChartProps {
   isDark?: boolean;
 }
 
+// Capital cities mapping
+const countryCapitals: Record<string, string> = {
+  'Canada': 'Ottawa',
+  'United Kingdom': 'London',
+  'Germany': 'Berlin',
+  'France': 'Paris',
+  'Australia': 'Canberra',
+  'India': 'New Delhi',
+  'Mexico': 'Mexico City',
+  'Brazil': 'Brasília',
+  'Japan': 'Tokyo',
+  'China': 'Beijing',
+  'Italy': 'Rome',
+  'Spain': 'Madrid',
+  'Netherlands': 'Amsterdam',
+  'Sweden': 'Stockholm',
+  'Norway': 'Oslo',
+  'Denmark': 'Copenhagen',
+  'Finland': 'Helsinki',
+  'Poland': 'Warsaw',
+  'Switzerland': 'Bern',
+  'Austria': 'Vienna',
+  'Belgium': 'Brussels',
+  'Ireland': 'Dublin',
+  'Portugal': 'Lisbon',
+  'Greece': 'Athens',
+  'Czech Republic': 'Prague',
+  'Hungary': 'Budapest',
+  'Romania': 'Bucharest',
+  'South Korea': 'Seoul',
+  'Singapore': 'Singapore',
+  'Israel': 'Jerusalem',
+  'United Arab Emirates': 'Abu Dhabi',
+  'Saudi Arabia': 'Riyadh',
+  'South Africa': 'Pretoria',
+  'Argentina': 'Buenos Aires',
+  'Chile': 'Santiago',
+  'Colombia': 'Bogotá',
+  'Peru': 'Lima',
+  'New Zealand': 'Wellington',
+  'Thailand': 'Bangkok',
+  'Vietnam': 'Hanoi',
+  'Philippines': 'Manila',
+  'Indonesia': 'Jakarta',
+  'Malaysia': 'Kuala Lumpur',
+  'Turkey': 'Ankara',
+  'Egypt': 'Cairo',
+  'Nigeria': 'Abuja',
+  'Kenya': 'Nairobi',
+};
+
+// US state capitals mapping
+const stateCapitals: Record<string, string> = {
+  'AL': 'Montgomery', 'AK': 'Juneau', 'AZ': 'Phoenix', 'AR': 'Little Rock',
+  'CA': 'Sacramento', 'CO': 'Denver', 'CT': 'Hartford', 'DE': 'Dover',
+  'FL': 'Tallahassee', 'GA': 'Atlanta', 'HI': 'Honolulu', 'ID': 'Boise',
+  'IL': 'Springfield', 'IN': 'Indianapolis', 'IA': 'Des Moines', 'KS': 'Topeka',
+  'KY': 'Frankfort', 'LA': 'Baton Rouge', 'ME': 'Augusta', 'MD': 'Annapolis',
+  'MA': 'Boston', 'MI': 'Lansing', 'MN': 'Saint Paul', 'MS': 'Jackson',
+  'MO': 'Jefferson City', 'MT': 'Helena', 'NE': 'Lincoln', 'NV': 'Carson City',
+  'NH': 'Concord', 'NJ': 'Trenton', 'NM': 'Santa Fe', 'NY': 'Albany',
+  'NC': 'Raleigh', 'ND': 'Bismarck', 'OH': 'Columbus', 'OK': 'Oklahoma City',
+  'OR': 'Salem', 'PA': 'Harrisburg', 'RI': 'Providence', 'SC': 'Columbia',
+  'SD': 'Pierre', 'TN': 'Nashville', 'TX': 'Austin', 'UT': 'Salt Lake City',
+  'VT': 'Montpelier', 'VA': 'Richmond', 'WA': 'Olympia', 'WV': 'Charleston',
+  'WI': 'Madison', 'WY': 'Cheyenne', 'DC': 'Washington'
+};
+
 export default function WorldMapChart({ data, style, isDark = true }: WorldMapChartProps) {
   const [mapReady, setMapReady] = useState(false);
   const [viewLevel, setViewLevel] = useState<ViewLevel>('world');
@@ -44,6 +112,8 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(false);
+  const [avgSalary, setAvgSalary] = useState<number | null>(null);
+  const [capital, setCapital] = useState<string | null>(null);
   const chartRef = useRef<any>(null);
 
   // Load all maps on mount
@@ -126,10 +196,28 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
     try {
       const response = await fetch(`/api/admin/analytics/state-jobs?state=${state}`);
       const result = await response.json();
-      setJobs(result.jobs || []);
+      const fetchedJobs = result.jobs || [];
+      setJobs(fetchedJobs);
+
+      // Calculate average salary
+      const jobsWithSalary = fetchedJobs.filter((job: Job) => job.salaryMin && job.salaryMax);
+      if (jobsWithSalary.length > 0) {
+        const totalSalary = jobsWithSalary.reduce((sum: number, job: Job) => {
+          const avg = ((job.salaryMin || 0) + (job.salaryMax || 0)) / 2;
+          return sum + avg;
+        }, 0);
+        setAvgSalary(Math.round(totalSalary / jobsWithSalary.length));
+      } else {
+        setAvgSalary(null);
+      }
+
+      // Set state capital
+      setCapital(stateCapitals[state] || null);
     } catch (error) {
       console.error('Failed to fetch state jobs:', error);
       setJobs([]);
+      setAvgSalary(null);
+      setCapital(null);
     } finally {
       setLoading(false);
     }
@@ -139,11 +227,18 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
   const fetchCountryData = async (country: string) => {
     setLoading(true);
     try {
-      // TODO: Implement country jobs API
+      // Set capital city
+      setCapital(countryCapitals[country] || null);
+
+      // TODO: Implement country jobs API endpoint
+      // For now, set empty jobs and salary
       setJobs([]);
+      setAvgSalary(null);
     } catch (error) {
       console.error('Failed to fetch country data:', error);
       setJobs([]);
+      setAvgSalary(null);
+      setCapital(null);
     } finally {
       setLoading(false);
     }
@@ -153,11 +248,16 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
   const fetchCityJobs = async (country: string, city: string) => {
     setLoading(true);
     try {
-      // TODO: Implement city jobs API
+      // TODO: Implement city jobs API endpoint
+      // For now, set empty jobs
       setJobs([]);
+      setAvgSalary(null);
+      setCapital(null); // Cities don't have capitals
     } catch (error) {
       console.error('Failed to fetch city jobs:', error);
       setJobs([]);
+      setAvgSalary(null);
+      setCapital(null);
     } finally {
       setLoading(false);
     }
@@ -170,6 +270,8 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
       setSelectedRegion(null);
       setSelectedCity(null);
       setJobs([]);
+      setAvgSalary(null);
+      setCapital(null);
     }
   };
 
@@ -338,6 +440,36 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
           <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
             {selectedCity ? 'Location Details' : viewLevel === 'world' ? 'Global Overview' : 'Select a location'}
           </p>
+
+          {/* Capital and Average Salary Info */}
+          {!loading && (capital || avgSalary) && (
+            <div className="mt-4 space-y-2">
+              {capital && (
+                <div className={`flex items-center justify-between py-2 px-3 border ${
+                  isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'
+                }`}>
+                  <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Capital
+                  </span>
+                  <span className={`text-sm font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                    {capital}
+                  </span>
+                </div>
+              )}
+              {avgSalary && (
+                <div className={`flex items-center justify-between py-2 px-3 border ${
+                  isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'
+                }`}>
+                  <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Avg Salary
+                  </span>
+                  <span className={`text-sm font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                    ${avgSalary.toLocaleString()}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
 
           {loading && (
             <div className="mt-8 text-center">
