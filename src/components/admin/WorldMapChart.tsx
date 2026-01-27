@@ -37,18 +37,29 @@ interface WorldMapChartProps {
   isDark?: boolean;
 }
 
-// Capital cities mapping
+// Capital cities mapping (includes GeoJSON variations)
 const countryCapitals: Record<string, string> = {
+  // Americas
   'Canada': 'Ottawa',
-  'United Kingdom': 'London',
-  'Germany': 'Berlin',
-  'France': 'Paris',
-  'Australia': 'Canberra',
-  'India': 'New Delhi',
+  'United States': 'Washington, D.C.',
+  'United States of America': 'Washington, D.C.',
   'Mexico': 'Mexico City',
   'Brazil': 'Brasília',
-  'Japan': 'Tokyo',
-  'China': 'Beijing',
+  'Argentina': 'Buenos Aires',
+  'Chile': 'Santiago',
+  'Colombia': 'Bogotá',
+  'Peru': 'Lima',
+  'Venezuela': 'Caracas',
+  'Ecuador': 'Quito',
+  'Bolivia': 'La Paz',
+  'Uruguay': 'Montevideo',
+  'Paraguay': 'Asunción',
+
+  // Europe
+  'United Kingdom': 'London',
+  'United Kingdom of Great Britain and Northern Ireland': 'London',
+  'Germany': 'Berlin',
+  'France': 'Paris',
   'Italy': 'Rome',
   'Spain': 'Madrid',
   'Netherlands': 'Amsterdam',
@@ -64,28 +75,70 @@ const countryCapitals: Record<string, string> = {
   'Portugal': 'Lisbon',
   'Greece': 'Athens',
   'Czech Republic': 'Prague',
+  'Czechia': 'Prague',
   'Hungary': 'Budapest',
   'Romania': 'Bucharest',
+  'Bulgaria': 'Sofia',
+  'Croatia': 'Zagreb',
+  'Serbia': 'Belgrade',
+  'Slovakia': 'Bratislava',
+  'Slovenia': 'Ljubljana',
+  'Estonia': 'Tallinn',
+  'Latvia': 'Riga',
+  'Lithuania': 'Vilnius',
+  'Iceland': 'Reykjavik',
+  'Luxembourg': 'Luxembourg',
+
+  // Asia
+  'China': 'Beijing',
+  'Japan': 'Tokyo',
   'South Korea': 'Seoul',
+  'Korea, Republic of': 'Seoul',
+  'India': 'New Delhi',
   'Singapore': 'Singapore',
-  'Israel': 'Jerusalem',
-  'United Arab Emirates': 'Abu Dhabi',
-  'Saudi Arabia': 'Riyadh',
-  'South Africa': 'Pretoria',
-  'Argentina': 'Buenos Aires',
-  'Chile': 'Santiago',
-  'Colombia': 'Bogotá',
-  'Peru': 'Lima',
-  'New Zealand': 'Wellington',
   'Thailand': 'Bangkok',
   'Vietnam': 'Hanoi',
+  'Viet Nam': 'Hanoi',
   'Philippines': 'Manila',
   'Indonesia': 'Jakarta',
   'Malaysia': 'Kuala Lumpur',
+  'Taiwan': 'Taipei',
+  'Hong Kong': 'Hong Kong',
+  'Pakistan': 'Islamabad',
+  'Bangladesh': 'Dhaka',
+  'Sri Lanka': 'Colombo',
+  'Nepal': 'Kathmandu',
+
+  // Middle East
+  'Israel': 'Jerusalem',
+  'United Arab Emirates': 'Abu Dhabi',
+  'Saudi Arabia': 'Riyadh',
   'Turkey': 'Ankara',
+  'Iran': 'Tehran',
+  'Iraq': 'Baghdad',
+  'Jordan': 'Amman',
+  'Lebanon': 'Beirut',
+  'Kuwait': 'Kuwait City',
+  'Qatar': 'Doha',
+  'Bahrain': 'Manama',
+  'Oman': 'Muscat',
+
+  // Africa
+  'South Africa': 'Pretoria',
   'Egypt': 'Cairo',
   'Nigeria': 'Abuja',
   'Kenya': 'Nairobi',
+  'Ghana': 'Accra',
+  'Ethiopia': 'Addis Ababa',
+  'Tanzania': 'Dodoma',
+  'Uganda': 'Kampala',
+  'Morocco': 'Rabat',
+  'Algeria': 'Algiers',
+  'Tunisia': 'Tunis',
+
+  // Oceania
+  'Australia': 'Canberra',
+  'New Zealand': 'Wellington',
 };
 
 // US state capitals mapping
@@ -227,8 +280,19 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
   const fetchCountryData = async (country: string) => {
     setLoading(true);
     try {
-      // Set capital city
-      setCapital(countryCapitals[country] || null);
+      // Try exact match first, then try variations
+      let capital = countryCapitals[country];
+
+      // Try common variations
+      if (!capital) {
+        // Try without "Republic of", "Kingdom of", etc.
+        const simplifiedName = country
+          .replace(/^(Republic of |Kingdom of |United States of )/i, '')
+          .trim();
+        capital = countryCapitals[simplifiedName];
+      }
+
+      setCapital(capital || null);
 
       // TODO: Implement country jobs API endpoint
       // For now, set empty jobs and salary
@@ -442,7 +506,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
           </p>
 
           {/* Capital and Average Salary Info */}
-          {!loading && (capital || avgSalary) && (
+          {!loading && (selectedRegion || selectedCity) && (
             <div className="mt-4 space-y-2">
               {capital && (
                 <div className={`flex items-center justify-between py-2 px-3 border ${
@@ -466,6 +530,15 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
                   <span className={`text-sm font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
                     ${avgSalary.toLocaleString()}
                   </span>
+                </div>
+              )}
+              {!capital && !avgSalary && !jobs.length && viewLevel !== 'world' && (
+                <div className={`py-4 px-3 text-center border ${
+                  isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'
+                }`}>
+                  <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
+                    No job data available for this location
+                  </p>
                 </div>
               )}
             </div>
