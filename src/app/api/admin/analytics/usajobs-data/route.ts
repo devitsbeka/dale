@@ -25,10 +25,10 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Fetch from USAJobs API - broader search for tech jobs
+    // Fetch from USAJobs API - search for software jobs
     const usajobsResponse = await fetch(
       'https://data.usajobs.gov/api/search?' + new URLSearchParams({
-        Keyword: 'software developer engineer data analyst IT computer',
+        Keyword: 'software',
         ResultsPerPage: '500'
       }),
       {
@@ -46,6 +46,7 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await usajobsResponse.json();
+    console.log('[USAJobs] Fetched', data.SearchResult?.SearchResultItems?.length || 0, 'jobs from', data.SearchResult?.SearchResultCountAll || 0, 'total');
 
     // Transform USAJobs data to our format
     const jobs = (data.SearchResult?.SearchResultItems || []).map((item: any) => {
