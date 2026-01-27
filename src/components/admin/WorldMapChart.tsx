@@ -499,12 +499,11 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
       {/* Right Panel */}
       {!isPanelCollapsed && (
         <div
-          className={`overflow-y-auto transition-all duration-300 ${
-            isDark ? 'border-gray-800 bg-gray-950' : 'border-gray-200 bg-white'
+          className={`overflow-y-auto transition-all duration-300 border-l ${
+            isDark ? 'border-gray-800 bg-gray-950' : 'border-gray-300 bg-white'
           }`}
           style={{
             width: '33.333%',
-            borderLeftWidth: '1px',
             paddingLeft: '1rem',
             height: style?.height || '600px'
           }}
