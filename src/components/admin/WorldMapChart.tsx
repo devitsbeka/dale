@@ -37,7 +37,222 @@ interface WorldMapChartProps {
   isDark?: boolean;
 }
 
-// Capital cities mapping (includes GeoJSON variations)
+// Comprehensive country data
+interface CountryData {
+  capital: string;
+  population: string;
+  costOfLiving: 1 | 2 | 3 | 4 | 5;
+  visaCategories: string[];
+  relocationTip: string;
+}
+
+const countryData: Record<string, CountryData> = {
+  // Americas
+  'United States': {
+    capital: 'Washington, D.C.',
+    population: '331M',
+    costOfLiving: 4,
+    visaCategories: ['H-1B Work', 'L-1 Transfer', 'O-1 Talent', 'Green Card', 'Student F-1'],
+    relocationTip: 'Tech hubs like SF, NYC, and Seattle offer the most opportunities. H-1B visa lottery typically opens in March.'
+  },
+  'United States of America': {
+    capital: 'Washington, D.C.',
+    population: '331M',
+    costOfLiving: 4,
+    visaCategories: ['H-1B Work', 'L-1 Transfer', 'O-1 Talent', 'Green Card', 'Student F-1'],
+    relocationTip: 'Tech hubs like SF, NYC, and Seattle offer the most opportunities. H-1B visa lottery typically opens in March.'
+  },
+  'Canada': {
+    capital: 'Ottawa',
+    population: '38M',
+    costOfLiving: 3,
+    visaCategories: ['Express Entry', 'Work Permit', 'Study Permit', 'PNP', 'Start-up Visa'],
+    relocationTip: 'Express Entry is the fastest path to permanent residence. Toronto and Vancouver have thriving tech scenes.'
+  },
+  'Mexico': {
+    capital: 'Mexico City',
+    population: '128M',
+    costOfLiving: 2,
+    visaCategories: ['Temporary Resident', 'Permanent Resident', 'Digital Nomad', 'Work Visa'],
+    relocationTip: 'Mexico City and Playa del Carmen are popular for remote workers. Low cost of living with great quality of life.'
+  },
+  'Brazil': {
+    capital: 'Brasília',
+    population: '214M',
+    costOfLiving: 2,
+    visaCategories: ['Work Visa', 'Investor Visa', 'Digital Nomad', 'Student Visa'],
+    relocationTip: 'São Paulo is the tech capital. Portuguese language skills are highly beneficial.'
+  },
+
+  // Europe
+  'United Kingdom': {
+    capital: 'London',
+    population: '67M',
+    costOfLiving: 5,
+    visaCategories: ['Skilled Worker', 'Global Talent', 'Graduate', 'Start-up', 'Innovator'],
+    relocationTip: 'Post-Brexit visa rules require sponsorship. London remains a global tech hub despite high costs.'
+  },
+  'United Kingdom of Great Britain and Northern Ireland': {
+    capital: 'London',
+    population: '67M',
+    costOfLiving: 5,
+    visaCategories: ['Skilled Worker', 'Global Talent', 'Graduate', 'Start-up', 'Innovator'],
+    relocationTip: 'Post-Brexit visa rules require sponsorship. London remains a global tech hub despite high costs.'
+  },
+  'Germany': {
+    capital: 'Berlin',
+    population: '83M',
+    costOfLiving: 3,
+    visaCategories: ['EU Blue Card', 'Job Seeker', 'Freelance', 'Student', 'Work Visa'],
+    relocationTip: 'EU Blue Card is easiest for tech workers. Berlin and Munich have the most opportunities. German language helps but not required.'
+  },
+  'France': {
+    capital: 'Paris',
+    population: '67M',
+    costOfLiving: 4,
+    visaCategories: ['Talent Passport', 'Work Permit', 'Student', 'Entrepreneur', 'EU Blue Card'],
+    relocationTip: 'French Tech Visa offers fast-track for startup employees. Paris is expensive, consider Lyon or Toulouse.'
+  },
+  'Netherlands': {
+    capital: 'Amsterdam',
+    population: '17M',
+    costOfLiving: 4,
+    visaCategories: ['Highly Skilled Migrant', 'Orientation Year', 'Self-Employed', 'Student'],
+    relocationTip: 'Amsterdam and Eindhoven are tech hubs. Housing shortage is a major challenge. English widely spoken.'
+  },
+  'Spain': {
+    capital: 'Madrid',
+    population: '47M',
+    costOfLiving: 3,
+    visaCategories: ['Digital Nomad', 'Work Visa', 'Entrepreneur', 'Student', 'Non-lucrative'],
+    relocationTip: 'New digital nomad visa launched 2023. Barcelona and Madrid have growing tech scenes. Lower costs than Northern Europe.'
+  },
+  'Portugal': {
+    capital: 'Lisbon',
+    population: '10M',
+    costOfLiving: 2,
+    visaCategories: ['D7 Passive Income', 'Digital Nomad', 'Golden Visa', 'Work Visa', 'Student'],
+    relocationTip: 'Popular for remote workers. Lisbon and Porto have great weather and affordable living. English widely spoken.'
+  },
+  'Italy': {
+    capital: 'Rome',
+    population: '60M',
+    costOfLiving: 3,
+    visaCategories: ['Work Visa', 'Self-Employment', 'Student', 'Elective Residence', 'EU Blue Card'],
+    relocationTip: 'Milan is the business hub. Quality of life is excellent but bureaucracy can be challenging.'
+  },
+  'Ireland': {
+    capital: 'Dublin',
+    population: '5M',
+    costOfLiving: 4,
+    visaCategories: ['Critical Skills', 'General Work', 'Start-up', 'Graduate', 'Student'],
+    relocationTip: 'Dublin is a major tech hub with Google, Facebook, and Apple offices. English speaking is a big plus.'
+  },
+  'Sweden': {
+    capital: 'Stockholm',
+    population: '10M',
+    costOfLiving: 4,
+    visaCategories: ['Work Permit', 'Job Seeker', 'Self-Employment', 'Student', 'EU Blue Card'],
+    relocationTip: 'Stockholm has a thriving startup scene. High taxes but excellent quality of life and work-life balance.'
+  },
+  'Switzerland': {
+    capital: 'Bern',
+    population: '9M',
+    costOfLiving: 5,
+    visaCategories: ['Work Permit B', 'Settlement C', 'Short-term L', 'Student'],
+    relocationTip: 'Highest salaries in Europe but also highest living costs. Zurich and Geneva are financial hubs.'
+  },
+  'Poland': {
+    capital: 'Warsaw',
+    population: '38M',
+    costOfLiving: 2,
+    visaCategories: ['Work Permit', 'Poland Business Harbour', 'Student', 'EU Blue Card'],
+    relocationTip: 'Growing tech scene in Warsaw and Krakow. Much lower costs than Western Europe.'
+  },
+
+  // Asia
+  'Japan': {
+    capital: 'Tokyo',
+    population: '125M',
+    costOfLiving: 4,
+    visaCategories: ['Highly Skilled', 'Engineer/Specialist', 'Intra-company Transfer', 'Start-up', 'Student'],
+    relocationTip: 'Tokyo offers great opportunities but language barrier exists. Points-based system for skilled workers.'
+  },
+  'China': {
+    capital: 'Beijing',
+    population: '1.4B',
+    costOfLiving: 3,
+    visaCategories: ['Z Work Visa', 'R Talent', 'Student', 'Business M'],
+    relocationTip: 'Shanghai and Shenzhen are tech hubs. Language and cultural adaptation are significant challenges.'
+  },
+  'South Korea': {
+    capital: 'Seoul',
+    population: '52M',
+    costOfLiving: 3,
+    visaCategories: ['E-7 Work', 'D-10 Job Seeker', 'F-2 Residence', 'Student', 'Start-up'],
+    relocationTip: 'Seoul has a booming tech industry. Korean language skills are highly valued but not always required.'
+  },
+  'Korea, Republic of': {
+    capital: 'Seoul',
+    population: '52M',
+    costOfLiving: 3,
+    visaCategories: ['E-7 Work', 'D-10 Job Seeker', 'F-2 Residence', 'Student', 'Start-up'],
+    relocationTip: 'Seoul has a booming tech industry. Korean language skills are highly valued but not always required.'
+  },
+  'Singapore': {
+    capital: 'Singapore',
+    population: '6M',
+    costOfLiving: 5,
+    visaCategories: ['Employment Pass', 'Tech.Pass', 'EntrePass', 'Dependent Pass', 'Student'],
+    relocationTip: 'Major financial and tech hub. English speaking, efficient, but very expensive. New Tech.Pass for top talent.'
+  },
+  'India': {
+    capital: 'New Delhi',
+    population: '1.4B',
+    costOfLiving: 1,
+    visaCategories: ['Employment Visa', 'Business Visa', 'Student Visa', 'e-Tourist'],
+    relocationTip: 'Bangalore, Hyderabad, and Pune are tech hubs. Very affordable with rapidly growing opportunities.'
+  },
+  'Thailand': {
+    capital: 'Bangkok',
+    population: '70M',
+    costOfLiving: 2,
+    visaCategories: ['Non-B Work', 'Smart Visa', 'Student', 'Retirement', 'Digital Nomad'],
+    relocationTip: 'Bangkok and Chiang Mai are popular for remote workers. Great quality of life at low cost.'
+  },
+  'United Arab Emirates': {
+    capital: 'Abu Dhabi',
+    population: '10M',
+    costOfLiving: 4,
+    visaCategories: ['Work Permit', 'Golden Visa', 'Freelance', 'Remote Work', 'Investor'],
+    relocationTip: 'Dubai is a major business hub. No income tax, but high living costs. Golden Visa offers long-term residency.'
+  },
+  'Israel': {
+    capital: 'Jerusalem',
+    population: '9M',
+    costOfLiving: 4,
+    visaCategories: ['B-1 Work', 'Student', 'Start-up Visa', 'Expert'],
+    relocationTip: 'Tel Aviv is known as "Silicon Wadi" - thriving startup ecosystem. High costs but great opportunities.'
+  },
+
+  // Oceania
+  'Australia': {
+    capital: 'Canberra',
+    population: '26M',
+    costOfLiving: 4,
+    visaCategories: ['Skilled Independent', 'Employer Sponsored', 'Business Innovation', 'Student', 'Working Holiday'],
+    relocationTip: 'Sydney and Melbourne are major cities. Points-based immigration system. High salaries and quality of life.'
+  },
+  'New Zealand': {
+    capital: 'Wellington',
+    population: '5M',
+    costOfLiving: 3,
+    visaCategories: ['Skilled Migrant', 'Work to Residence', 'Essential Skills', 'Student', 'Working Holiday'],
+    relocationTip: 'Auckland and Wellington offer good work-life balance. Smaller market but beautiful country and friendly immigration policies.'
+  },
+};
+
+// Legacy capital mapping for backwards compatibility
 const countryCapitals: Record<string, string> = {
   // Americas
   'Canada': 'Ottawa',
@@ -168,6 +383,8 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
   const [avgSalary, setAvgSalary] = useState<number | null>(null);
   const [capital, setCapital] = useState<string | null>(null);
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
+  const [selectedCountryData, setSelectedCountryData] = useState<CountryData | null>(null);
+  const [selectedVisaCategory, setSelectedVisaCategory] = useState<string | null>(null);
   const chartRef = useRef<any>(null);
 
   // Load all maps on mount
@@ -281,22 +498,31 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
   const fetchCountryData = async (country: string) => {
     setLoading(true);
     try {
-      // Try exact match first, then try variations
-      let capital = countryCapitals[country];
+      // Try exact match first
+      let data = countryData[country];
 
-      // Try common variations
-      if (!capital) {
-        // Try without "Republic of", "Kingdom of", etc.
+      // Try common variations if exact match fails
+      if (!data) {
         const simplifiedName = country
-          .replace(/^(Republic of |Kingdom of |United States of )/i, '')
+          .replace(/^(Republic of |Kingdom of |United States of |The )/i, '')
           .trim();
-        capital = countryCapitals[simplifiedName];
+        data = countryData[simplifiedName];
       }
 
-      setCapital(capital || null);
+      if (data) {
+        setSelectedCountryData(data);
+        setCapital(data.capital);
+        setSelectedVisaCategory(null); // Reset visa selection
+      } else {
+        // Fallback to legacy capital mapping
+        const capital = countryCapitals[country] || countryCapitals[
+          country.replace(/^(Republic of |Kingdom of |United States of |The )/i, '').trim()
+        ];
+        setCapital(capital || null);
+        setSelectedCountryData(null);
+      }
 
       // TODO: Implement country jobs API endpoint
-      // For now, set empty jobs and salary
       setJobs([]);
       setAvgSalary(null);
     } catch (error) {
@@ -304,6 +530,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
       setJobs([]);
       setAvgSalary(null);
       setCapital(null);
+      setSelectedCountryData(null);
     } finally {
       setLoading(false);
     }
@@ -337,6 +564,8 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
       setJobs([]);
       setAvgSalary(null);
       setCapital(null);
+      setSelectedCountryData(null);
+      setSelectedVisaCategory(null);
     }
   };
 
@@ -438,11 +667,24 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
         emphasis: {
           label: { show: true, color: isDark ? '#fff' : '#000' },
           itemStyle: {
-            areaColor: isDark ? '#3b82f6' : '#93c5fd',
+            areaColor: '#fbbf24',
             borderWidth: 2
           }
         },
-        data: config.data
+        select: {
+          label: { show: true, color: isDark ? '#fff' : '#000' },
+          itemStyle: {
+            areaColor: '#fbbf24',
+            borderColor: '#f59e0b',
+            borderWidth: 2
+          }
+        },
+        selectedMode: 'single',
+        data: config.data.map((item: any) => ({
+          ...item,
+          selected: viewLevel === 'world' && selectedRegion &&
+            (item.name === selectedRegion || item.name.includes(selectedRegion) || selectedRegion.includes(item.name))
+        }))
       }
     ]
   };
@@ -509,51 +751,122 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
           }}
         >
         <div className="py-4">
-          <h3 className={`text-lg font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+          <h3 className={`text-base font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
             {selectedCity
               ? viewLevel === 'us-states'
                 ? Object.entries(stateNameToAbbr).find(([_, abbr]) => abbr === selectedCity)?.[0] || selectedCity
                 : selectedCity
               : selectedRegion || 'World'}
           </h3>
-          <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
-            {selectedCity ? 'Location Details' : viewLevel === 'world' ? 'Global Overview' : 'Select a location'}
+          <p className={`text-xs mt-0.5 ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
+            {selectedCity ? 'Location Details' : viewLevel === 'world' ? 'Select a country to view details' : 'Select a location'}
           </p>
 
-          {/* Capital and Average Salary Info */}
-          {!loading && (selectedRegion || selectedCity) && (
-            <div className="mt-4 space-y-2">
+          {/* Country/State Data */}
+          {!loading && selectedCountryData && viewLevel === 'world' && (
+            <div className="mt-4 space-y-3">
+              {/* Quick Stats Grid */}
+              <div className="grid grid-cols-2 gap-2">
+                <div className={`p-2 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
+                  <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Capital</div>
+                  <div className={`text-sm font-semibold mt-0.5 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                    {selectedCountryData.capital}
+                  </div>
+                </div>
+                <div className={`p-2 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
+                  <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Population</div>
+                  <div className={`text-sm font-semibold mt-0.5 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                    {selectedCountryData.population}
+                  </div>
+                </div>
+              </div>
+
+              {/* Cost of Living */}
+              <div className={`p-3 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
+                <div className={`text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Cost of Living</div>
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4, 5].map((level) => (
+                    <div
+                      key={level}
+                      className={`flex-1 h-2 rounded ${
+                        level <= selectedCountryData.costOfLiving
+                          ? 'bg-blue-500'
+                          : isDark ? 'bg-gray-700' : 'bg-gray-200'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <div className={`text-xs mt-1 ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
+                  {selectedCountryData.costOfLiving === 1 && 'Very Low'}
+                  {selectedCountryData.costOfLiving === 2 && 'Low'}
+                  {selectedCountryData.costOfLiving === 3 && 'Moderate'}
+                  {selectedCountryData.costOfLiving === 4 && 'High'}
+                  {selectedCountryData.costOfLiving === 5 && 'Very High'}
+                </div>
+              </div>
+
+              {/* Visa Categories */}
+              <div>
+                <div className={`text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Immigration Visa Categories</div>
+                <div className="flex flex-wrap gap-2">
+                  {selectedCountryData.visaCategories.map((visa) => (
+                    <button
+                      key={visa}
+                      onClick={() => setSelectedVisaCategory(selectedVisaCategory === visa ? null : visa)}
+                      className={`px-3 py-1.5 text-xs font-medium border transition-colors ${
+                        selectedVisaCategory === visa
+                          ? isDark
+                            ? 'bg-blue-600 border-blue-600 text-white'
+                            : 'bg-blue-500 border-blue-500 text-white'
+                          : isDark
+                          ? 'border-gray-700 bg-gray-800 text-gray-300 hover:bg-gray-700'
+                          : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      {visa}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Relocation Assistant Tip */}
+              <div className={`p-3 border-l-2 ${
+                isDark ? 'border-blue-500 bg-blue-950/30' : 'border-blue-500 bg-blue-50'
+              }`}>
+                <div className="flex items-start gap-2">
+                  <svg className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div>
+                    <div className={`text-xs font-medium mb-1 ${isDark ? 'text-blue-400' : 'text-blue-900'}`}>
+                      Relocation Assistant
+                    </div>
+                    <p className={`text-xs leading-relaxed ${isDark ? 'text-blue-300' : 'text-blue-800'}`}>
+                      {selectedCountryData.relocationTip}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* US State Data (simplified) */}
+          {!loading && viewLevel === 'us-states' && selectedCity && (
+            <div className="mt-4 space-y-3">
               {capital && (
-                <div className={`flex items-center justify-between py-2 px-3 border ${
-                  isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'
-                }`}>
-                  <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Capital
-                  </span>
-                  <span className={`text-sm font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                <div className={`p-2 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
+                  <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Capital</div>
+                  <div className={`text-sm font-semibold mt-0.5 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
                     {capital}
-                  </span>
+                  </div>
                 </div>
               )}
               {avgSalary && (
-                <div className={`flex items-center justify-between py-2 px-3 border ${
-                  isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'
-                }`}>
-                  <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Avg Salary
-                  </span>
-                  <span className={`text-sm font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                <div className={`p-2 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
+                  <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Avg Salary</div>
+                  <div className={`text-sm font-semibold mt-0.5 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
                     ${avgSalary.toLocaleString()}
-                  </span>
-                </div>
-              )}
-              {!capital && !avgSalary && !jobs.length && viewLevel !== 'world' && (
-                <div className={`py-4 px-3 text-center border ${
-                  isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'
-                }`}>
-                  <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
-                    No job data available for this location
-                  </p>
+                  </div>
                 </div>
               )}
             </div>
