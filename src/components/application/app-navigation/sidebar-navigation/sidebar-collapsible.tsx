@@ -221,19 +221,21 @@ export const SidebarCollapsible = ({
                             <>
                                 <motion.div
                                     key={activeUrl}
-                                    initial={{ opacity: 0.3 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ duration: 0.4, ease: "easeOut" }}
-                                    className="flex items-center"
+                                    className="flex items-center overflow-hidden"
+                                    style={{ width: "70px" }}
                                 >
                                     <motion.img
                                         src="/logo.svg"
                                         alt="Dale"
                                         className="h-7 w-auto"
-                                        style={{ width: "70px" }}
-                                        initial={{ scale: 0.95 }}
-                                        animate={{ scale: 1 }}
-                                        transition={{ duration: 0.3 }}
+                                        style={{
+                                            width: "70px",
+                                            clipPath: "inset(0 100% 0 0)"
+                                        }}
+                                        animate={{
+                                            clipPath: "inset(0 0% 0 0)"
+                                        }}
+                                        transition={{ duration: 0.8, ease: "easeInOut" }}
                                     />
                                 </motion.div>
                                 <button
