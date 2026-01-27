@@ -42,6 +42,7 @@ type MapMetric = 'best' | 'salary' | 'health' | 'tax';
 
 export default function USAMapChart({ data, style, isDark = true }: USAMapChartProps) {
   const [mapRegistered, setMapRegistered] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState<string>('US');
   const [selectedMetric, setSelectedMetric] = useState<MapMetric>('best');
   const [selectedState, setSelectedState] = useState<string | null>(null);
   const [selectedJob, setSelectedJob] = useState<StateJob | null>(null);
@@ -59,19 +60,31 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
   const jobsCache = useRef<Record<string, { jobs: StateJob[]; avgSalary: number | null; topCity: string | null; topEmployers: Array<{ company: string; logo: string | null; jobCount: number }> }>>({});
 
   useEffect(() => {
-    // Register USA map with ECharts using reliable GeoJSON source
+    // Register maps based on selected country
     if (typeof window !== 'undefined') {
-      fetch('https://raw.githubusercontent.com/python-visualization/folium/master/examples/data/us-states.json')
-        .then(response => response.json())
-        .then(usaJson => {
-          echarts.registerMap('USA', usaJson);
-          setMapRegistered(true);
-        })
-        .catch(error => {
-          console.error('Error loading USA map:', error);
-        });
+      setMapRegistered(false);
+
+      if (selectedCountry === 'US') {
+        // Load US states map
+        fetch('https://raw.githubusercontent.com/python-visualization/folium/master/examples/data/us-states.json')
+          .then(response => response.json())
+          .then(usaJson => {
+            echarts.registerMap('MAP', usaJson);
+            setMapRegistered(true);
+          })
+          .catch(error => console.error('Error loading US map:', error));
+      } else {
+        // Load world countries map for other countries
+        fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+          .then(response => response.json())
+          .then(worldJson => {
+            echarts.registerMap('MAP', worldJson);
+            setMapRegistered(true);
+          })
+          .catch(error => console.error('Error loading world map:', error));
+      }
     }
-  }, []);
+  }, [selectedCountry]);
 
   useEffect(() => {
     // Fetch USA-wide stats on mount
@@ -492,14 +505,14 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
       {
         name: 'Onsite Jobs',
         type: 'map',
-        map: 'USA',
+        map: 'MAP',
         roam: 'move',  // Only allow panning, not scroll zoom
-        center: [-92, 38],
+        center: selectedCountry === 'US' ? [-92, 38] : [0, 30],  // US center or world center
         scaleLimit: {
           min: 1,
-          max: 5
+          max: selectedCountry === 'US' ? 5 : 8
         },
-        zoom: 4.2,
+        zoom: selectedCountry === 'US' ? 4.2 : 1.5,  // Zoomed in for US, out for world
         label: {
           show: false
         },
@@ -554,6 +567,33 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
           transition: 'width 600ms cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       >
+        {/* Country Selector - Top left */}
+        <div className="absolute top-4 left-4 z-10">
+          <select
+            value={selectedCountry}
+            onChange={(e) => {
+              setSelectedCountry(e.target.value);
+              setSelectedState(null); // Reset state selection when changing country
+            }}
+            className={`text-[10px] px-3 py-1.5 border font-medium transition-colors ${
+              isDark
+                ? 'border-gray-700 bg-gray-900 text-gray-300'
+                : 'border-gray-300 bg-white text-gray-700'
+            }`}
+          >
+            <option value="US">United States</option>
+            <option value="CA">Canada</option>
+            <option value="GB">United Kingdom</option>
+            <option value="DE">Germany</option>
+            <option value="FR">France</option>
+            <option value="AU">Australia</option>
+            <option value="IN">India</option>
+            <option value="MX">Mexico</option>
+            <option value="BR">Brazil</option>
+            <option value="JP">Japan</option>
+          </select>
+        </div>
+
         {/* Metric Tabs - Positioned on top of map */}
         <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10 flex gap-2">
           <button
@@ -614,9 +654,14 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
           </button>
         </div>
         <ReactECharts
+          key={`map-${selectedCountry}`}
           option={option}
           onEvents={{ click: handleStateClick }}
-          style={{ height: style?.height || '500px' }}
+          style={{
+            height: style?.height || '500px',
+            transition: 'opacity 400ms ease-in-out',
+            opacity: mapRegistered ? 1 : 0.5
+          }}
         />
       </div>
 
