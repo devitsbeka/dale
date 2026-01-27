@@ -1339,82 +1339,32 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
                       <div className="grid grid-cols-2 gap-2">
                         <div className={`p-2 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
                           <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>GDP</div>
-                          <div className="flex items-center justify-between mt-0.5">
-                            <div className={`text-sm font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
-                              #{selectedCountryData.gdpRank}
-                            </div>
-                            {selectedCountryData.gdpRankChange !== undefined && selectedCountryData.gdpRankChange !== 0 && (
-                              <div className={`text-xs font-medium ${
-                                selectedCountryData.gdpRankChange < 0 ? 'text-green-500' : 'text-red-500'
-                              }`}>
-                                {selectedCountryData.gdpRankChange < 0 ? '↑' : '↓'}
-                                {Math.abs(selectedCountryData.gdpRankChange)}
-                              </div>
-                            )}
+                          <div className={`text-sm font-semibold mt-0.5 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                            #{selectedCountryData.gdpRank}
                           </div>
                         </div>
                         <div className={`p-2 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
                           <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Cost of Living</div>
-                          <div className="flex items-center justify-between mt-0.5">
-                            <div className={`text-sm font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
-                              #{selectedCountryData.costOfLivingRank}
-                            </div>
-                            {selectedCountryData.costOfLivingRankChange !== undefined && selectedCountryData.costOfLivingRankChange !== 0 && (
-                              <div className={`text-xs font-medium ${
-                                selectedCountryData.costOfLivingRankChange < 0 ? 'text-green-500' : 'text-red-500'
-                              }`}>
-                                {selectedCountryData.costOfLivingRankChange < 0 ? '↑' : '↓'}
-                                {Math.abs(selectedCountryData.costOfLivingRankChange)}
-                              </div>
-                            )}
+                          <div className={`text-sm font-semibold mt-0.5 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                            #{selectedCountryData.costOfLivingRank}
                           </div>
                         </div>
                         <div className={`p-2 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
                           <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Medicine</div>
-                          <div className="flex items-center justify-between mt-0.5">
-                            <div className={`text-sm font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
-                              #{selectedCountryData.medicineRank}
-                            </div>
-                            {selectedCountryData.medicineRankChange !== undefined && selectedCountryData.medicineRankChange !== 0 && (
-                              <div className={`text-xs font-medium ${
-                                selectedCountryData.medicineRankChange < 0 ? 'text-green-500' : 'text-red-500'
-                              }`}>
-                                {selectedCountryData.medicineRankChange < 0 ? '↑' : '↓'}
-                                {Math.abs(selectedCountryData.medicineRankChange)}
-                              </div>
-                            )}
+                          <div className={`text-sm font-semibold mt-0.5 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                            #{selectedCountryData.medicineRank}
                           </div>
                         </div>
                         <div className={`p-2 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
                           <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Safety</div>
-                          <div className="flex items-center justify-between mt-0.5">
-                            <div className={`text-sm font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
-                              #{selectedCountryData.safetyRank}
-                            </div>
-                            {selectedCountryData.safetyRankChange !== undefined && selectedCountryData.safetyRankChange !== 0 && (
-                              <div className={`text-xs font-medium ${
-                                selectedCountryData.safetyRankChange < 0 ? 'text-green-500' : 'text-red-500'
-                              }`}>
-                                {selectedCountryData.safetyRankChange < 0 ? '↑' : '↓'}
-                                {Math.abs(selectedCountryData.safetyRankChange)}
-                              </div>
-                            )}
+                          <div className={`text-sm font-semibold mt-0.5 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                            #{selectedCountryData.safetyRank}
                           </div>
                         </div>
                         <div className={`p-2 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
                           <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Air Quality</div>
-                          <div className="flex items-center justify-between mt-0.5">
-                            <div className={`text-sm font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
-                              #{selectedCountryData.airQualityRank}
-                            </div>
-                            {selectedCountryData.airQualityRankChange !== undefined && selectedCountryData.airQualityRankChange !== 0 && (
-                              <div className={`text-xs font-medium ${
-                                selectedCountryData.airQualityRankChange < 0 ? 'text-green-500' : 'text-red-500'
-                              }`}>
-                                {selectedCountryData.airQualityRankChange < 0 ? '↑' : '↓'}
-                                {Math.abs(selectedCountryData.airQualityRankChange)}
-                              </div>
-                            )}
+                          <div className={`text-sm font-semibold mt-0.5 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                            #{selectedCountryData.airQualityRank}
                           </div>
                         </div>
                       </div>
