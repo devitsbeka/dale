@@ -19,10 +19,13 @@ interface SnapshotData {
   usaMap: any;
 }
 
+type TabType = 'explorer' | 'overview';
+
 export default function SnapshotPage() {
   const [data, setData] = useState<SnapshotData | null>(null);
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState(30);
+  const [activeTab, setActiveTab] = useState<TabType>('explorer');
 
   useEffect(() => {
     fetchData();
@@ -63,31 +66,68 @@ export default function SnapshotPage() {
           </div>
         </div>
       ) : (
-        <div className="p-6 md:p-8">
-          {/* Header with controls */}
-          <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Market Snapshot</h1>
-              <p className="text-gray-600">
-                Real-time insights from {data?.overview?.totalJobs?.toLocaleString() || 0} job listings
-              </p>
-            </div>
-            <div className="w-full sm:w-48">
-              <Select
-                aria-label="Select date range"
-                selectedKey={String(dateRange)}
-                onSelectionChange={(key) => setDateRange(Number(key))}
-                items={[
-                  { id: '7', label: 'Last 7 days' },
-                  { id: '30', label: 'Last 30 days' },
-                  { id: '90', label: 'Last 90 days' },
-                ]}
-                size="md"
-              >
-                {(item) => <Select.Item id={item.id}>{item.label}</Select.Item>}
-              </Select>
+        <div className="flex flex-col h-screen">
+          {/* Header with tabs and controls */}
+          <div className="border-b bg-white">
+            <div className="px-6 md:px-8 py-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900 mb-2">Market Snapshot</h1>
+                  <p className="text-gray-600">
+                    Real-time insights from {data?.overview?.totalJobs?.toLocaleString() || 0} job listings
+                  </p>
+                </div>
+                <div className="w-full sm:w-48">
+                  <Select
+                    aria-label="Select date range"
+                    selectedKey={String(dateRange)}
+                    onSelectionChange={(key) => setDateRange(Number(key))}
+                    items={[
+                      { id: '7', label: 'Last 7 days' },
+                      { id: '30', label: 'Last 30 days' },
+                      { id: '90', label: 'Last 90 days' },
+                    ]}
+                    size="md"
+                  >
+                    {(item) => <Select.Item id={item.id}>{item.label}</Select.Item>}
+                  </Select>
+                </div>
+              </div>
+
+              {/* Tabs */}
+              <div className="flex gap-1 border-b">
+                <button
+                  onClick={() => setActiveTab('explorer')}
+                  className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
+                    activeTab === 'explorer'
+                      ? 'border-blue-600 text-blue-600'
+                      : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                  }`}
+                >
+                  Explorer
+                </button>
+                <button
+                  onClick={() => setActiveTab('overview')}
+                  className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
+                    activeTab === 'overview'
+                      ? 'border-blue-600 text-blue-600'
+                      : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                  }`}
+                >
+                  Overview
+                </button>
+              </div>
             </div>
           </div>
+
+          {/* Tab Content */}
+          {activeTab === 'explorer' ? (
+            <div className="flex-1 overflow-hidden">
+              <WorldMapChart data={data?.usaMap} style={{ height: '100%', width: '100%' }} isDark={false} />
+            </div>
+          ) : (
+        <div className="flex-1 overflow-auto p-6 md:p-8">
+          <div className="space-y-8">
 
           {/* KPI Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -166,10 +206,13 @@ export default function SnapshotPage() {
             </ChartCard>
           </div>
 
-          {/* Footer Info */}
-          <div className="mt-8 text-center text-gray-500 text-sm">
-            <p>Data updated in real-time • Last refresh: {new Date().toLocaleString()}</p>
+            {/* Footer Info */}
+            <div className="mt-8 text-center text-gray-500 text-sm">
+              <p>Data updated in real-time • Last refresh: {new Date().toLocaleString()}</p>
+            </div>
           </div>
+        </div>
+          )}
         </div>
       )}
     </div>
