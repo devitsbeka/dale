@@ -96,16 +96,20 @@ export default function SnapshotPage() {
                 </button>
               </div>
 
-              <select
-                value={dateRange}
-                onChange={(e) => setDateRange(Number(e.target.value))}
-                className="text-xs pl-3 pr-10 py-1.5 border border-gray-300 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                style={{ backgroundPosition: 'right 0.75rem center' }}
-              >
-                <option value={7}>Last 7 days</option>
-                <option value={30}>Last 30 days</option>
-                <option value={90}>Last 90 days</option>
-              </select>
+              <div className="[&_button]:!rounded-none">
+                <Select
+                  size="sm"
+                  selectedKey={String(dateRange)}
+                  onSelectionChange={(key) => setDateRange(Number(key))}
+                  items={[
+                    { id: '7', label: 'Last 7 days' },
+                    { id: '30', label: 'Last 30 days' },
+                    { id: '90', label: 'Last 90 days' },
+                  ]}
+                >
+                  {(item) => <Select.Item id={item.id}>{item.label}</Select.Item>}
+                </Select>
+              </div>
             </div>
           </div>
 
