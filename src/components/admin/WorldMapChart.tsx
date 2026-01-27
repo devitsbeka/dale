@@ -567,6 +567,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
         const detailsData = await detailsResponse.json();
         setSelectedVisaData(detailsData.visaCategory);
         setViewMode('visa');
+        window.history.pushState({ viewMode: 'visa', selectedRegion: countryCode }, '');
       } else {
         console.error(`No match found for: ${visaName}`);
       }
@@ -667,6 +668,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
         setSelectedVisaCategory(null); // Reset visa selection
         setViewMode('country');
         setHasVisaDataFromDB(visaCategoriesFromDB.length > 0);
+        window.history.pushState({ viewMode: 'country', selectedRegion: country }, '');
       } else {
         // Fallback: Create basic CountryData from legacy capital mapping
         const capital = countryCapitals[country] || countryCapitals[
@@ -693,6 +695,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
           setSelectedVisaCategory(null);
           setViewMode('country');
           setHasVisaDataFromDB(visaCategoriesFromDB.length > 0);
+          window.history.pushState({ viewMode: 'country', selectedRegion: country }, '');
         } else {
           setCapital(null);
           setSelectedCountryData(null);
@@ -834,6 +837,52 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isResizing]);
+
+  // Handle keyboard shortcuts and browser navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+      const cmdOrCtrl = isMac ? e.metaKey : e.ctrlKey;
+
+      // CMD+R or CMD+→ to open panel
+      if (cmdOrCtrl && (e.key === 'r' || e.key === 'ArrowRight')) {
+        e.preventDefault();
+        setIsPanelCollapsed(false);
+      }
+    };
+
+    const handlePopState = () => {
+      // Browser back button pressed
+      if (viewMode === 'visa') {
+        // Go back from visa to country
+        setViewMode('country');
+        setSelectedVisaData(null);
+        setSelectedVisaId(null);
+      } else if (viewMode === 'country' && selectedRegion) {
+        // Go back from country to collapsed panel
+        setIsPanelCollapsed(true);
+        setViewMode('map');
+        setSelectedCountryData(null);
+        setSelectedRegion(null);
+      } else if (isPanelCollapsed) {
+        // Panel is collapsed, open it
+        setIsPanelCollapsed(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('popstate', handlePopState);
+
+    // Push initial state
+    if (!window.history.state?.initialized) {
+      window.history.pushState({ initialized: true }, '');
+    }
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [viewMode, selectedRegion, isPanelCollapsed]);
 
   const config = getMapConfig();
 
