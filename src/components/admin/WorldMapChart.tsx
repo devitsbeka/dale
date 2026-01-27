@@ -167,6 +167,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
   const [loading, setLoading] = useState(false);
   const [avgSalary, setAvgSalary] = useState<number | null>(null);
   const [capital, setCapital] = useState<string | null>(null);
+  const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
   const chartRef = useRef<any>(null);
 
   // Load all maps on mount
@@ -457,9 +458,9 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
   }
 
   return (
-    <div className="relative flex" style={style}>
+    <div className="relative flex transition-all duration-300" style={style}>
       {/* Map */}
-      <div className="relative" style={{ width: '66.666%' }}>
+      <div className="relative transition-all duration-300" style={{ width: isPanelCollapsed ? '100%' : '66.666%' }}>
         {viewLevel !== 'world' && (
           <button
             onClick={handleBack}
@@ -472,6 +473,20 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
             ← Back to World
           </button>
         )}
+
+        {/* Collapse/Expand Button */}
+        <button
+          onClick={() => setIsPanelCollapsed(!isPanelCollapsed)}
+          className={`absolute top-4 right-4 z-10 text-xs px-3 py-1.5 border font-medium transition-colors ${
+            isDark
+              ? 'border-gray-700 bg-gray-900 text-gray-300 hover:bg-gray-800'
+              : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+          }`}
+          title={isPanelCollapsed ? 'Show panel' : 'Hide panel'}
+        >
+          {isPanelCollapsed ? '→' : '←'}
+        </button>
+
         <ReactECharts
           key={viewLevel}
           option={option}
@@ -482,17 +497,18 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
       </div>
 
       {/* Right Panel */}
-      <div
-        className={`overflow-y-auto ${
-          isDark ? 'border-gray-800 bg-gray-950' : 'border-gray-200 bg-white'
-        }`}
-        style={{
-          width: '33.333%',
-          borderLeftWidth: '1px',
-          paddingLeft: '1rem',
-          height: style?.height || '600px'
-        }}
-      >
+      {!isPanelCollapsed && (
+        <div
+          className={`overflow-y-auto transition-all duration-300 ${
+            isDark ? 'border-gray-800 bg-gray-950' : 'border-gray-200 bg-white'
+          }`}
+          style={{
+            width: '33.333%',
+            borderLeftWidth: '1px',
+            paddingLeft: '1rem',
+            height: style?.height || '600px'
+          }}
+        >
         <div className="py-4">
           <h3 className={`text-lg font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
             {selectedCity
@@ -588,7 +604,8 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
             </div>
           )}
         </div>
-      </div>
+        </div>
+      )}
     </div>
   );
 }
