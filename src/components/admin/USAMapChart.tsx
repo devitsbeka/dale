@@ -38,11 +38,11 @@ interface StateJob {
   source: string;
 }
 
-type MapMetric = 'compensation' | 'quality-of-life' | 'tax';
+type MapMetric = 'best' | 'salary' | 'health' | 'tax';
 
 export default function USAMapChart({ data, style, isDark = true }: USAMapChartProps) {
   const [mapRegistered, setMapRegistered] = useState(false);
-  const [selectedMetric, setSelectedMetric] = useState<MapMetric>('compensation');
+  const [selectedMetric, setSelectedMetric] = useState<MapMetric>('best');
   const [selectedState, setSelectedState] = useState<string | null>(null);
   const [selectedJob, setSelectedJob] = useState<StateJob | null>(null);
   const [stateJobs, setStateJobs] = useState<StateJob[]>([]);
@@ -368,7 +368,13 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
     const state = stateAbbr ? stateData[stateAbbr] : null;
 
     let value = stateInfo.value; // Default: salary
-    if (selectedMetric === 'quality-of-life' && state) {
+    if (selectedMetric === 'best' && state) {
+      // Composite "Best" score combining salary, quality of life, and low tax
+      const salaryScore = ((stateInfo.value - 76000) / (135000 - 76000)) * 100; // Normalize salary to 0-100
+      const qolScore = state.qualityOfLife; // Already 0-100
+      const taxScore = ((13.3 - state.stateTaxRate) / 13.3) * 100; // Invert tax: 0% tax = 100, 13.3% = 0
+      value = (salaryScore + qolScore + taxScore) / 3; // Average of three factors
+    } else if (selectedMetric === 'health' && state) {
       value = state.qualityOfLife;
     } else if (selectedMetric === 'tax' && state) {
       // Use actual tax rate (higher = warmer color)
@@ -383,15 +389,28 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
   });
 
   const maxValue = Math.max(...mapData.map((d: any) => d.value), 1);
-  const minValue = selectedMetric === 'quality-of-life'
-    ? Math.min(...mapData.map((d: any) => d.value), 0)  // Use actual min for QoL to spread gradient better
+  const minValue = selectedMetric === 'health'
+    ? Math.min(...mapData.map((d: any) => d.value), 0)  // Use actual min for Health to spread gradient better
     : selectedMetric === 'tax'
     ? Math.min(...mapData.map((d: any) => d.value), 0)  // Use actual min for tax
-    : 0;  // Compensation starts at 0
+    : selectedMetric === 'best'
+    ? Math.min(...mapData.map((d: any) => d.value), 0)  // Use actual min for Best
+    : 0;  // Salary starts at 0
 
   // Dynamic labels based on metric
   const metricConfig = {
-    'compensation': {
+    'best': {
+      highLabel: 'Best',
+      lowLabel: 'Worst',
+      formatter: (value: number) => value > 0 ? `${value.toFixed(0)}` : '0',
+      tooltip: (params: any, jobCount: number) => {
+        if (params.value) {
+          return `${params.name}<br/>Overall Score: ${params.value.toFixed(0)}/100<br/>Jobs: ${jobCount}`;
+        }
+        return `${params.name}<br/>Overall Score: N/A<br/>Jobs: 0`;
+      }
+    },
+    'salary': {
       highLabel: 'High Salary',
       lowLabel: 'Low Salary',
       formatter: (value: number) => value > 0 ? `$${Math.round(value / 1000)}k` : '$0',
@@ -402,15 +421,15 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
         return `${params.name}<br/>Avg Salary: $0<br/>Jobs: 0`;
       }
     },
-    'quality-of-life': {
-      highLabel: 'High QoL',
-      lowLabel: 'Low QoL',
+    'health': {
+      highLabel: 'High Health',
+      lowLabel: 'Low Health',
       formatter: (value: number) => value > 0 ? `${value.toFixed(0)}` : '0',
       tooltip: (params: any, jobCount: number) => {
         if (params.value) {
-          return `${params.name}<br/>Quality of Life: ${params.value.toFixed(0)}/100<br/>Jobs: ${jobCount}`;
+          return `${params.name}<br/>Health Score: ${params.value.toFixed(0)}/100<br/>Jobs: ${jobCount}`;
         }
-        return `${params.name}<br/>Quality of Life: N/A<br/>Jobs: 0`;
+        return `${params.name}<br/>Health Score: N/A<br/>Jobs: 0`;
       }
     },
     'tax': {
@@ -538,9 +557,9 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
         {/* Metric Tabs - Positioned on top of map */}
         <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10 flex gap-2">
           <button
-            onClick={() => setSelectedMetric('compensation')}
-            className={`text-[10px] px-3 py-1.5 border font-medium transition-colors ${
-              selectedMetric === 'compensation'
+            onClick={() => setSelectedMetric('best')}
+            className={`text-[10px] px-3 py-1.5 border font-medium transition-colors whitespace-nowrap ${
+              selectedMetric === 'best'
                 ? isDark
                   ? 'border-gray-600 bg-gray-800 text-gray-100'
                   : 'border-gray-400 bg-gray-100 text-gray-900'
@@ -549,12 +568,12 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
                 : 'border-gray-300 text-gray-600 hover:bg-gray-50'
             }`}
           >
-            Compensation
+            Best
           </button>
           <button
-            onClick={() => setSelectedMetric('quality-of-life')}
+            onClick={() => setSelectedMetric('salary')}
             className={`text-[10px] px-3 py-1.5 border font-medium transition-colors whitespace-nowrap ${
-              selectedMetric === 'quality-of-life'
+              selectedMetric === 'salary'
                 ? isDark
                   ? 'border-gray-600 bg-gray-800 text-gray-100'
                   : 'border-gray-400 bg-gray-100 text-gray-900'
@@ -563,7 +582,21 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
                 : 'border-gray-300 text-gray-600 hover:bg-gray-50'
             }`}
           >
-            Quality of Life
+            Salary
+          </button>
+          <button
+            onClick={() => setSelectedMetric('health')}
+            className={`text-[10px] px-3 py-1.5 border font-medium transition-colors whitespace-nowrap ${
+              selectedMetric === 'health'
+                ? isDark
+                  ? 'border-gray-600 bg-gray-800 text-gray-100'
+                  : 'border-gray-400 bg-gray-100 text-gray-900'
+                : isDark
+                ? 'border-gray-700 text-gray-400 hover:bg-gray-800'
+                : 'border-gray-300 text-gray-600 hover:bg-gray-50'
+            }`}
+          >
+            Health
           </button>
           <button
             onClick={() => setSelectedMetric('tax')}
