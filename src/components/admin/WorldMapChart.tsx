@@ -960,7 +960,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
   const config = getMapConfig();
 
   const option = {
-    backgroundColor: 'transparent',
+    backgroundColor: isDark ? '#111827' : '#fafbfc',
     animation: true,
     animationDuration: 800,
     animationEasing: 'cubicOut',
@@ -1006,23 +1006,32 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
         scaleLimit: { min: 1, max: 8 },
         label: { show: false },
         itemStyle: {
-          areaColor: isDark ? '#1f2937' : '#f3f4f6',
-          borderColor: isDark ? '#374151' : '#d1d5db',
-          borderWidth: 1
+          areaColor: isDark ? '#1f2937' : '#ffffff',
+          borderColor: isDark ? '#374151' : '#e2e8f0',
+          borderWidth: 1.5,
+          shadowColor: isDark ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.04)',
+          shadowBlur: 2,
+          shadowOffsetX: 0,
+          shadowOffsetY: 1
         },
         emphasis: {
           label: { show: true, color: isDark ? '#fff' : '#000' },
           itemStyle: {
-            areaColor: '#fbbf24',
-            borderWidth: 2
+            areaColor: isDark ? '#f59e0b' : '#fbbf24',
+            borderColor: isDark ? '#f59e0b' : '#f59e0b',
+            borderWidth: 2,
+            shadowBlur: 8,
+            shadowColor: 'rgba(245, 158, 11, 0.4)'
           }
         },
         select: {
           label: { show: true, color: isDark ? '#fff' : '#000' },
           itemStyle: {
-            areaColor: '#fbbf24',
+            areaColor: isDark ? '#f59e0b' : '#fbbf24',
             borderColor: '#f59e0b',
-            borderWidth: 2
+            borderWidth: 2,
+            shadowBlur: 8,
+            shadowColor: 'rgba(245, 158, 11, 0.4)'
           }
         },
         selectedMode: 'single',
