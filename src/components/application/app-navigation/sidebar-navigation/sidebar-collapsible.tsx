@@ -63,7 +63,7 @@ export const SidebarCollapsible = ({
     const { user, isLoading: authLoading } = useAuth();
 
     const EXPANDED_WIDTH = 240;
-    const COLLAPSED_WIDTH = 68;
+    const COLLAPSED_WIDTH = 56;
     const COLLAPSE_BREAKPOINT = 1240;
 
     const isDarkMode = resolvedTheme === "dark";
@@ -207,7 +207,7 @@ export const SidebarCollapsible = ({
                     {/* Header with logo and toggle */}
                     <div className={cx(
                         "flex shrink-0 items-center pt-3",
-                        isCollapsed ? "flex-col gap-3 px-2 justify-center" : "justify-between px-3"
+                        isCollapsed ? "flex-col gap-3 px-1 justify-center" : "justify-between px-3"
                     )}>
                         {isCollapsed ? (
                             <Button
@@ -249,7 +249,7 @@ export const SidebarCollapsible = ({
                     <div className={cx("flex-1 overflow-y-auto overflow-x-hidden", scrollbarHiddenClass)}>
                         {isCollapsed ? (
                             // Collapsed navigation - icon only
-                            <ul className="flex flex-col items-center gap-1 px-2 py-3">
+                            <ul className="flex flex-col items-center gap-0.5 px-1 py-3">
                                 {collapsedItems.map((item) => (
                                     <li key={item.label}>
                                         <NavItemButton
@@ -288,14 +288,14 @@ export const SidebarCollapsible = ({
                     {/* Footer */}
                     <div className={cx(
                         "mt-auto shrink-0 py-3",
-                        isCollapsed ? "flex flex-col items-center gap-2 px-2" : "flex flex-col gap-3 px-3"
+                        isCollapsed ? "flex flex-col items-center gap-1 px-1" : "flex flex-col gap-3 px-3"
                     )}>
                         {/* Theme Toggle */}
                         {showThemeToggle && (
                             isCollapsed ? (
                                 <button
                                     onClick={() => setTheme(isDarkMode ? "light" : "dark")}
-                                    className="flex size-10 items-center justify-center rounded-lg bg-gray-50 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700"
+                                    className="flex size-10 items-center justify-center text-gray-500 transition hover:text-gray-700"
                                     aria-label="Toggle dark mode"
                                 >
                                     {isDarkMode ? <MoonIcon className="size-5" /> : <SunIcon className="size-5" />}
@@ -327,7 +327,7 @@ export const SidebarCollapsible = ({
 
                         {/* Footer nav items - only in collapsed */}
                         {isCollapsed && footerItems.length > 0 && (
-                            <ul className="flex flex-col gap-1">
+                            <ul className="flex flex-col gap-0.5">
                                 {footerItems.map((item) => (
                                     <li key={item.label}>
                                         <NavItemButton
