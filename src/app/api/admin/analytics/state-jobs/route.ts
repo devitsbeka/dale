@@ -5,8 +5,22 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { matchesState } from '@/lib/location-utils';
 import { getStateSalary } from '@/lib/bls-salary-data';
+
+// State abbreviation to full name mapping
+const stateAbbrToName: Record<string, string> = {
+  'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 'CA': 'California',
+  'CO': 'Colorado', 'CT': 'Connecticut', 'DE': 'Delaware', 'FL': 'Florida', 'GA': 'Georgia',
+  'HI': 'Hawaii', 'ID': 'Idaho', 'IL': 'Illinois', 'IN': 'Indiana', 'IA': 'Iowa',
+  'KS': 'Kansas', 'KY': 'Kentucky', 'LA': 'Louisiana', 'ME': 'Maine', 'MD': 'Maryland',
+  'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota', 'MS': 'Mississippi', 'MO': 'Missouri',
+  'MT': 'Montana', 'NE': 'Nebraska', 'NV': 'Nevada', 'NH': 'New Hampshire', 'NJ': 'New Jersey',
+  'NM': 'New Mexico', 'NY': 'New York', 'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio',
+  'OK': 'Oklahoma', 'OR': 'Oregon', 'PA': 'Pennsylvania', 'RI': 'Rhode Island', 'SC': 'South Carolina',
+  'SD': 'South Dakota', 'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah', 'VT': 'Vermont',
+  'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia', 'WI': 'Wisconsin', 'WY': 'Wyoming',
+  'DC': 'District of Columbia'
+};
 
 // In-memory cache
 const cache = new Map<string, { data: any; timestamp: number }>();
@@ -40,23 +54,41 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Build where clause for salary filtering
-    const salaryWhere: any = {};
-    if (minSalary) {
-      salaryWhere.salaryMax = { gte: parseInt(minSalary) };
-    }
-    if (maxSalary) {
-      salaryWhere.salaryMin = { lte: parseInt(maxSalary) };
+    // Get state full name for matching
+    const stateUpper = state.toUpperCase();
+    const stateName = stateAbbrToName[stateUpper];
+
+    // Build optimized where clause with specific patterns
+    const locationPatterns = [
+      `%, ${stateUpper}`,      // "City, CA"
+      `%, ${stateUpper} %`,    // "City, CA 12345"
+    ];
+
+    if (stateName) {
+      locationPatterns.push(`%, ${stateName}`);       // "City, California"
+      locationPatterns.push(`%, ${stateName} %`);     // "City, California, USA"
     }
 
-    // Get all onsite jobs with locations
-    const onsiteJobs = await prisma.job.findMany({
-      where: {
-        locationType: 'onsite',
-        isActive: true,
-        location: { not: null },
-        ...salaryWhere
-      },
+    const whereClause: any = {
+      locationType: 'onsite',
+      isActive: true,
+      location: { not: null },
+      OR: locationPatterns.map(pattern => ({
+        location: { contains: pattern }
+      }))
+    };
+
+    // Add salary filters
+    if (minSalary) {
+      whereClause.salaryMax = { gte: parseInt(minSalary) };
+    }
+    if (maxSalary) {
+      whereClause.salaryMin = { lte: parseInt(maxSalary) };
+    }
+
+    // Query database with optimized state filter
+    const stateJobs = await prisma.job.findMany({
+      where: whereClause,
       select: {
         id: true,
         title: true,
@@ -80,12 +112,10 @@ export async function GET(request: NextRequest) {
       },
       orderBy: [
         { publishedAt: 'desc' },
-        { id: 'asc' } // Stable secondary sort
-      ]
+        { id: 'asc' }
+      ],
+      take: 500 // Limit results for performance
     });
-
-    // Filter jobs by state
-    const stateJobs = onsiteJobs.filter(job => matchesState(job.location, state));
 
     // Get average salary from BLS data
     const avgSalary = getStateSalary(state);
