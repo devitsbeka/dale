@@ -1297,7 +1297,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
                 <div className="space-y-3">
                   {/* Dale Rank - Highlighted Widget */}
                   {(selectedCountryData.daleRank ?? 0) > 0 && (
-                    <div className={`p-3 border ${isDark ? 'border-gray-700 bg-gray-800' : 'border-gray-300 bg-gray-200'}`}>
+                    <div className={`p-3 border ${isDark ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'}`}>
                       <div className="flex items-center justify-between mb-2">
                         <div className={`text-xs font-medium ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
                           Dale Rank
