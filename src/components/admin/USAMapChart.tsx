@@ -455,15 +455,27 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
       },
       formatter: currentConfig.formatter,
       inRange: {
-        // Very subtle low-contrast pastel greens: barely noticeable gradient
-        color: isDark
-          ? ['#1f2937', '#1f3a30', '#1f4233', '#204a36', '#215239']  // Dark mode: subtle dark greens
-          : ['#f8fefb', '#f3fcf7', '#eefbf3', '#e9f9ee', '#e4f7ea']  // Light mode: very soft pastel greens
+        // Different color schemes for each metric
+        color: selectedMetric === 'compensation'
+          ? (isDark
+              ? ['#1f2937', '#1f3a30', '#1f4233', '#204a36', '#215239']  // Dark mode: subtle dark greens
+              : ['#f8fefb', '#f3fcf7', '#eefbf3', '#e9f9ee', '#e4f7ea']) // Light mode: very soft pastel greens
+          : selectedMetric === 'quality-of-life'
+          ? (isDark
+              ? ['#1f2937', '#2a1f37', '#32213d', '#3a2343', '#422549']  // Dark mode: subtle purples
+              : ['#faf9fc', '#f5f3f9', '#f0edf6', '#ebe7f3', '#e6e1f0']) // Light mode: very soft pastel purples
+          : (isDark
+              ? ['#1f2937', '#1f2f3a', '#1f3540', '#1f3b46', '#20414c']  // Dark mode: subtle blues
+              : ['#f8fbfd', '#f3f8fc', '#eef5fb', '#e9f2fa', '#e4eff9']) // Light mode: very soft pastel blues
       },
-      // Make the control handle more visible
+      // Make the control handle more visible - match metric color
       controller: {
         inRange: {
-          color: isDark ? '#215239' : '#c8e6d3'
+          color: selectedMetric === 'compensation'
+            ? (isDark ? '#215239' : '#c8e6d3')  // Green
+            : selectedMetric === 'quality-of-life'
+            ? (isDark ? '#422549' : '#d8d0e8')  // Purple
+            : (isDark ? '#20414c' : '#c8dce8')  // Blue
         }
       }
     },
@@ -492,7 +504,11 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
             color: '#fff'
           },
           itemStyle: {
-            areaColor: isDark ? '#2d5a3f' : '#c8e6d3',
+            areaColor: selectedMetric === 'compensation'
+              ? (isDark ? '#2d5a3f' : '#c8e6d3')  // Green
+              : selectedMetric === 'quality-of-life'
+              ? (isDark ? '#4a2d58' : '#d8d0e8')  // Purple
+              : (isDark ? '#2d4a58' : '#c8dce8'), // Blue
             shadowOffsetX: 0,
             shadowOffsetY: 0,
             shadowBlur: 20,
@@ -544,8 +560,8 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
             className={`text-[10px] px-3 py-1.5 border font-medium transition-colors ${
               selectedMetric === 'compensation'
                 ? isDark
-                  ? 'border-blue-600 bg-blue-600 text-white'
-                  : 'border-blue-500 bg-blue-500 text-white'
+                  ? 'border-gray-600 bg-gray-800 text-gray-100'
+                  : 'border-gray-400 bg-gray-100 text-gray-900'
                 : isDark
                 ? 'border-gray-700 text-gray-400 hover:bg-gray-800'
                 : 'border-gray-300 text-gray-600 hover:bg-gray-50'
@@ -558,8 +574,8 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
             className={`text-[10px] px-3 py-1.5 border font-medium transition-colors whitespace-nowrap ${
               selectedMetric === 'quality-of-life'
                 ? isDark
-                  ? 'border-blue-600 bg-blue-600 text-white'
-                  : 'border-blue-500 bg-blue-500 text-white'
+                  ? 'border-gray-600 bg-gray-800 text-gray-100'
+                  : 'border-gray-400 bg-gray-100 text-gray-900'
                 : isDark
                 ? 'border-gray-700 text-gray-400 hover:bg-gray-800'
                 : 'border-gray-300 text-gray-600 hover:bg-gray-50'
@@ -569,17 +585,17 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
           </button>
           <button
             onClick={() => setSelectedMetric('low-tax')}
-            className={`text-[10px] px-3 py-1.5 border font-medium transition-colors ${
+            className={`text-[10px] px-3 py-1.5 border font-medium transition-colors whitespace-nowrap ${
               selectedMetric === 'low-tax'
                 ? isDark
-                  ? 'border-blue-600 bg-blue-600 text-white'
-                  : 'border-blue-500 bg-blue-500 text-white'
+                  ? 'border-gray-600 bg-gray-800 text-gray-100'
+                  : 'border-gray-400 bg-gray-100 text-gray-900'
                 : isDark
                 ? 'border-gray-700 text-gray-400 hover:bg-gray-800'
                 : 'border-gray-300 text-gray-600 hover:bg-gray-50'
             }`}
           >
-            Lowest Tax
+            Low Tax
           </button>
         </div>
         <ReactECharts
