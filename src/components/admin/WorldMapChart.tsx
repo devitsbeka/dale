@@ -940,15 +940,21 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
           </button>
         )}
 
-        {/* Collapse/Expand Button */}
+        {/* Collapse/Expand or Back Button */}
         <button
-          onClick={() => setIsPanelCollapsed(!isPanelCollapsed)}
+          onClick={() => {
+            if (viewMode === 'visa') {
+              handleBack();
+            } else {
+              setIsPanelCollapsed(!isPanelCollapsed);
+            }
+          }}
           className={`absolute top-4 right-4 z-10 text-xs px-3 py-1.5 border font-medium transition-colors ${
             isDark
               ? 'border-gray-700 bg-gray-900 text-gray-300 hover:bg-gray-800'
               : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
           }`}
-          title={isPanelCollapsed ? 'Show panel' : 'Hide panel'}
+          title={viewMode === 'visa' ? `Back to ${selectedRegion}` : isPanelCollapsed ? 'Show panel' : 'Hide panel'}
         >
           {isPanelCollapsed ? '→' : '←'}
         </button>
