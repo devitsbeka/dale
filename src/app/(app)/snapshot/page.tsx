@@ -68,7 +68,7 @@ export default function SnapshotPage() {
       ) : (
         <div className="flex flex-col h-screen">
           {/* Header with tabs and controls */}
-          <div className="border-b bg-white">
+          <div className="border-b border-gray-300 bg-white">
             <div className="px-4 h-[51px] flex items-center justify-between">
               <h1 className="text-base font-semibold text-gray-900">Discover</h1>
 
