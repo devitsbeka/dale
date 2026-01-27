@@ -69,53 +69,49 @@ export default function SnapshotPage() {
         <div className="flex flex-col h-screen">
           {/* Header with tabs and controls */}
           <div className="border-b bg-white">
-            <div className="px-6 md:px-8 py-4">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-                <div>
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">Market Snapshot</h1>
-                  <p className="text-gray-600">
-                    Real-time insights from {data?.overview?.totalJobs?.toLocaleString() || 0} job listings
-                  </p>
-                </div>
-                <div className="w-full sm:w-48">
-                  <Select
-                    aria-label="Select date range"
-                    selectedKey={String(dateRange)}
-                    onSelectionChange={(key) => setDateRange(Number(key))}
-                    items={[
-                      { id: '7', label: 'Last 7 days' },
-                      { id: '30', label: 'Last 30 days' },
-                      { id: '90', label: 'Last 90 days' },
-                    ]}
-                    size="md"
+            <div className="px-4 py-3 flex items-center justify-between">
+              <div className="flex items-center gap-8">
+                <h1 className="text-base font-semibold text-gray-900">Discover</h1>
+
+                {/* Tabs */}
+                <div className="flex gap-6">
+                  <button
+                    onClick={() => setActiveTab('explorer')}
+                    className={`text-sm font-medium transition-colors ${
+                      activeTab === 'explorer'
+                        ? 'text-gray-900'
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
                   >
-                    {(item) => <Select.Item id={item.id}>{item.label}</Select.Item>}
-                  </Select>
+                    Explorer
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('overview')}
+                    className={`text-sm font-medium transition-colors ${
+                      activeTab === 'overview'
+                        ? 'text-gray-900'
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    Overview
+                  </button>
                 </div>
               </div>
 
-              {/* Tabs */}
-              <div className="flex gap-6">
-                <button
-                  onClick={() => setActiveTab('explorer')}
-                  className={`px-1 pb-3 text-sm font-medium transition-colors ${
-                    activeTab === 'explorer'
-                      ? 'text-gray-900'
-                      : 'text-gray-500 hover:text-gray-700'
-                  }`}
+              <div className="w-48">
+                <Select
+                  aria-label="Select date range"
+                  selectedKey={String(dateRange)}
+                  onSelectionChange={(key) => setDateRange(Number(key))}
+                  items={[
+                    { id: '7', label: 'Last 7 days' },
+                    { id: '30', label: 'Last 30 days' },
+                    { id: '90', label: 'Last 90 days' },
+                  ]}
+                  size="sm"
                 >
-                  Explorer
-                </button>
-                <button
-                  onClick={() => setActiveTab('overview')}
-                  className={`px-1 pb-3 text-sm font-medium transition-colors ${
-                    activeTab === 'overview'
-                      ? 'text-gray-900'
-                      : 'text-gray-500 hover:text-gray-700'
-                  }`}
-                >
-                  Overview
-                </button>
+                  {(item) => <Select.Item id={item.id}>{item.label}</Select.Item>}
+                </Select>
               </div>
             </div>
           </div>

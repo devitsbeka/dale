@@ -99,18 +99,18 @@ export const SidebarCollapsible = ({
 
     // Mobile expanded content
     const mobileContent = (
-        <aside className={cx("group flex h-full max-h-full w-full max-w-full flex-col justify-between overflow-y-auto bg-primary pt-4", scrollbarHiddenClass)}>
-            <div className="px-4">
-                <img src="/logo.svg" alt="Dale" className="h-8 w-auto" />
+        <aside className={cx("group flex h-full max-h-full w-full max-w-full flex-col justify-between overflow-y-auto bg-white pt-3", scrollbarHiddenClass)}>
+            <div className="px-3">
+                <img src="/logo.svg" alt="Dale" className="h-7 w-auto" />
             </div>
 
-            <ul className="mt-6">
+            <ul className="mt-4">
                 {expandedItems.map((group) => (
                     <li key={group.label}>
-                        <div className="px-5 pb-1">
-                            <p className="text-xs font-bold text-quaternary uppercase">{group.label}</p>
+                        <div className="px-3 pb-1">
+                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{group.label}</p>
                         </div>
-                        <ul className="px-4 pb-4">
+                        <ul className="px-2 pb-3">
                             {group.items.map((item) => (
                                 <li key={item.label} className="py-0.5">
                                     <NavItemBase icon={item.icon} href={item.href} badge={item.badge} type="link" current={item.href === activeUrl}>
@@ -123,17 +123,17 @@ export const SidebarCollapsible = ({
                 ))}
             </ul>
 
-            <div className="mt-auto flex flex-col gap-5 px-2 py-4">
+            <div className="mt-auto flex flex-col gap-4 px-2 py-3">
                 {/* Theme Toggle */}
                 {showThemeToggle && (
-                    <div className="mx-2 flex items-center justify-between rounded-lg bg-secondary px-3 py-2">
+                    <div className="mx-1 flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2">
                         <div className="flex items-center gap-2">
                             {isDarkMode ? (
-                                <MoonIcon className="size-4 text-fg-tertiary" />
+                                <MoonIcon className="size-4 text-gray-500" />
                             ) : (
-                                <SunIcon className="size-4 text-fg-tertiary" />
+                                <SunIcon className="size-4 text-gray-500" />
                             )}
-                            <span className="text-sm font-medium text-secondary">
+                            <span className="text-sm font-medium text-gray-700">
                                 {isDarkMode ? "Dark mode" : "Light mode"}
                             </span>
                         </div>
@@ -146,7 +146,7 @@ export const SidebarCollapsible = ({
                     </div>
                 )}
 
-                <div className="flex flex-col gap-2 px-2">
+                <div className="flex flex-col gap-1 px-1">
                     <NavItemBase current={activeUrl === "/support"} type="link" href="/support" icon={LifeBuoy01}>
                         Support
                     </NavItemBase>
@@ -155,7 +155,7 @@ export const SidebarCollapsible = ({
                     </NavItemBase>
                 </div>
 
-                <div className="relative flex items-center gap-3 border-t border-secondary pt-6 pr-8 pl-2">
+                <div className="relative flex items-center gap-3 border-t border-gray-200 pt-4 pr-8 pl-1">
                     {authLoading ? (
                         <div className="flex items-center gap-3 w-full">
                             <div className="size-10 rounded-full bg-secondary animate-pulse" />
@@ -206,8 +206,8 @@ export const SidebarCollapsible = ({
                 >
                     {/* Header with logo and toggle */}
                     <div className={cx(
-                        "flex shrink-0 items-center pt-4 lg:pt-5",
-                        isCollapsed ? "flex-col gap-4 px-2 justify-center" : "justify-between px-4 lg:px-5"
+                        "flex shrink-0 items-center pt-3",
+                        isCollapsed ? "flex-col gap-3 px-2 justify-center" : "justify-between px-3"
                     )}>
                         {isCollapsed ? (
                             <Button
@@ -228,8 +228,8 @@ export const SidebarCollapsible = ({
                                     <motion.img
                                         src="/logo.svg"
                                         alt="Dale"
-                                        className="h-8 w-auto"
-                                        style={{ width: "80px" }}
+                                        className="h-7 w-auto"
+                                        style={{ width: "70px" }}
                                         initial={{ scale: 0.95 }}
                                         animate={{ scale: 1 }}
                                         transition={{ duration: 0.3 }}
@@ -249,7 +249,7 @@ export const SidebarCollapsible = ({
                     <div className={cx("flex-1 overflow-y-auto overflow-x-hidden", scrollbarHiddenClass)}>
                         {isCollapsed ? (
                             // Collapsed navigation - icon only
-                            <ul className="flex flex-col items-center gap-1 px-2 py-4">
+                            <ul className="flex flex-col items-center gap-1 px-2 py-3">
                                 {collapsedItems.map((item) => (
                                     <li key={item.label}>
                                         <NavItemButton
@@ -264,13 +264,13 @@ export const SidebarCollapsible = ({
                             </ul>
                         ) : (
                             // Expanded navigation - grouped sections
-                            <ul className="mt-6">
+                            <ul className="mt-4">
                                 {expandedItems.map((group) => (
                                     <li key={group.label}>
-                                        <div className="px-5 pb-1">
-                                            <p className="text-xs font-bold text-quaternary uppercase whitespace-nowrap">{group.label}</p>
+                                        <div className="px-3 pb-1">
+                                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">{group.label}</p>
                                         </div>
-                                        <ul className="px-4 pb-4">
+                                        <ul className="px-2 pb-3">
                                             {group.items.map((item) => (
                                                 <li key={item.label} className="py-0.5">
                                                     <NavItemBase icon={item.icon} href={item.href} badge={item.badge} type="link" current={item.href === activeUrl}>
@@ -287,28 +287,28 @@ export const SidebarCollapsible = ({
 
                     {/* Footer */}
                     <div className={cx(
-                        "mt-auto shrink-0 py-4",
-                        isCollapsed ? "flex flex-col items-center gap-3 px-2" : "flex flex-col gap-4 px-4"
+                        "mt-auto shrink-0 py-3",
+                        isCollapsed ? "flex flex-col items-center gap-2 px-2" : "flex flex-col gap-3 px-3"
                     )}>
                         {/* Theme Toggle */}
                         {showThemeToggle && (
                             isCollapsed ? (
                                 <button
                                     onClick={() => setTheme(isDarkMode ? "light" : "dark")}
-                                    className="flex size-10 items-center justify-center rounded-lg bg-secondary text-fg-tertiary transition hover:bg-tertiary hover:text-fg-secondary"
+                                    className="flex size-10 items-center justify-center rounded-lg bg-gray-50 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700"
                                     aria-label="Toggle dark mode"
                                 >
                                     {isDarkMode ? <MoonIcon className="size-5" /> : <SunIcon className="size-5" />}
                                 </button>
                             ) : (
-                                <div className="flex items-center justify-between rounded-lg bg-secondary px-3 py-2">
+                                <div className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2">
                                     <div className="flex items-center gap-2">
                                         {isDarkMode ? (
-                                            <MoonIcon className="size-4 text-fg-tertiary" />
+                                            <MoonIcon className="size-4 text-gray-500" />
                                         ) : (
-                                            <SunIcon className="size-4 text-fg-tertiary" />
+                                            <SunIcon className="size-4 text-gray-500" />
                                         )}
-                                        <span className="text-sm font-medium text-secondary whitespace-nowrap">
+                                        <span className="text-sm font-medium text-gray-700 whitespace-nowrap">
                                             {isDarkMode ? "Dark mode" : "Light mode"}
                                         </span>
                                     </div>
