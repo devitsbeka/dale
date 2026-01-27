@@ -434,6 +434,20 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
     });
   };
 
+  // Country name mapping for world map
+  const countryNameMap: Record<string, string> = {
+    'US': 'United States of America',
+    'CA': 'Canada',
+    'GB': 'United Kingdom',
+    'DE': 'Germany',
+    'FR': 'France',
+    'AU': 'Australia',
+    'IN': 'India',
+    'MX': 'Mexico',
+    'BR': 'Brazil',
+    'JP': 'Japan'
+  };
+
   // Prepare map data based on selected metric
   const mapData = getMapData().map((stateInfo: any) => {
     const stateAbbr = Object.entries(stateNameToAbbr).find(
@@ -456,10 +470,18 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
       value = state.stateTaxRate;
     }
 
+    // Check if this is the selected country (for non-US views)
+    const isSelectedCountry = selectedCountry !== 'US' && stateInfo.name === countryNameMap[selectedCountry];
+
     return {
       ...stateInfo,
       value,
-      originalValue: stateInfo.value // Keep salary for reference
+      originalValue: stateInfo.value, // Keep salary for reference
+      itemStyle: isSelectedCountry ? {
+        areaColor: isDark ? '#fbbf24' : '#fcd34d', // Yellow highlight for selected country
+        borderColor: isDark ? '#f59e0b' : '#f59e0b',
+        borderWidth: 2
+      } : undefined
     };
   });
 
@@ -748,7 +770,7 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
           transition: 'width 600ms cubic-bezier(0.4, 0, 0.2, 1), opacity 500ms cubic-bezier(0.4, 0, 0.2, 1) 100ms, padding 600ms cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       >
-        {((selectedState && stateInfo) || !selectedState) && (
+        {((selectedState && stateInfo) || !selectedState || selectedCountry !== 'US') && (
         <div className="overflow-y-auto h-full usa-map-panel-scroll"
           style={{
             animation: 'slideInRight 500ms cubic-bezier(0.4, 0, 0.2, 1) 150ms both'
@@ -770,10 +792,22 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
               )}
               <div>
                 <h3 className={`text-lg font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
-                  {selectedJob ? selectedJob.title : selectedState ? stateInfo?.name : 'United States'}
+                  {selectedJob
+                    ? selectedJob.title
+                    : selectedState
+                      ? stateInfo?.name
+                      : selectedCountry !== 'US'
+                        ? countryNameMap[selectedCountry]
+                        : 'United States'}
                 </h3>
                 <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
-                  {selectedJob ? selectedJob.company : selectedState ? 'State Information' : 'Nationwide Statistics'}
+                  {selectedJob
+                    ? selectedJob.company
+                    : selectedState
+                      ? 'State Information'
+                      : selectedCountry !== 'US'
+                        ? 'Country Information'
+                        : 'Nationwide Statistics'}
                 </p>
               </div>
             </div>
