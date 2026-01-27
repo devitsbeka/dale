@@ -8,15 +8,15 @@ Comprehensive visa information system with database-backed storage, detailed vis
 - ✅ **API Endpoints**: Full CRUD operations for visa categories
 - ✅ **UI Component**: Interactive modal with detailed visa information
 - ✅ **Job Integration**: Link visa categories to eligible job listings
-- ✅ **Global Coverage**: **64 visa types across 55+ countries** including:
+- ✅ **Global Coverage**: **89 visa types across 75+ countries** including:
   - 🇺🇸 USA, 🇨🇦 Canada, 🇲🇽 Mexico
   - 🇬🇧 UK, 🇩🇪 Germany, 🇫🇷 France, 🇳🇱 Netherlands, 🇮🇪 Ireland, 🇪🇸 Spain, 🇵🇹 Portugal, 🇮🇹 Italy, 🇨🇭 Switzerland
-  - 🇸🇪 Sweden, 🇳🇴 Norway, 🇩🇰 Denmark, 🇵🇱 Poland, 🇨🇿 Czech Republic, 🇪🇪 Estonia, 🇷🇴 Romania, 🇧🇬 Bulgaria, 🇭🇺 Hungary
-  - 🇸🇬 Singapore, 🇯🇵 Japan, 🇦🇺 Australia, 🇳🇿 New Zealand, 🇰🇷 South Korea, 🇹🇼 Taiwan, 🇭🇰 Hong Kong, 🇹🇭 Thailand, 🇲🇾 Malaysia
-  - 🇻🇳 Vietnam, 🇵🇭 Philippines, 🇮🇩 Indonesia, 🇮🇳 India
-  - 🇦🇪 UAE, 🇮🇱 Israel, 🇶🇦 Qatar, 🇹🇷 Turkey, 🇸🇦 Saudi Arabia
-  - 🇧🇷 Brazil, 🇨🇱 Chile, 🇦🇷 Argentina, 🇨🇷 Costa Rica, 🇨🇴 Colombia, 🇵🇪 Peru, 🇺🇾 Uruguay, 🇵🇦 Panama
-  - 🇿🇦 South Africa, 🇰🇪 Kenya, 🇲🇦 Morocco, 🇲🇺 Mauritius, 🇬🇭 Ghana, 🇪🇬 Egypt, 🇳🇬 Nigeria
+  - 🇸🇪 Sweden, 🇳🇴 Norway, 🇩🇰 Denmark, 🇵🇱 Poland, 🇨🇿 Czech Republic, 🇪🇪 Estonia, 🇷🇴 Romania, 🇧🇬 Bulgaria, 🇭🇺 Hungary, 🇬🇷 Greece, 🇭🇷 Croatia, 🇨🇾 Cyprus
+  - 🇸🇬 Singapore, 🇯🇵 Japan, 🇦🇺 Australia, 🇳🇿 New Zealand, 🇰🇷 South Korea, 🇹🇼 Taiwan, 🇭🇰 Hong Kong, 🇹🇭 Thailand, 🇲🇾 Malaysia, 🇨🇳 China, 🇫🇯 Fiji
+  - 🇻🇳 Vietnam, 🇵🇭 Philippines, 🇮🇩 Indonesia, 🇮🇳 India, 🇧🇩 Bangladesh, 🇱🇰 Sri Lanka, 🇰🇭 Cambodia
+  - 🇦🇪 UAE, 🇮🇱 Israel, 🇶🇦 Qatar, 🇹🇷 Turkey, 🇸🇦 Saudi Arabia, 🇯🇴 Jordan, 🇴🇲 Oman, 🇧🇭 Bahrain, 🇰🇼 Kuwait
+  - 🇧🇷 Brazil, 🇨🇱 Chile, 🇦🇷 Argentina, 🇨🇷 Costa Rica, 🇨🇴 Colombia, 🇵🇪 Peru, 🇺🇾 Uruguay, 🇵🇦 Panama, 🇪🇨 Ecuador, 🇯🇲 Jamaica, 🇧🇧 Barbados, 🇰🇾 Cayman Islands
+  - 🇿🇦 South Africa, 🇰🇪 Kenya, 🇲🇦 Morocco, 🇲🇺 Mauritius, 🇬🇭 Ghana, 🇪🇬 Egypt, 🇳🇬 Nigeria, 🇧🇼 Botswana, 🇹🇿 Tanzania, 🇸🇳 Senegal, 🇹🇳 Tunisia
 
 ## Setup Instructions
 
@@ -40,14 +40,14 @@ npx prisma generate
 npx ts-node prisma/seed-visa-categories.ts
 ```
 
-This populates the database with **64 comprehensive visa types** across **55+ countries**:
+This populates the database with **89 comprehensive visa types** across **75+ countries**:
 
 ### North America (6 visa types)
 - 🇺🇸 **USA**: H-1B, L-1, O-1
 - 🇨🇦 **Canada**: Express Entry
 - 🇲🇽 **Mexico**: Work Permit, Digital Nomad
 
-### Europe (21 visa types)
+### Europe (24 visa types)
 - 🇬🇧 **UK**: Skilled Worker
 - 🇩🇪 **Germany**: EU Blue Card
 - 🇫🇷 **France**: Talent Passport
@@ -66,8 +66,11 @@ This populates the database with **64 comprehensive visa types** across **55+ co
 - 🇷🇴 **Romania**: Work Permit
 - 🇧🇬 **Bulgaria**: Type D Work Visa
 - 🇭🇺 **Hungary**: Single Permit
+- 🇬🇷 **Greece**: National Work Visa
+- 🇭🇷 **Croatia**: Work and Residence Permit
+- 🇨🇾 **Cyprus**: Employment Visa
 
-### Asia-Pacific (18 visa types)
+### Asia-Pacific (23 visa types)
 - 🇸🇬 **Singapore**: Employment Pass, Tech.Pass
 - 🇯🇵 **Japan**: Highly Skilled Professional
 - 🇦🇺 **Australia**: Subclass 189 (Skilled Independent), TSS 482
@@ -81,15 +84,24 @@ This populates the database with **64 comprehensive visa types** across **55+ co
 - 🇵🇭 **Philippines**: 9(g) Pre-Arranged Employment
 - 🇮🇩 **Indonesia**: KITAS Work Permit
 - 🇮🇳 **India**: Employment Visa
+- 🇨🇳 **China**: Work Permit (Type Z)
+- 🇧🇩 **Bangladesh**: Work Permit
+- 🇱🇰 **Sri Lanka**: Residence Visa
+- 🇰🇭 **Cambodia**: Business Visa (E-Class)
+- 🇫🇯 **Fiji**: Work Permit
 
-### Middle East (6 visa types)
+### Middle East (10 visa types)
 - 🇦🇪 **UAE**: Employment Visa, Golden Visa
 - 🇮🇱 **Israel**: B-1 Work Visa
 - 🇶🇦 **Qatar**: Work Residence Permit
 - 🇹🇷 **Turkey**: Work Permit
 - 🇸🇦 **Saudi Arabia**: Iqama Work Visa
+- 🇯🇴 **Jordan**: Work Permit
+- 🇴🇲 **Oman**: Employment Visa
+- 🇧🇭 **Bahrain**: Work Visa
+- 🇰🇼 **Kuwait**: Work Visa (Article 18)
 
-### Latin America (8 visa types)
+### Latin America & Caribbean (12 visa types)
 - 🇧🇷 **Brazil**: Work Visa (VITEM V)
 - 🇨🇱 **Chile**: Temporary Residence
 - 🇦🇷 **Argentina**: Work and Residence Visa
@@ -98,8 +110,12 @@ This populates the database with **64 comprehensive visa types** across **55+ co
 - 🇵🇪 **Peru**: Work Residence Visa
 - 🇺🇾 **Uruguay**: Work Residence
 - 🇵🇦 **Panama**: Friendly Nations Visa
+- 🇪🇨 **Ecuador**: Professional Work Visa
+- 🇯🇲 **Jamaica**: Work Permit
+- 🇧🇧 **Barbados**: Work Permit
+- 🇰🇾 **Cayman Islands**: Work Permit
 
-### Africa (7 visa types)
+### Africa (11 visa types)
 - 🇿🇦 **South Africa**: Critical Skills
 - 🇰🇪 **Kenya**: Class D Work Permit
 - 🇲🇦 **Morocco**: Work Authorization
@@ -107,6 +123,10 @@ This populates the database with **64 comprehensive visa types** across **55+ co
 - 🇬🇭 **Ghana**: Work Permit
 - 🇪🇬 **Egypt**: Work Visa and Permit
 - 🇳🇬 **Nigeria**: STR Permit
+- 🇧🇼 **Botswana**: Work Permit
+- 🇹🇿 **Tanzania**: Class C Work Permit
+- 🇸🇳 **Senegal**: Work Authorization
+- 🇹🇳 **Tunisia**: Work Visa
 
 ## API Endpoints
 
