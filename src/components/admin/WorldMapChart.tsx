@@ -42,11 +42,17 @@ interface CountryData {
   capital: string;
   population: string;
   gdpRank?: number;
+  gdpRankChange?: number; // Positive = improved (moved up), negative = declined (moved down)
   costOfLivingRank?: number;
+  costOfLivingRankChange?: number;
   medicineRank?: number;
+  medicineRankChange?: number;
   safetyRank?: number;
+  safetyRankChange?: number;
   airQualityRank?: number;
+  airQualityRankChange?: number;
   daleRank?: number; // 0-10 overall score
+  daleRankChange?: number;
   costOfLiving?: 1 | 2 | 3 | 4 | 5; // Legacy field, kept for compatibility
   visaCategories: string[];
   relocationTip: string;
@@ -58,11 +64,17 @@ const countryData: Record<string, CountryData> = {
     capital: 'Washington, D.C.',
     population: '331M',
     gdpRank: 1,
+    gdpRankChange: 0,
     costOfLivingRank: 20,
+    costOfLivingRankChange: 2, // Worse (higher cost)
     medicineRank: 37,
+    medicineRankChange: 3, // Declined
     safetyRank: 129,
+    safetyRankChange: 5, // Safety declined
     airQualityRank: 84,
+    airQualityRankChange: -2, // Improved
     daleRank: 8.5,
+    daleRankChange: 0.2,
     visaCategories: ['H-1B Work', 'L-1 Transfer', 'O-1 Talent', 'Green Card', 'Student F-1'],
     relocationTip: 'Tech hubs like SF, NYC, and Seattle offer the most opportunities. H-1B visa lottery typically opens in March.'
   },
@@ -70,11 +82,17 @@ const countryData: Record<string, CountryData> = {
     capital: 'Washington, D.C.',
     population: '331M',
     gdpRank: 1,
+    gdpRankChange: 0,
     costOfLivingRank: 20,
+    costOfLivingRankChange: 2,
     medicineRank: 37,
+    medicineRankChange: 3,
     safetyRank: 129,
+    safetyRankChange: 5,
     airQualityRank: 84,
+    airQualityRankChange: -2,
     daleRank: 8.5,
+    daleRankChange: 0.2,
     visaCategories: ['H-1B Work', 'L-1 Transfer', 'O-1 Talent', 'Green Card', 'Student F-1'],
     relocationTip: 'Tech hubs like SF, NYC, and Seattle offer the most opportunities. H-1B visa lottery typically opens in March.'
   },
@@ -82,11 +100,17 @@ const countryData: Record<string, CountryData> = {
     capital: 'Ottawa',
     population: '38M',
     gdpRank: 9,
+    gdpRankChange: 0,
     costOfLivingRank: 25,
+    costOfLivingRankChange: 3, // Housing crisis
     medicineRank: 14,
+    medicineRankChange: 0,
     safetyRank: 11,
+    safetyRankChange: -1, // Improved
     airQualityRank: 45,
+    airQualityRankChange: 3, // Wildfires impact
     daleRank: 9.2,
+    daleRankChange: 0.3,
     visaCategories: ['Express Entry', 'Work Permit', 'Study Permit', 'PNP', 'Start-up Visa'],
     relocationTip: 'Express Entry is the fastest path to permanent residence. Toronto and Vancouver have thriving tech scenes.'
   },
@@ -94,11 +118,17 @@ const countryData: Record<string, CountryData> = {
     capital: 'Mexico City',
     population: '128M',
     gdpRank: 15,
+    gdpRankChange: -1, // Improved
     costOfLivingRank: 85,
+    costOfLivingRankChange: 5, // Inflation impact
     medicineRank: 61,
+    medicineRankChange: -2, // Healthcare improving
     safetyRank: 140,
+    safetyRankChange: 8, // Ongoing challenges
     airQualityRank: 106,
+    airQualityRankChange: 4, // Urban pollution worse
     daleRank: 7.8,
+    daleRankChange: -0.4, // Declined due to safety
     visaCategories: ['Temporary Resident', 'Permanent Resident', 'Digital Nomad', 'Work Visa'],
     relocationTip: 'Mexico City and Playa del Carmen are popular for remote workers. Low cost of living with great quality of life.'
   },
@@ -106,11 +136,17 @@ const countryData: Record<string, CountryData> = {
     capital: 'Brasília',
     population: '214M',
     gdpRank: 12,
+    gdpRankChange: 0,
     costOfLivingRank: 92,
+    costOfLivingRankChange: 7, // Economic challenges
     medicineRank: 125,
+    medicineRankChange: 3, // Healthcare struggles
     safetyRank: 116,
+    safetyRankChange: -4, // Crime reduced in some areas
     airQualityRank: 95,
+    airQualityRankChange: 6, // Deforestation impact
     daleRank: 7.4,
+    daleRankChange: -0.3, // Slight overall decline
     visaCategories: ['Work Visa', 'Investor Visa', 'Digital Nomad', 'Student Visa'],
     relocationTip: 'São Paulo is the tech capital. Portuguese language skills are highly beneficial.'
   },
@@ -1266,9 +1302,21 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
                         <div className={`text-xs font-medium ${isDark ? 'text-blue-400' : 'text-blue-700'}`}>
                           Dale Rank
                         </div>
-                        <div className={`text-2xl font-bold ${isDark ? 'text-blue-400' : 'text-blue-700'}`}>
-                          {selectedCountryData.daleRank.toFixed(1)}
-                          <span className={`text-sm font-normal ml-1 ${isDark ? 'text-blue-500' : 'text-blue-600'}`}>/10</span>
+                        <div className="flex items-center gap-2">
+                          <div className={`text-2xl font-bold ${isDark ? 'text-blue-400' : 'text-blue-700'}`}>
+                            {selectedCountryData.daleRank.toFixed(1)}
+                            <span className={`text-sm font-normal ml-1 ${isDark ? 'text-blue-500' : 'text-blue-600'}`}>/10</span>
+                          </div>
+                          {selectedCountryData.daleRankChange !== undefined && selectedCountryData.daleRankChange !== 0 && (
+                            <div className={`flex items-center text-xs font-medium ${
+                              selectedCountryData.daleRankChange > 0
+                                ? 'text-green-500'
+                                : 'text-red-500'
+                            }`}>
+                              {selectedCountryData.daleRankChange > 0 ? '↑' : '↓'}
+                              {Math.abs(selectedCountryData.daleRankChange).toFixed(1)}
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div className={`mt-2 h-2 ${isDark ? 'bg-gray-800' : 'bg-gray-200'} overflow-hidden`}>
@@ -1303,32 +1351,82 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
                       <div className="grid grid-cols-2 gap-2">
                         <div className={`p-2 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
                           <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>GDP</div>
-                          <div className={`text-sm font-semibold mt-0.5 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
-                            #{selectedCountryData.gdpRank}
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <div className={`text-sm font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                              #{selectedCountryData.gdpRank}
+                            </div>
+                            {selectedCountryData.gdpRankChange !== undefined && selectedCountryData.gdpRankChange !== 0 && (
+                              <div className={`text-xs font-medium ${
+                                selectedCountryData.gdpRankChange < 0 ? 'text-green-500' : 'text-red-500'
+                              }`}>
+                                {selectedCountryData.gdpRankChange < 0 ? '↑' : '↓'}
+                                {Math.abs(selectedCountryData.gdpRankChange)}
+                              </div>
+                            )}
                           </div>
                         </div>
                         <div className={`p-2 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
                           <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Cost of Living</div>
-                          <div className={`text-sm font-semibold mt-0.5 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
-                            #{selectedCountryData.costOfLivingRank}
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <div className={`text-sm font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                              #{selectedCountryData.costOfLivingRank}
+                            </div>
+                            {selectedCountryData.costOfLivingRankChange !== undefined && selectedCountryData.costOfLivingRankChange !== 0 && (
+                              <div className={`text-xs font-medium ${
+                                selectedCountryData.costOfLivingRankChange < 0 ? 'text-green-500' : 'text-red-500'
+                              }`}>
+                                {selectedCountryData.costOfLivingRankChange < 0 ? '↑' : '↓'}
+                                {Math.abs(selectedCountryData.costOfLivingRankChange)}
+                              </div>
+                            )}
                           </div>
                         </div>
                         <div className={`p-2 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
                           <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Medicine</div>
-                          <div className={`text-sm font-semibold mt-0.5 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
-                            #{selectedCountryData.medicineRank}
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <div className={`text-sm font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                              #{selectedCountryData.medicineRank}
+                            </div>
+                            {selectedCountryData.medicineRankChange !== undefined && selectedCountryData.medicineRankChange !== 0 && (
+                              <div className={`text-xs font-medium ${
+                                selectedCountryData.medicineRankChange < 0 ? 'text-green-500' : 'text-red-500'
+                              }`}>
+                                {selectedCountryData.medicineRankChange < 0 ? '↑' : '↓'}
+                                {Math.abs(selectedCountryData.medicineRankChange)}
+                              </div>
+                            )}
                           </div>
                         </div>
                         <div className={`p-2 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
                           <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Safety</div>
-                          <div className={`text-sm font-semibold mt-0.5 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
-                            #{selectedCountryData.safetyRank}
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <div className={`text-sm font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                              #{selectedCountryData.safetyRank}
+                            </div>
+                            {selectedCountryData.safetyRankChange !== undefined && selectedCountryData.safetyRankChange !== 0 && (
+                              <div className={`text-xs font-medium ${
+                                selectedCountryData.safetyRankChange < 0 ? 'text-green-500' : 'text-red-500'
+                              }`}>
+                                {selectedCountryData.safetyRankChange < 0 ? '↑' : '↓'}
+                                {Math.abs(selectedCountryData.safetyRankChange)}
+                              </div>
+                            )}
                           </div>
                         </div>
                         <div className={`p-2 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
                           <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Air Quality</div>
-                          <div className={`text-sm font-semibold mt-0.5 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
-                            #{selectedCountryData.airQualityRank}
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <div className={`text-sm font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                              #{selectedCountryData.airQualityRank}
+                            </div>
+                            {selectedCountryData.airQualityRankChange !== undefined && selectedCountryData.airQualityRankChange !== 0 && (
+                              <div className={`text-xs font-medium ${
+                                selectedCountryData.airQualityRankChange < 0 ? 'text-green-500' : 'text-red-500'
+                              }`}>
+                                {selectedCountryData.airQualityRankChange < 0 ? '↑' : '↓'}
+                                {Math.abs(selectedCountryData.airQualityRankChange)}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
