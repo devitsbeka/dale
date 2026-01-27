@@ -1,16 +1,18 @@
 import { PrismaClient } from '@prisma/client';
-import { visaCategoriesData } from './data/visa-categories';
+import { allVisaCategoriesData, visaCategoriesCount } from './data/visa-categories-all';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌍 Starting visa categories seed...');
+  console.log('🌍 Starting comprehensive global visa categories seed...');
+  console.log(`📊 Total visa categories to process: ${allVisaCategoriesData.length}`);
+  console.log('');
 
   let created = 0;
   let updated = 0;
   let errors = 0;
 
-  for (const visaData of visaCategoriesData) {
+  for (const visaData of allVisaCategoriesData) {
     try {
       const existing = await prisma.visaCategory.findUnique({
         where: {
@@ -45,7 +47,15 @@ async function main() {
   console.log(`   Created: ${created}`);
   console.log(`   Updated: ${updated}`);
   console.log(`   Errors: ${errors}`);
-  console.log(`   Total: ${visaCategoriesData.length} visa categories processed`);
+  console.log(`   Total: ${allVisaCategoriesData.length} visa categories processed`);
+  console.log('');
+  console.log('📊 Regional Coverage:');
+  console.log(`   North America: ${visaCategoriesCount.northAmerica} visa types`);
+  console.log(`   Europe: ${visaCategoriesCount.europe} visa types`);
+  console.log(`   Asia-Pacific: ${visaCategoriesCount.asiaPacific} visa types`);
+  console.log(`   Middle East: ${visaCategoriesCount.middleEast} visa types`);
+  console.log(`   Latin America: ${visaCategoriesCount.latinAmerica} visa types`);
+  console.log(`   Africa: ${visaCategoriesCount.africa} visa types`);
 }
 
 main()

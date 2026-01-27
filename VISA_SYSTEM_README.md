@@ -8,7 +8,14 @@ Comprehensive visa information system with database-backed storage, detailed vis
 - ✅ **API Endpoints**: Full CRUD operations for visa categories
 - ✅ **UI Component**: Interactive modal with detailed visa information
 - ✅ **Job Integration**: Link visa categories to eligible job listings
-- ✅ **Sample Data**: Pre-populated with major visa types for USA, Canada, UK, Germany
+- ✅ **Global Coverage**: **44 visa types across 35+ countries** including:
+  - 🇺🇸 USA, 🇨🇦 Canada, 🇲🇽 Mexico
+  - 🇬🇧 UK, 🇩🇪 Germany, 🇫🇷 France, 🇳🇱 Netherlands, 🇮🇪 Ireland, 🇪🇸 Spain, 🇵🇹 Portugal, 🇮🇹 Italy, 🇨🇭 Switzerland
+  - 🇸🇪 Sweden, 🇳🇴 Norway, 🇩🇰 Denmark, 🇵🇱 Poland, 🇨🇿 Czech Republic, 🇪🇪 Estonia
+  - 🇸🇬 Singapore, 🇯🇵 Japan, 🇦🇺 Australia, 🇳🇿 New Zealand, 🇰🇷 South Korea, 🇹🇼 Taiwan, 🇭🇰 Hong Kong, 🇹🇭 Thailand, 🇲🇾 Malaysia
+  - 🇦🇪 UAE, 🇮🇱 Israel, 🇶🇦 Qatar
+  - 🇧🇷 Brazil, 🇨🇱 Chile, 🇦🇷 Argentina, 🇨🇷 Costa Rica
+  - 🇿🇦 South Africa, 🇰🇪 Kenya, 🇲🇦 Morocco
 
 ## Setup Instructions
 
@@ -32,11 +39,56 @@ npx prisma generate
 npx ts-node prisma/seed-visa-categories.ts
 ```
 
-This populates the database with:
-- 🇺🇸 USA: H-1B, L-1, O-1 visas
-- 🇨🇦 Canada: Express Entry
-- 🇬🇧 UK: Skilled Worker
-- 🇩🇪 Germany: EU Blue Card
+This populates the database with **44 comprehensive visa types** across **35+ countries**:
+
+### North America (6 visa types)
+- 🇺🇸 **USA**: H-1B, L-1, O-1
+- 🇨🇦 **Canada**: Express Entry
+- 🇲🇽 **Mexico**: Work Permit, Digital Nomad
+
+### Europe (18 visa types)
+- 🇬🇧 **UK**: Skilled Worker
+- 🇩🇪 **Germany**: EU Blue Card
+- 🇫🇷 **France**: Talent Passport
+- 🇳🇱 **Netherlands**: Highly Skilled Migrant
+- 🇮🇪 **Ireland**: Critical Skills
+- 🇪🇸 **Spain**: Digital Nomad
+- 🇵🇹 **Portugal**: D7 Passive Income
+- 🇮🇹 **Italy**: Work Visa
+- 🇨🇭 **Switzerland**: Permit B
+- 🇸🇪 **Sweden**: Work Permit
+- 🇳🇴 **Norway**: Skilled Worker
+- 🇩🇰 **Denmark**: Pay Limit Scheme
+- 🇵🇱 **Poland**: Type A Work Permit
+- 🇨🇿 **Czech Republic**: Employee Card
+- 🇪🇪 **Estonia**: Startup Visa
+
+### Asia-Pacific (14 visa types)
+- 🇸🇬 **Singapore**: Employment Pass, Tech.Pass
+- 🇯🇵 **Japan**: Highly Skilled Professional
+- 🇦🇺 **Australia**: Subclass 189 (Skilled Independent), TSS 482
+- 🇳🇿 **New Zealand**: Skilled Migrant Category
+- 🇰🇷 **South Korea**: E-7 Visa
+- 🇭🇰 **Hong Kong**: GEP Visa
+- 🇹🇼 **Taiwan**: Gold Card
+- 🇹🇭 **Thailand**: Non-B Work Visa
+- 🇲🇾 **Malaysia**: Employment Pass
+
+### Middle East (4 visa types)
+- 🇦🇪 **UAE**: Employment Visa, Golden Visa
+- 🇮🇱 **Israel**: B-1 Work Visa
+- 🇶🇦 **Qatar**: Work Residence Permit
+
+### Latin America (4 visa types)
+- 🇧🇷 **Brazil**: Work Visa (VITEM V)
+- 🇨🇱 **Chile**: Temporary Residence
+- 🇦🇷 **Argentina**: Work and Residence Visa
+- 🇨🇷 **Costa Rica**: Rentista Visa
+
+### Africa (3 visa types)
+- 🇿🇦 **South Africa**: Critical Skills
+- 🇰🇪 **Kenya**: Class D Work Permit
+- 🇲🇦 **Morocco**: Work Authorization
 
 ## API Endpoints
 
