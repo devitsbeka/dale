@@ -38,7 +38,7 @@ interface StateJob {
   source: string;
 }
 
-type MapMetric = 'compensation' | 'quality-of-life' | 'low-tax';
+type MapMetric = 'compensation' | 'quality-of-life' | 'tax';
 
 export default function USAMapChart({ data, style, isDark = true }: USAMapChartProps) {
   const [mapRegistered, setMapRegistered] = useState(false);
@@ -370,9 +370,9 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
     let value = stateInfo.value; // Default: salary
     if (selectedMetric === 'quality-of-life' && state) {
       value = state.qualityOfLife;
-    } else if (selectedMetric === 'low-tax' && state) {
-      // Invert tax rate so lower tax = higher score
-      value = 15 - state.stateTaxRate; // Max tax ~15%, so 0 tax = 15 points
+    } else if (selectedMetric === 'tax' && state) {
+      // Use actual tax rate (higher = warmer color)
+      value = state.stateTaxRate;
     }
 
     return {
@@ -385,7 +385,7 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
   const maxValue = Math.max(...mapData.map((d: any) => d.value), 1);
   const minValue = selectedMetric === 'quality-of-life'
     ? Math.min(...mapData.map((d: any) => d.value), 0)  // Use actual min for QoL to spread gradient better
-    : selectedMetric === 'low-tax'
+    : selectedMetric === 'tax'
     ? Math.min(...mapData.map((d: any) => d.value), 0)  // Use actual min for tax
     : 0;  // Compensation starts at 0
 
@@ -403,8 +403,8 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
       }
     },
     'quality-of-life': {
-      highLabel: 'Best QoL',
-      lowLabel: 'Lower QoL',
+      highLabel: 'High QoL',
+      lowLabel: 'Low QoL',
       formatter: (value: number) => value > 0 ? `${value.toFixed(0)}` : '0',
       tooltip: (params: any, jobCount: number) => {
         if (params.value) {
@@ -413,17 +413,13 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
         return `${params.name}<br/>Quality of Life: N/A<br/>Jobs: 0`;
       }
     },
-    'low-tax': {
-      highLabel: 'Lowest Tax',
-      lowLabel: 'Higher Tax',
-      formatter: (value: number) => {
-        const taxRate = 15 - value;
-        return taxRate >= 0 ? `${taxRate.toFixed(1)}%` : '0%';
-      },
+    'tax': {
+      highLabel: 'High Tax',
+      lowLabel: 'Low Tax',
+      formatter: (value: number) => value >= 0 ? `${value.toFixed(1)}%` : '0%',
       tooltip: (params: any, jobCount: number) => {
-        const taxRate = 15 - params.value;
         if (params.value >= 0) {
-          return `${params.name}<br/>State Tax: ${taxRate.toFixed(1)}%<br/>Jobs: ${jobCount}`;
+          return `${params.name}<br/>State Tax: ${params.value.toFixed(1)}%<br/>Jobs: ${jobCount}`;
         }
         return `${params.name}<br/>State Tax: N/A<br/>Jobs: 0`;
       }
@@ -459,27 +455,15 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
       },
       formatter: currentConfig.formatter,
       inRange: {
-        // Different color schemes for each metric
-        color: selectedMetric === 'compensation'
-          ? (isDark
-              ? ['#1f2937', '#1f3a30', '#1f4233', '#204a36', '#215239']  // Dark mode: subtle dark greens
-              : ['#f8fefb', '#f3fcf7', '#eefbf3', '#e9f9ee', '#e4f7ea']) // Light mode: very soft pastel greens
-          : selectedMetric === 'quality-of-life'
-          ? (isDark
-              ? ['#1f2937', '#2d2140', '#3b2849', '#4a2f52', '#58365b']  // Dark mode: more visible purples
-              : ['#fdfcfe', '#f7f4fb', '#f1ecf8', '#ebe4f5', '#e5dcf2']) // Light mode: more visible pastel purples
-          : (isDark
-              ? ['#1f2937', '#243442', '#29404d', '#2e4c58', '#335863']  // Dark mode: more visible blues
-              : ['#fcfdfe', '#f6f9fc', '#f0f5fa', '#eaf1f8', '#e4edf6']) // Light mode: more visible pastel blues
+        // Blue (cold/low) to Yellow/Red (warm/high) gradient for all metrics
+        color: isDark
+          ? ['#1e3a8a', '#3b82f6', '#60a5fa', '#fbbf24', '#f97316', '#ef4444']  // Dark: deep blue → bright blue → light blue → yellow → orange → red
+          : ['#dbeafe', '#93c5fd', '#60a5fa', '#fde68a', '#fbbf24', '#f97316']  // Light: light blue → mid blue → bright blue → light yellow → yellow → orange
       },
-      // Make the control handle more visible - match metric color
+      // Make the control handle more visible - use gradient
       controller: {
         inRange: {
-          color: selectedMetric === 'compensation'
-            ? (isDark ? '#215239' : '#c8e6d3')  // Green
-            : selectedMetric === 'quality-of-life'
-            ? (isDark ? '#58365b' : '#d8cce5')  // Purple
-            : (isDark ? '#335863' : '#c8dce8')  // Blue
+          color: isDark ? '#f97316' : '#f97316'  // Orange for all metrics
         }
       }
     },
@@ -508,11 +492,7 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
             color: isDark ? '#fff' : '#1f2937'  // White for dark mode, dark gray for light mode
           },
           itemStyle: {
-            areaColor: selectedMetric === 'compensation'
-              ? (isDark ? '#4d8f66' : '#a8ddb5')  // Green - clearly visible
-              : selectedMetric === 'quality-of-life'
-              ? (isDark ? '#9966aa' : '#c9b3db')  // Purple - clearly visible
-              : (isDark ? '#5a90a8' : '#b3d4e6'), // Blue - clearly visible
+            areaColor: isDark ? '#fb923c' : '#fdba74',  // Warm orange hover for all metrics
             borderWidth: 0
           }
         },
@@ -584,9 +564,9 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
             Quality of Life
           </button>
           <button
-            onClick={() => setSelectedMetric('low-tax')}
+            onClick={() => setSelectedMetric('tax')}
             className={`text-[10px] px-3 py-1.5 border font-medium transition-colors whitespace-nowrap ${
-              selectedMetric === 'low-tax'
+              selectedMetric === 'tax'
                 ? isDark
                   ? 'border-gray-600 bg-gray-800 text-gray-100'
                   : 'border-gray-400 bg-gray-100 text-gray-900'
@@ -595,7 +575,7 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
                 : 'border-gray-300 text-gray-600 hover:bg-gray-50'
             }`}
           >
-            Low Tax
+            Tax
           </button>
         </div>
         <ReactECharts
