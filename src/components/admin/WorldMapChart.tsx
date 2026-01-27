@@ -1182,7 +1182,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
                 </>
               ) : (
                 <div className={`p-4 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'} text-center`}>
-                  <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                     We are still gathering information on visa categories for this country. Check back soon!
                   </div>
                 </div>
