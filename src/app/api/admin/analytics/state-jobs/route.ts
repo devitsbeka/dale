@@ -22,6 +22,21 @@ const stateAbbrToName: Record<string, string> = {
   'DC': 'District of Columbia'
 };
 
+// State capitals - fallback when no top city can be determined from jobs
+const stateCapitals: Record<string, string> = {
+  'AL': 'Montgomery', 'AK': 'Juneau', 'AZ': 'Phoenix', 'AR': 'Little Rock', 'CA': 'Sacramento',
+  'CO': 'Denver', 'CT': 'Hartford', 'DE': 'Dover', 'FL': 'Tallahassee', 'GA': 'Atlanta',
+  'HI': 'Honolulu', 'ID': 'Boise', 'IL': 'Springfield', 'IN': 'Indianapolis', 'IA': 'Des Moines',
+  'KS': 'Topeka', 'KY': 'Frankfort', 'LA': 'Baton Rouge', 'ME': 'Augusta', 'MD': 'Annapolis',
+  'MA': 'Boston', 'MI': 'Lansing', 'MN': 'St. Paul', 'MS': 'Jackson', 'MO': 'Jefferson City',
+  'MT': 'Helena', 'NE': 'Lincoln', 'NV': 'Carson City', 'NH': 'Concord', 'NJ': 'Trenton',
+  'NM': 'Santa Fe', 'NY': 'Albany', 'NC': 'Raleigh', 'ND': 'Bismarck', 'OH': 'Columbus',
+  'OK': 'Oklahoma City', 'OR': 'Salem', 'PA': 'Harrisburg', 'RI': 'Providence', 'SC': 'Columbia',
+  'SD': 'Pierre', 'TN': 'Nashville', 'TX': 'Austin', 'UT': 'Salt Lake City', 'VT': 'Montpelier',
+  'VA': 'Richmond', 'WA': 'Olympia', 'WV': 'Charleston', 'WI': 'Madison', 'WY': 'Cheyenne',
+  'DC': 'Washington'
+};
+
 // In-memory cache
 const cache = new Map<string, { data: any; timestamp: number }>();
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
@@ -143,9 +158,9 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Get top city
+    // Get top city - fallback to state capital if no city found in job locations
     const topCity = Object.entries(cityCounts)
-      .sort(([, a], [, b]) => b - a)[0]?.[0] || null;
+      .sort(([, a], [, b]) => b - a)[0]?.[0] || stateCapitals[state.toUpperCase()] || null;
 
     // Get top 10 employers
     const topEmployers = Object.entries(companyCounts)

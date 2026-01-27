@@ -107,9 +107,9 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Get top city nationwide
+    // Get top city nationwide - fallback to New York if no city found
     const topCity = Object.entries(cityCounts)
-      .sort(([, a], [, b]) => b - a)[0]?.[0] || null;
+      .sort(([, a], [, b]) => b - a)[0]?.[0] || 'New York';
 
     // Get top 10 employers nationwide
     const topEmployers = Object.entries(companyCounts)
