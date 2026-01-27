@@ -528,54 +528,7 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
           display: none; /* Chrome/Safari/Opera */
         }
       `}} />
-      <div className="relative flex flex-col gap-4" style={style}>
-      {/* Metric Tabs */}
-      <div className="flex gap-2 justify-center">
-        <button
-          onClick={() => setSelectedMetric('compensation')}
-          className={`px-4 py-2 text-sm font-medium transition-all ${
-            selectedMetric === 'compensation'
-              ? isDark
-                ? 'bg-blue-600 text-white border border-blue-600'
-                : 'bg-blue-500 text-white border border-blue-500'
-              : isDark
-              ? 'bg-gray-800 text-gray-300 border border-gray-700 hover:bg-gray-750'
-              : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-          }`}
-        >
-          Compensation
-        </button>
-        <button
-          onClick={() => setSelectedMetric('quality-of-life')}
-          className={`px-4 py-2 text-sm font-medium transition-all ${
-            selectedMetric === 'quality-of-life'
-              ? isDark
-                ? 'bg-blue-600 text-white border border-blue-600'
-                : 'bg-blue-500 text-white border border-blue-500'
-              : isDark
-              ? 'bg-gray-800 text-gray-300 border border-gray-700 hover:bg-gray-750'
-              : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-          }`}
-        >
-          Quality of Life
-        </button>
-        <button
-          onClick={() => setSelectedMetric('low-tax')}
-          className={`px-4 py-2 text-sm font-medium transition-all ${
-            selectedMetric === 'low-tax'
-              ? isDark
-                ? 'bg-blue-600 text-white border border-blue-600'
-                : 'bg-blue-500 text-white border border-blue-500'
-              : isDark
-              ? 'bg-gray-800 text-gray-300 border border-gray-700 hover:bg-gray-750'
-              : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-          }`}
-        >
-          Lowest Tax
-        </button>
-      </div>
-
-      <div className="flex gap-4">
+      <div className="relative flex gap-4" style={style}>
       {/* Map */}
       <div
         className="relative z-0"
@@ -584,6 +537,51 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
           transition: 'width 600ms cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       >
+        {/* Metric Tabs - Positioned on top of map */}
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10 flex gap-1">
+          <button
+            onClick={() => setSelectedMetric('compensation')}
+            className={`px-3 py-1 text-xs font-medium transition-all rounded ${
+              selectedMetric === 'compensation'
+                ? isDark
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'bg-blue-500 text-white shadow-md'
+                : isDark
+                ? 'bg-gray-800/90 text-gray-300 hover:bg-gray-750/90 backdrop-blur-sm'
+                : 'bg-white/90 text-gray-700 hover:bg-gray-50/90 backdrop-blur-sm'
+            }`}
+          >
+            Compensation
+          </button>
+          <button
+            onClick={() => setSelectedMetric('quality-of-life')}
+            className={`px-3 py-1 text-xs font-medium transition-all rounded ${
+              selectedMetric === 'quality-of-life'
+                ? isDark
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'bg-blue-500 text-white shadow-md'
+                : isDark
+                ? 'bg-gray-800/90 text-gray-300 hover:bg-gray-750/90 backdrop-blur-sm'
+                : 'bg-white/90 text-gray-700 hover:bg-gray-50/90 backdrop-blur-sm'
+            }`}
+          >
+            Quality of Life
+          </button>
+          <button
+            onClick={() => setSelectedMetric('low-tax')}
+            className={`px-3 py-1 text-xs font-medium transition-all rounded ${
+              selectedMetric === 'low-tax'
+                ? isDark
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'bg-blue-500 text-white shadow-md'
+                : isDark
+                ? 'bg-gray-800/90 text-gray-300 hover:bg-gray-750/90 backdrop-blur-sm'
+                : 'bg-white/90 text-gray-700 hover:bg-gray-50/90 backdrop-blur-sm'
+            }`}
+          >
+            Lowest Tax
+          </button>
+        </div>
         <ReactECharts
           option={option}
           onEvents={{ click: handleStateClick }}
@@ -1088,7 +1086,6 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
         </div>
         )}
       </div>
-    </div>
     </div>
     </>
   );
