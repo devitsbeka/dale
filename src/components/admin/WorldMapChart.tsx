@@ -600,8 +600,44 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
         data = countryData[simplifiedName];
       }
 
+      // Convert country name to ISO code
+      const isoCode = country === 'United States' || country === 'United States of America' ? 'USA' :
+                     country === 'United Kingdom' || country === 'United Kingdom of Great Britain and Northern Ireland' ? 'GBR' :
+                     country === 'Canada' ? 'CAN' :
+                     country === 'Germany' ? 'DEU' :
+                     country === 'France' ? 'FRA' :
+                     country === 'Mexico' ? 'MEX' :
+                     country === 'Brazil' ? 'BRA' :
+                     country === 'Spain' ? 'ESP' :
+                     country === 'Italy' ? 'ITA' :
+                     country === 'Netherlands' ? 'NLD' :
+                     country === 'Switzerland' ? 'CHE' :
+                     country === 'Australia' ? 'AUS' :
+                     country === 'Japan' ? 'JPN' :
+                     country === 'Singapore' ? 'SGP' :
+                     country === 'India' ? 'IND' :
+                     country === 'China' ? 'CHN' :
+                     country.substring(0, 3).toUpperCase();
+
+      // Fetch real visa categories from database
+      let visaCategoriesFromDB: string[] = [];
+      try {
+        const visaResponse = await fetch(`/api/visa-categories?country=${isoCode}`);
+        if (visaResponse.ok) {
+          const visaData = await visaResponse.json();
+          visaCategoriesFromDB = (visaData.visaCategories || []).map((v: any) => v.shortName);
+        }
+      } catch (visaError) {
+        console.error('Failed to fetch visa categories:', visaError);
+      }
+
       if (data) {
-        setSelectedCountryData(data);
+        // Use real visa categories if available, otherwise fall back to hardcoded
+        const visaCategories = visaCategoriesFromDB.length > 0 ? visaCategoriesFromDB : data.visaCategories;
+        setSelectedCountryData({
+          ...data,
+          visaCategories
+        });
         setCapital(data.capital);
         setSelectedVisaCategory(null); // Reset visa selection
       } else {
@@ -611,13 +647,19 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
         ];
 
         if (capital) {
-          // Create a basic fallback data object
+          // Use real visa categories if available
+          const visaCategories = visaCategoriesFromDB.length > 0
+            ? visaCategoriesFromDB
+            : ['Work Visa', 'Business Visa', 'Student Visa'];
+
           const fallbackData: CountryData = {
             capital: capital,
             population: 'N/A',
             costOfLiving: 3, // Default to medium
-            visaCategories: ['Work Visa', 'Business Visa', 'Student Visa'],
-            relocationTip: 'Limited visa and relocation information available. Research local immigration policies for specific requirements.'
+            visaCategories,
+            relocationTip: visaCategoriesFromDB.length > 0
+              ? 'Click on visa categories to view detailed information about requirements, costs, and processing times.'
+              : 'Limited visa and relocation information available. Research local immigration policies for specific requirements.'
           };
           setSelectedCountryData(fallbackData);
           setCapital(capital);
@@ -921,24 +963,37 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
                       onClick={async () => {
                         // Fetch visa category ID and open modal
                         const countryCode = selectedRegion || '';
-                        // Convert country name to ISO code (simplified)
+                        // Convert country name to ISO code
                         const isoCode = countryCode === 'United States' || countryCode === 'United States of America' ? 'USA' :
                                        countryCode === 'United Kingdom' || countryCode === 'United Kingdom of Great Britain and Northern Ireland' ? 'GBR' :
                                        countryCode === 'Canada' ? 'CAN' :
                                        countryCode === 'Germany' ? 'DEU' :
                                        countryCode === 'France' ? 'FRA' :
+                                       countryCode === 'Mexico' ? 'MEX' :
+                                       countryCode === 'Brazil' ? 'BRA' :
+                                       countryCode === 'Spain' ? 'ESP' :
+                                       countryCode === 'Italy' ? 'ITA' :
+                                       countryCode === 'Netherlands' ? 'NLD' :
+                                       countryCode === 'Switzerland' ? 'CHE' :
+                                       countryCode === 'Australia' ? 'AUS' :
+                                       countryCode === 'Japan' ? 'JPN' :
+                                       countryCode === 'Singapore' ? 'SGP' :
+                                       countryCode === 'India' ? 'IND' :
+                                       countryCode === 'China' ? 'CHN' :
                                        countryCode.substring(0, 3).toUpperCase();
 
                         const id = await fetchVisaCategoryId(isoCode, visa);
                         if (id) {
                           setSelectedVisaId(id);
                           setShowVisaDetail(true);
+                        } else {
+                          console.error(`Failed to find visa category: ${isoCode} - ${visa}`);
                         }
                       }}
-                      className={`px-3 py-1.5 text-xs font-medium border transition-colors ${
+                      className={`px-3 py-1.5 text-xs font-medium border transition-colors cursor-pointer ${
                         isDark
-                          ? 'border-gray-700 bg-gray-800 text-gray-300 hover:bg-gray-700'
-                          : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                          ? 'border-gray-700 bg-gray-800 text-gray-300 hover:bg-gray-700 hover:border-blue-500'
+                          : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-blue-500'
                       }`}
                     >
                       {visa}
