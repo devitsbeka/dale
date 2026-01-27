@@ -98,7 +98,7 @@ export default function SnapshotPage() {
               <div className="flex gap-6">
                 <button
                   onClick={() => setActiveTab('explorer')}
-                  className={`px-1 py-2 text-sm font-medium transition-colors ${
+                  className={`px-1 pb-3 text-sm font-medium transition-colors ${
                     activeTab === 'explorer'
                       ? 'text-gray-900'
                       : 'text-gray-500 hover:text-gray-700'
@@ -108,7 +108,7 @@ export default function SnapshotPage() {
                 </button>
                 <button
                   onClick={() => setActiveTab('overview')}
-                  className={`px-1 py-2 text-sm font-medium transition-colors ${
+                  className={`px-1 pb-3 text-sm font-medium transition-colors ${
                     activeTab === 'overview'
                       ? 'text-gray-900'
                       : 'text-gray-500 hover:text-gray-700'
