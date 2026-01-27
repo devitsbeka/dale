@@ -1351,7 +1351,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
                       <div className="grid grid-cols-2 gap-2">
                         <div className={`p-2 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
                           <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>GDP</div>
-                          <div className="flex items-center gap-2 mt-0.5">
+                          <div className="flex items-center justify-between mt-0.5">
                             <div className={`text-sm font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
                               #{selectedCountryData.gdpRank}
                             </div>
@@ -1367,7 +1367,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
                         </div>
                         <div className={`p-2 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
                           <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Cost of Living</div>
-                          <div className="flex items-center gap-2 mt-0.5">
+                          <div className="flex items-center justify-between mt-0.5">
                             <div className={`text-sm font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
                               #{selectedCountryData.costOfLivingRank}
                             </div>
@@ -1383,7 +1383,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
                         </div>
                         <div className={`p-2 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
                           <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Medicine</div>
-                          <div className="flex items-center gap-2 mt-0.5">
+                          <div className="flex items-center justify-between mt-0.5">
                             <div className={`text-sm font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
                               #{selectedCountryData.medicineRank}
                             </div>
@@ -1399,7 +1399,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
                         </div>
                         <div className={`p-2 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
                           <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Safety</div>
-                          <div className="flex items-center gap-2 mt-0.5">
+                          <div className="flex items-center justify-between mt-0.5">
                             <div className={`text-sm font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
                               #{selectedCountryData.safetyRank}
                             </div>
@@ -1415,7 +1415,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
                         </div>
                         <div className={`p-2 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
                           <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Air Quality</div>
-                          <div className="flex items-center gap-2 mt-0.5">
+                          <div className="flex items-center justify-between mt-0.5">
                             <div className={`text-sm font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
                               #{selectedCountryData.airQualityRank}
                             </div>
