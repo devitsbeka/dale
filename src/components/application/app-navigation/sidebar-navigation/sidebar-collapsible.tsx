@@ -200,38 +200,49 @@ export const SidebarCollapsible = ({
                     animate={{ width: isCollapsed ? COLLAPSED_WIDTH : EXPANDED_WIDTH }}
                     transition={{ type: "spring", damping: 30, stiffness: 400 }}
                     className={cx(
-                        "flex h-full flex-col justify-between overflow-hidden border-secondary bg-primary shadow-xs md:border-r lg:rounded-xl lg:border",
+                        "flex h-full flex-col justify-between overflow-hidden bg-white border-r border-gray-300",
                         scrollbarHiddenClass
                     )}
                 >
                     {/* Header with logo and toggle */}
                     <div className={cx(
                         "flex shrink-0 items-center pt-4 lg:pt-5",
-                        isCollapsed ? "flex-col gap-4 px-2" : "justify-between px-4 lg:px-5"
+                        isCollapsed ? "flex-col gap-4 px-2 justify-center" : "justify-between px-4 lg:px-5"
                     )}>
-                        <motion.div
-                            key={activeUrl}
-                            initial={{ opacity: 0.3 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ duration: 0.4, ease: "easeOut" }}
-                            className="flex items-center"
-                        >
-                            <motion.img
-                                src="/logo.svg"
-                                alt="Dale"
-                                className={isCollapsed ? "h-8 w-auto" : "h-8 w-auto"}
-                                style={{ width: isCollapsed ? "32px" : "80px" }}
-                                initial={{ scale: 0.95 }}
-                                animate={{ scale: 1 }}
-                                transition={{ duration: 0.3 }}
+                        {isCollapsed ? (
+                            <Button
+                                size="sm"
+                                color="tertiary"
+                                iconLeading={ChevronRight}
+                                onClick={() => setIsCollapsed(!isCollapsed)}
                             />
-                        </motion.div>
-                        <Button
-                            size="sm"
-                            color="tertiary"
-                            iconLeading={isCollapsed ? ChevronRight : ChevronLeft}
-                            onClick={() => setIsCollapsed(!isCollapsed)}
-                        />
+                        ) : (
+                            <>
+                                <motion.div
+                                    key={activeUrl}
+                                    initial={{ opacity: 0.3 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ duration: 0.4, ease: "easeOut" }}
+                                    className="flex items-center"
+                                >
+                                    <motion.img
+                                        src="/logo.svg"
+                                        alt="Dale"
+                                        className="h-8 w-auto"
+                                        style={{ width: "80px" }}
+                                        initial={{ scale: 0.95 }}
+                                        animate={{ scale: 1 }}
+                                        transition={{ duration: 0.3 }}
+                                    />
+                                </motion.div>
+                                <Button
+                                    size="sm"
+                                    color="tertiary"
+                                    iconLeading={ChevronLeft}
+                                    onClick={() => setIsCollapsed(!isCollapsed)}
+                                />
+                            </>
+                        )}
                     </div>
 
                     {/* Navigation content */}
