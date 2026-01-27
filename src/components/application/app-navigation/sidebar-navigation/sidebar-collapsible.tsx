@@ -204,22 +204,31 @@ export const SidebarCollapsible = ({
                         scrollbarHiddenClass
                     )}
                 >
-                    {/* Header with toggle - aligned with page header */}
+                    {/* Header with logo and toggle - aligned with page header */}
                     <div className={cx(
-                        "flex shrink-0 items-center h-[52px] border-b border-gray-300",
-                        isCollapsed ? "justify-center px-1" : "justify-end px-4"
+                        "flex shrink-0 items-center justify-between h-[52px] border-b border-gray-300",
+                        isCollapsed ? "px-1" : "px-4"
                     )}>
-                        <button
-                            onClick={() => setIsCollapsed(!isCollapsed)}
-                            className="text-gray-400 hover:text-gray-900 transition-colors"
-                            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-                        >
-                            {isCollapsed ? (
+                        {isCollapsed ? (
+                            <button
+                                onClick={() => setIsCollapsed(!isCollapsed)}
+                                className="text-gray-400 hover:text-gray-900 transition-colors mx-auto"
+                                aria-label="Expand sidebar"
+                            >
                                 <ChevronRight className="size-5" />
-                            ) : (
-                                <ChevronLeft className="size-5" />
-                            )}
-                        </button>
+                            </button>
+                        ) : (
+                            <>
+                                <img src="/logo.svg" alt="Dale" className="h-7 w-auto" />
+                                <button
+                                    onClick={() => setIsCollapsed(!isCollapsed)}
+                                    className="text-gray-400 hover:text-gray-900 transition-colors"
+                                    aria-label="Collapse sidebar"
+                                >
+                                    <ChevronLeft className="size-5" />
+                                </button>
+                            </>
+                        )}
                     </div>
 
                     {/* Navigation content */}
