@@ -542,9 +542,28 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
     try {
       const response = await fetch(`/api/visa-categories?country=${countryCode}`);
       const data = await response.json();
-      const category = data.visaCategories?.find((v: any) =>
-        v.shortName === visaName || v.name.includes(visaName)
-      );
+
+      console.log(`Searching for visa: ${countryCode} - ${visaName}`);
+      console.log('Available visas:', data.visaCategories?.map((v: any) => v.shortName));
+
+      // Try exact match first
+      let category = data.visaCategories?.find((v: any) => v.shortName === visaName);
+
+      // Try fuzzy match if exact fails
+      if (!category) {
+        category = data.visaCategories?.find((v: any) =>
+          v.name.toLowerCase().includes(visaName.toLowerCase()) ||
+          visaName.toLowerCase().includes(v.shortName.toLowerCase()) ||
+          v.shortName.toLowerCase().includes(visaName.toLowerCase())
+        );
+      }
+
+      if (category) {
+        console.log(`Found visa: ${category.shortName} (ID: ${category.id})`);
+      } else {
+        console.error(`No match found for: ${visaName}`);
+      }
+
       return category?.id || null;
     } catch (error) {
       console.error('Error fetching visa category ID:', error);
