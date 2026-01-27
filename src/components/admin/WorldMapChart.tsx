@@ -12,7 +12,6 @@ import { useState, useEffect, useRef } from 'react';
 import ReactECharts from 'echarts-for-react';
 import * as echarts from 'echarts';
 import { stateData, stateNameToAbbr } from '@/lib/state-data';
-import { VisaCategoryDetail } from './VisaCategoryDetail';
 
 type ViewLevel = 'world' | 'us-states' | 'country-cities';
 
@@ -462,6 +461,8 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
   const [selectedVisaCategory, setSelectedVisaCategory] = useState<string | null>(null);
   const [showVisaDetail, setShowVisaDetail] = useState(false);
   const [selectedVisaId, setSelectedVisaId] = useState<string | null>(null);
+  const [selectedVisaData, setSelectedVisaData] = useState<any | null>(null);
+  const [viewMode, setViewMode] = useState<'map' | 'country' | 'visa'>('map');
   const chartRef = useRef<any>(null);
 
   // Load all maps on mount
@@ -537,14 +538,12 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
     }
   };
 
-  // Helper function to fetch visa category ID by country and visa name
-  const fetchVisaCategoryId = async (countryCode: string, visaName: string): Promise<string | null> => {
+  // Helper function to fetch visa category details
+  const fetchVisaCategoryDetails = async (countryCode: string, visaName: string): Promise<void> => {
     try {
+      setLoading(true);
       const response = await fetch(`/api/visa-categories?country=${countryCode}`);
       const data = await response.json();
-
-      console.log(`Searching for visa: ${countryCode} - ${visaName}`);
-      console.log('Available visas:', data.visaCategories?.map((v: any) => v.shortName));
 
       // Try exact match first
       let category = data.visaCategories?.find((v: any) => v.shortName === visaName);
@@ -559,15 +558,18 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
       }
 
       if (category) {
-        console.log(`Found visa: ${category.shortName} (ID: ${category.id})`);
+        // Fetch full details
+        const detailsResponse = await fetch(`/api/visa-categories/${category.id}`);
+        const detailsData = await detailsResponse.json();
+        setSelectedVisaData(detailsData.visaCategory);
+        setViewMode('visa');
       } else {
         console.error(`No match found for: ${visaName}`);
       }
-
-      return category?.id || null;
     } catch (error) {
-      console.error('Error fetching visa category ID:', error);
-      return null;
+      console.error('Error fetching visa category details:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -659,6 +661,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
         });
         setCapital(data.capital);
         setSelectedVisaCategory(null); // Reset visa selection
+        setViewMode('country');
       } else {
         // Fallback: Create basic CountryData from legacy capital mapping
         const capital = countryCapitals[country] || countryCapitals[
@@ -683,6 +686,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
           setSelectedCountryData(fallbackData);
           setCapital(capital);
           setSelectedVisaCategory(null);
+          setViewMode('country');
         } else {
           setCapital(null);
           setSelectedCountryData(null);
@@ -724,7 +728,12 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
 
   // Go back to previous view
   const handleBack = () => {
-    if (viewLevel === 'country-cities' || viewLevel === 'us-states') {
+    if (viewMode === 'visa') {
+      // Go back from visa details to country view
+      setViewMode('country');
+      setSelectedVisaData(null);
+      setSelectedVisaId(null);
+    } else if (viewLevel === 'country-cities' || viewLevel === 'us-states') {
       setViewLevel('world');
       setSelectedRegion(null);
       setSelectedCity(null);
@@ -733,6 +742,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
       setCapital(null);
       setSelectedCountryData(null);
       setSelectedVisaCategory(null);
+      setViewMode('map');
     }
   };
 
@@ -929,8 +939,129 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
             {selectedCity ? 'Location Details' : viewLevel === 'world' ? 'Select a country to view details' : 'Select a location'}
           </p>
 
+          {/* Visa Details View */}
+          {!loading && viewMode === 'visa' && selectedVisaData && (
+            <div className="mt-4 space-y-4">
+              {/* Visa Header */}
+              <div className={`p-4 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
+                <h3 className={`text-lg font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                  {selectedVisaData.name}
+                </h3>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className={`text-xs px-2 py-0.5 rounded ${
+                    isDark ? 'bg-blue-900/50 text-blue-400' : 'bg-blue-100 text-blue-700'
+                  }`}>
+                    {selectedVisaData.type}
+                  </span>
+                  <span className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
+                    {selectedVisaData.countryName}
+                  </span>
+                </div>
+              </div>
+
+              {/* Key Stats */}
+              <div className="grid grid-cols-2 gap-2">
+                <div className={`p-3 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
+                  <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Processing Time</div>
+                  <div className={`text-sm font-semibold mt-1 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                    {selectedVisaData.processingTimeMin}-{selectedVisaData.processingTimeMax} days
+                  </div>
+                </div>
+                <div className={`p-3 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
+                  <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Total Cost</div>
+                  <div className={`text-sm font-semibold mt-1 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                    ${selectedVisaData.costTotalEstimateUSD?.toLocaleString() || 'N/A'}
+                  </div>
+                </div>
+                <div className={`p-3 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
+                  <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Approval Rate</div>
+                  <div className={`text-sm font-semibold mt-1 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                    {selectedVisaData.approvalRate}%
+                  </div>
+                </div>
+                <div className={`p-3 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
+                  <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Validity</div>
+                  <div className={`text-sm font-semibold mt-1 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                    {selectedVisaData.validityYears} year{selectedVisaData.validityYears !== 1 ? 's' : ''}
+                  </div>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className={`p-3 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
+                <div className={`text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Overview
+                </div>
+                <p className={`text-xs leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  {selectedVisaData.description}
+                </p>
+              </div>
+
+              {/* Eligibility Criteria */}
+              <div className={`p-3 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
+                <div className={`text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Eligibility Requirements
+                </div>
+                <ul className="space-y-1">
+                  {selectedVisaData.eligibilityCriteria?.slice(0, 5).map((criteria: string, i: number) => (
+                    <li key={i} className={`text-xs flex items-start gap-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                      <span className="text-blue-500 mt-0.5">•</span>
+                      <span>{criteria}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Pros & Cons */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className={`p-3 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
+                  <div className={`text-xs font-medium mb-2 ${isDark ? 'text-green-400' : 'text-green-700'}`}>
+                    Advantages
+                  </div>
+                  <ul className="space-y-1">
+                    {selectedVisaData.pros?.slice(0, 3).map((pro: string, i: number) => (
+                      <li key={i} className={`text-xs flex items-start gap-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                        <span className="text-green-500">✓</span>
+                        <span>{pro}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className={`p-3 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
+                  <div className={`text-xs font-medium mb-2 ${isDark ? 'text-red-400' : 'text-red-700'}`}>
+                    Challenges
+                  </div>
+                  <ul className="space-y-1">
+                    {selectedVisaData.cons?.slice(0, 3).map((con: string, i: number) => (
+                      <li key={i} className={`text-xs flex items-start gap-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                        <span className="text-red-500">✗</span>
+                        <span>{con}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Official Link */}
+              {selectedVisaData.officialUrl && (
+                <a
+                  href={selectedVisaData.officialUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`block p-3 border text-center text-xs font-medium transition ${
+                    isDark
+                      ? 'border-gray-800 bg-blue-900/30 text-blue-400 hover:bg-blue-900/50'
+                      : 'border-gray-300 bg-blue-50 text-blue-700 hover:bg-blue-100'
+                  }`}
+                >
+                  Visit Official Immigration Website →
+                </a>
+              )}
+            </div>
+          )}
+
           {/* Country/State Data */}
-          {!loading && selectedCountryData && (
+          {!loading && viewMode === 'country' && selectedCountryData && (
             <div className="mt-4 space-y-3">
               {/* Quick Stats Grid */}
               <div className="grid grid-cols-2 gap-2">
@@ -980,7 +1111,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
                     <button
                       key={visa}
                       onClick={async () => {
-                        // Fetch visa category ID and open modal
+                        // Fetch visa category details and show in panel
                         const countryCode = selectedRegion || '';
                         // Convert country name to ISO code
                         const isoCode = countryCode === 'United States' || countryCode === 'United States of America' ? 'USA' :
@@ -1001,13 +1132,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
                                        countryCode === 'China' ? 'CHN' :
                                        countryCode.substring(0, 3).toUpperCase();
 
-                        const id = await fetchVisaCategoryId(isoCode, visa);
-                        if (id) {
-                          setSelectedVisaId(id);
-                          setShowVisaDetail(true);
-                        } else {
-                          console.error(`Failed to find visa category: ${isoCode} - ${visa}`);
-                        }
+                        await fetchVisaCategoryDetails(isoCode, visa);
                       }}
                       className={`px-3 py-1.5 text-xs font-medium border transition-colors cursor-pointer ${
                         isDark
@@ -1111,18 +1236,6 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
         </div>
       )}
 
-      {/* Visa Detail Modal */}
-      {showVisaDetail && selectedVisaId && (
-        <VisaCategoryDetail
-          visaCategoryId={selectedVisaId}
-          countryCode={selectedRegion || ''}
-          onClose={() => {
-            setShowVisaDetail(false);
-            setSelectedVisaId(null);
-          }}
-          isDark={isDark}
-        />
-      )}
     </div>
   );
 }
