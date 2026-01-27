@@ -383,7 +383,11 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
   });
 
   const maxValue = Math.max(...mapData.map((d: any) => d.value), 1);
-  const minValue = Math.min(...mapData.map((d: any) => d.value), 0);
+  const minValue = selectedMetric === 'quality-of-life'
+    ? Math.min(...mapData.map((d: any) => d.value), 0)  // Use actual min for QoL to spread gradient better
+    : selectedMetric === 'low-tax'
+    ? Math.min(...mapData.map((d: any) => d.value), 0)  // Use actual min for tax
+    : 0;  // Compensation starts at 0
 
   // Dynamic labels based on metric
   const metricConfig = {
@@ -441,7 +445,7 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
       textStyle: { color: isDark ? '#e5e7eb' : '#1f2937' }
     },
     visualMap: {
-      min: selectedMetric === 'low-tax' ? minValue : 0,
+      min: minValue,
       max: maxValue,
       orient: 'horizontal',  // Horizontal orientation
       left: 'center',
@@ -462,11 +466,11 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
               : ['#f8fefb', '#f3fcf7', '#eefbf3', '#e9f9ee', '#e4f7ea']) // Light mode: very soft pastel greens
           : selectedMetric === 'quality-of-life'
           ? (isDark
-              ? ['#1f2937', '#2a1f37', '#32213d', '#3a2343', '#422549']  // Dark mode: subtle purples
-              : ['#faf9fc', '#f5f3f9', '#f0edf6', '#ebe7f3', '#e6e1f0']) // Light mode: very soft pastel purples
+              ? ['#1f2937', '#2d2140', '#3b2849', '#4a2f52', '#58365b']  // Dark mode: more visible purples
+              : ['#fdfcfe', '#f7f4fb', '#f1ecf8', '#ebe4f5', '#e5dcf2']) // Light mode: more visible pastel purples
           : (isDark
-              ? ['#1f2937', '#1f2f3a', '#1f3540', '#1f3b46', '#20414c']  // Dark mode: subtle blues
-              : ['#f8fbfd', '#f3f8fc', '#eef5fb', '#e9f2fa', '#e4eff9']) // Light mode: very soft pastel blues
+              ? ['#1f2937', '#243442', '#29404d', '#2e4c58', '#335863']  // Dark mode: more visible blues
+              : ['#fcfdfe', '#f6f9fc', '#f0f5fa', '#eaf1f8', '#e4edf6']) // Light mode: more visible pastel blues
       },
       // Make the control handle more visible - match metric color
       controller: {
@@ -474,8 +478,8 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
           color: selectedMetric === 'compensation'
             ? (isDark ? '#215239' : '#c8e6d3')  // Green
             : selectedMetric === 'quality-of-life'
-            ? (isDark ? '#422549' : '#d8d0e8')  // Purple
-            : (isDark ? '#20414c' : '#c8dce8')  // Blue
+            ? (isDark ? '#58365b' : '#d8cce5')  // Purple
+            : (isDark ? '#335863' : '#c8dce8')  // Blue
         }
       }
     },
@@ -507,8 +511,8 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
             areaColor: selectedMetric === 'compensation'
               ? (isDark ? '#2d5a3f' : '#c8e6d3')  // Green
               : selectedMetric === 'quality-of-life'
-              ? (isDark ? '#4a2d58' : '#d8d0e8')  // Purple
-              : (isDark ? '#2d4a58' : '#c8dce8'), // Blue
+              ? (isDark ? '#6b3f78' : '#d8cce5')  // Purple
+              : (isDark ? '#3d5f6f' : '#c8dce8'), // Blue
             shadowOffsetX: 0,
             shadowOffsetY: 0,
             shadowBlur: 20,
