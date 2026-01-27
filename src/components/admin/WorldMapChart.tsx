@@ -440,8 +440,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
         setViewLevel('us-states');
         setSelectedRegion('USA');
       } else {
-        // Drill into country cities
-        setViewLevel('country-cities');
+        // Stay in world view but show country data
         setSelectedRegion(params.name);
         fetchCountryData(params.name);
       }
@@ -763,7 +762,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
           </p>
 
           {/* Country/State Data */}
-          {!loading && selectedCountryData && viewLevel === 'world' && (
+          {!loading && selectedCountryData && (
             <div className="mt-4 space-y-3">
               {/* Quick Stats Grid */}
               <div className="grid grid-cols-2 gap-2">
