@@ -926,7 +926,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
   return (
     <div ref={containerRef} className="relative flex transition-all duration-300" style={style}>
       {/* Map */}
-      <div className="relative transition-all duration-300" style={{ width: isPanelCollapsed ? '100%' : `${100 - panelWidth}%` }}>
+      <div className="relative transition-all duration-300 overflow-hidden" style={{ width: isPanelCollapsed ? '100%' : `${100 - panelWidth}%` }}>
         {viewLevel !== 'world' && (
           <button
             onClick={handleBack}
