@@ -41,7 +41,13 @@ interface WorldMapChartProps {
 interface CountryData {
   capital: string;
   population: string;
-  costOfLiving: 1 | 2 | 3 | 4 | 5;
+  gdpRank?: number;
+  costOfLivingRank?: number;
+  medicineRank?: number;
+  safetyRank?: number;
+  airQualityRank?: number;
+  daleRank?: number; // 0-10 overall score
+  costOfLiving?: 1 | 2 | 3 | 4 | 5; // Legacy field, kept for compatibility
   visaCategories: string[];
   relocationTip: string;
 }
@@ -51,35 +57,60 @@ const countryData: Record<string, CountryData> = {
   'United States': {
     capital: 'Washington, D.C.',
     population: '331M',
-    costOfLiving: 4,
+    gdpRank: 1,
+    costOfLivingRank: 20,
+    medicineRank: 37,
+    safetyRank: 129,
+    airQualityRank: 84,
+    daleRank: 8.5,
     visaCategories: ['H-1B Work', 'L-1 Transfer', 'O-1 Talent', 'Green Card', 'Student F-1'],
     relocationTip: 'Tech hubs like SF, NYC, and Seattle offer the most opportunities. H-1B visa lottery typically opens in March.'
   },
   'United States of America': {
     capital: 'Washington, D.C.',
     population: '331M',
-    costOfLiving: 4,
+    gdpRank: 1,
+    costOfLivingRank: 20,
+    medicineRank: 37,
+    safetyRank: 129,
+    airQualityRank: 84,
+    daleRank: 8.5,
     visaCategories: ['H-1B Work', 'L-1 Transfer', 'O-1 Talent', 'Green Card', 'Student F-1'],
     relocationTip: 'Tech hubs like SF, NYC, and Seattle offer the most opportunities. H-1B visa lottery typically opens in March.'
   },
   'Canada': {
     capital: 'Ottawa',
     population: '38M',
-    costOfLiving: 3,
+    gdpRank: 9,
+    costOfLivingRank: 25,
+    medicineRank: 14,
+    safetyRank: 11,
+    airQualityRank: 45,
+    daleRank: 9.2,
     visaCategories: ['Express Entry', 'Work Permit', 'Study Permit', 'PNP', 'Start-up Visa'],
     relocationTip: 'Express Entry is the fastest path to permanent residence. Toronto and Vancouver have thriving tech scenes.'
   },
   'Mexico': {
     capital: 'Mexico City',
     population: '128M',
-    costOfLiving: 2,
+    gdpRank: 15,
+    costOfLivingRank: 85,
+    medicineRank: 61,
+    safetyRank: 140,
+    airQualityRank: 106,
+    daleRank: 7.8,
     visaCategories: ['Temporary Resident', 'Permanent Resident', 'Digital Nomad', 'Work Visa'],
     relocationTip: 'Mexico City and Playa del Carmen are popular for remote workers. Low cost of living with great quality of life.'
   },
   'Brazil': {
     capital: 'Brasília',
     population: '214M',
-    costOfLiving: 2,
+    gdpRank: 12,
+    costOfLivingRank: 92,
+    medicineRank: 125,
+    safetyRank: 116,
+    airQualityRank: 95,
+    daleRank: 7.4,
     visaCategories: ['Work Visa', 'Investor Visa', 'Digital Nomad', 'Student Visa'],
     relocationTip: 'São Paulo is the tech capital. Portuguese language skills are highly beneficial.'
   },
@@ -464,6 +495,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
   const [hasVisaDataFromDB, setHasVisaDataFromDB] = useState(false);
   const [selectedVisaData, setSelectedVisaData] = useState<any | null>(null);
   const [viewMode, setViewMode] = useState<'map' | 'country' | 'visa'>('map');
+  const [countryTab, setCountryTab] = useState<'overview' | 'immigration'>('overview');
   const [panelWidth, setPanelWidth] = useState(33.333); // percentage
   const [isResizing, setIsResizing] = useState(false);
   const chartRef = useRef<any>(null);
@@ -678,7 +710,12 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
           const fallbackData: CountryData = {
             capital: capital,
             population: 'N/A',
-            costOfLiving: 3, // Default to medium
+            gdpRank: 0,
+            costOfLivingRank: 0,
+            medicineRank: 0,
+            safetyRank: 0,
+            airQualityRank: 0,
+            daleRank: 0,
             visaCategories,
             relocationTip: visaCategoriesFromDB.length > 0
               ? 'Click on visa categories to view detailed information about requirements, costs, and processing times.'
@@ -1187,47 +1224,123 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
           {/* Country/State Data */}
           {!loading && viewMode === 'country' && selectedCountryData && (
             <div className="mt-4 space-y-3">
-              {/* Quick Stats Grid */}
-              <div className="grid grid-cols-2 gap-2">
-                <div className={`p-2 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
-                  <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Capital</div>
-                  <div className={`text-sm font-semibold mt-0.5 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
-                    {selectedCountryData.capital}
-                  </div>
-                </div>
-                <div className={`p-2 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
-                  <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Population</div>
-                  <div className={`text-sm font-semibold mt-0.5 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
-                    {selectedCountryData.population}
-                  </div>
-                </div>
+              {/* Tabs */}
+              <div className="flex gap-1 border-b ${isDark ? 'border-gray-800' : 'border-gray-200'}">
+                <button
+                  onClick={() => setCountryTab('overview')}
+                  className={`px-3 py-2 text-xs font-medium border-b-2 transition ${
+                    countryTab === 'overview'
+                      ? isDark
+                        ? 'border-blue-500 text-blue-400'
+                        : 'border-blue-600 text-blue-700'
+                      : isDark
+                        ? 'border-transparent text-gray-500 hover:text-gray-300'
+                        : 'border-transparent text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Overview
+                </button>
+                <button
+                  onClick={() => setCountryTab('immigration')}
+                  className={`px-3 py-2 text-xs font-medium border-b-2 transition ${
+                    countryTab === 'immigration'
+                      ? isDark
+                        ? 'border-blue-500 text-blue-400'
+                        : 'border-blue-600 text-blue-700'
+                      : isDark
+                        ? 'border-transparent text-gray-500 hover:text-gray-300'
+                        : 'border-transparent text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Immigration
+                </button>
               </div>
 
-              {/* Cost of Living */}
-              <div className={`p-3 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
-                <div className={`text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Cost of Living</div>
-                <div className="flex gap-1">
-                  {[1, 2, 3, 4, 5].map((level) => (
-                    <div
-                      key={level}
-                      className={`flex-1 h-2 rounded ${
-                        level <= selectedCountryData.costOfLiving
-                          ? 'bg-blue-500'
-                          : isDark ? 'bg-gray-700' : 'bg-gray-200'
-                      }`}
-                    />
-                  ))}
-                </div>
-                <div className={`text-xs mt-1 ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
-                  {selectedCountryData.costOfLiving === 1 && 'Very Low'}
-                  {selectedCountryData.costOfLiving === 2 && 'Low'}
-                  {selectedCountryData.costOfLiving === 3 && 'Moderate'}
-                  {selectedCountryData.costOfLiving === 4 && 'High'}
-                  {selectedCountryData.costOfLiving === 5 && 'Very High'}
-                </div>
-              </div>
+              {/* Overview Tab Content */}
+              {countryTab === 'overview' && (
+                <div className="space-y-3">
+                  {/* Dale Rank - Highlighted Widget */}
+                  {selectedCountryData.daleRank && selectedCountryData.daleRank > 0 && (
+                    <div className={`p-4 border-2 ${isDark ? 'border-blue-500/50 bg-blue-950/30' : 'border-blue-500/30 bg-blue-50'}`}>
+                      <div className="flex items-center justify-between">
+                        <div className={`text-xs font-medium ${isDark ? 'text-blue-400' : 'text-blue-700'}`}>
+                          Dale Rank
+                        </div>
+                        <div className={`text-2xl font-bold ${isDark ? 'text-blue-400' : 'text-blue-700'}`}>
+                          {selectedCountryData.daleRank.toFixed(1)}
+                          <span className={`text-sm font-normal ml-1 ${isDark ? 'text-blue-500' : 'text-blue-600'}`}>/10</span>
+                        </div>
+                      </div>
+                      <div className={`mt-2 h-2 ${isDark ? 'bg-gray-800' : 'bg-gray-200'} overflow-hidden`}>
+                        <div
+                          className="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all"
+                          style={{ width: `${(selectedCountryData.daleRank / 10) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
 
-              {/* Visa Categories or Empty State */}
+                  {/* Basic Info Grid */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className={`p-2 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
+                      <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Capital</div>
+                      <div className={`text-sm font-semibold mt-0.5 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                        {selectedCountryData.capital}
+                      </div>
+                    </div>
+                    <div className={`p-2 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
+                      <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Population</div>
+                      <div className={`text-sm font-semibold mt-0.5 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                        {selectedCountryData.population}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Rankings Grid */}
+                  {selectedCountryData.gdpRank && selectedCountryData.gdpRank > 0 && (
+                    <div className="space-y-2">
+                      <div className={`text-xs font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Global Rankings</div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className={`p-2 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
+                          <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>GDP</div>
+                          <div className={`text-sm font-semibold mt-0.5 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                            #{selectedCountryData.gdpRank}
+                          </div>
+                        </div>
+                        <div className={`p-2 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
+                          <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Cost of Living</div>
+                          <div className={`text-sm font-semibold mt-0.5 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                            #{selectedCountryData.costOfLivingRank}
+                          </div>
+                        </div>
+                        <div className={`p-2 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
+                          <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Medicine</div>
+                          <div className={`text-sm font-semibold mt-0.5 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                            #{selectedCountryData.medicineRank}
+                          </div>
+                        </div>
+                        <div className={`p-2 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
+                          <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Safety</div>
+                          <div className={`text-sm font-semibold mt-0.5 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                            #{selectedCountryData.safetyRank}
+                          </div>
+                        </div>
+                        <div className={`p-2 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
+                          <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>Air Quality</div>
+                          <div className={`text-sm font-semibold mt-0.5 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                            #{selectedCountryData.airQualityRank}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Immigration Tab Content */}
+              {countryTab === 'immigration' && (
+                <div className="space-y-3">
+                  {/* Visa Categories or Empty State */}
               {hasVisaDataFromDB ? (
                 <>
                   <div>
@@ -1296,6 +1409,8 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
                   <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                     We are still gathering information on visa categories for this country. Check back soon!
                   </div>
+                </div>
+              )}
                 </div>
               )}
             </div>
