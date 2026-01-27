@@ -194,7 +194,7 @@ export const SidebarCollapsible = ({
             <MobileNavigationHeader>{mobileContent}</MobileNavigationHeader>
 
             {/* Desktop sidebar navigation */}
-            <div className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:flex lg:py-1 lg:pl-1">
+            <div className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:flex">
                 <motion.aside
                     initial={false}
                     animate={{ width: isCollapsed ? COLLAPSED_WIDTH : EXPANDED_WIDTH }}
@@ -399,7 +399,7 @@ export const SidebarCollapsible = ({
             {/* Placeholder to take up physical space because the real sidebar has `fixed` position. */}
             <motion.div
                 initial={false}
-                animate={{ paddingLeft: (isCollapsed ? COLLAPSED_WIDTH : EXPANDED_WIDTH) + 8 }}
+                animate={{ paddingLeft: isCollapsed ? COLLAPSED_WIDTH : EXPANDED_WIDTH }}
                 transition={{ type: "spring", damping: 30, stiffness: 400 }}
                 className="invisible hidden lg:sticky lg:top-0 lg:bottom-0 lg:left-0 lg:block"
             />
