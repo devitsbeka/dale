@@ -210,12 +210,13 @@ export const SidebarCollapsible = ({
                         isCollapsed ? "flex-col gap-3 px-1 justify-center" : "justify-between px-3"
                     )}>
                         {isCollapsed ? (
-                            <Button
-                                size="sm"
-                                color="tertiary"
-                                iconLeading={ChevronRight}
+                            <button
                                 onClick={() => setIsCollapsed(!isCollapsed)}
-                            />
+                                className="text-gray-400 hover:text-gray-900 transition-colors"
+                                aria-label="Expand sidebar"
+                            >
+                                <ChevronRight className="size-5" />
+                            </button>
                         ) : (
                             <>
                                 <motion.div
@@ -235,12 +236,13 @@ export const SidebarCollapsible = ({
                                         transition={{ duration: 0.3 }}
                                     />
                                 </motion.div>
-                                <Button
-                                    size="sm"
-                                    color="tertiary"
-                                    iconLeading={ChevronLeft}
+                                <button
                                     onClick={() => setIsCollapsed(!isCollapsed)}
-                                />
+                                    className="text-gray-400 hover:text-gray-900 transition-colors"
+                                    aria-label="Collapse sidebar"
+                                >
+                                    <ChevronLeft className="size-5" />
+                                </button>
                             </>
                         )}
                     </div>
