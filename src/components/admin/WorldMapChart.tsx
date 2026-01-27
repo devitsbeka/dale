@@ -464,7 +464,10 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
   const [hasVisaDataFromDB, setHasVisaDataFromDB] = useState(false);
   const [selectedVisaData, setSelectedVisaData] = useState<any | null>(null);
   const [viewMode, setViewMode] = useState<'map' | 'country' | 'visa'>('map');
+  const [panelWidth, setPanelWidth] = useState(33.333); // percentage
+  const [isResizing, setIsResizing] = useState(false);
   const chartRef = useRef<any>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Load all maps on mount
   useEffect(() => {
@@ -792,6 +795,46 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
     return centers[country] || [0, 30];
   };
 
+  // Handle panel resize
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing || !containerRef.current) return;
+
+      const containerWidth = containerRef.current.offsetWidth;
+      const mouseX = e.clientX - containerRef.current.getBoundingClientRect().left;
+      const newPanelWidth = ((containerWidth - mouseX) / containerWidth) * 100;
+
+      // Constrain between 20% and 60%
+      const constrainedWidth = Math.min(Math.max(newPanelWidth, 20), 60);
+      setPanelWidth(constrainedWidth);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+
+    if (isResizing) {
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing]);
+
   const config = getMapConfig();
 
   const option = {
@@ -881,9 +924,9 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
   }
 
   return (
-    <div className="relative flex transition-all duration-300" style={style}>
+    <div ref={containerRef} className="relative flex transition-all duration-300" style={style}>
       {/* Map */}
-      <div className="relative transition-all duration-300" style={{ width: isPanelCollapsed ? '100%' : '66.666%' }}>
+      <div className="relative transition-all duration-300" style={{ width: isPanelCollapsed ? '100%' : `${100 - panelWidth}%` }}>
         {viewLevel !== 'world' && (
           <button
             onClick={handleBack}
@@ -919,14 +962,27 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
         />
       </div>
 
+      {/* Resize Handle */}
+      {!isPanelCollapsed && (
+        <div
+          onMouseDown={handleMouseDown}
+          className={`relative w-1 cursor-col-resize group ${
+            isDark ? 'hover:bg-blue-500' : 'hover:bg-blue-600'
+          } ${isResizing ? (isDark ? 'bg-blue-500' : 'bg-blue-600') : ''}`}
+          style={{ height: style?.height || '600px' }}
+        >
+          <div className={`absolute inset-y-0 -left-1 -right-1 ${isResizing ? 'bg-transparent' : ''}`} />
+        </div>
+      )}
+
       {/* Right Panel */}
       {!isPanelCollapsed && (
         <div
-          className={`overflow-y-auto transition-all duration-300 border-l ${
+          className={`overflow-y-auto transition-none border-l ${
             isDark ? 'border-gray-800 bg-gray-950' : 'border-gray-300 bg-white'
           }`}
           style={{
-            width: '33.333%',
+            width: `${panelWidth}%`,
             paddingLeft: '1rem',
             paddingRight: '1rem',
             height: style?.height || '600px'
