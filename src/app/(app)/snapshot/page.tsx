@@ -96,7 +96,7 @@ export default function SnapshotPage() {
                 </button>
               </div>
 
-              <div className="[&_button]:!rounded-none">
+              <div className="[&_button]:!rounded-none [&_button]:!h-7 [&_button]:!text-xs [&_button]:!px-2.5 [&_button]:!gap-1.5 [&_button_svg]:!size-3.5">
                 <Select
                   size="sm"
                   selectedKey={String(dateRange)}
