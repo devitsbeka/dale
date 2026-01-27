@@ -1360,12 +1360,6 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
               ))}
             </div>
           )}
-
-          {!loading && !selectedCity && viewLevel === 'world' && (
-            <div className={`mt-8 text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-              Click on a country to view jobs
-            </div>
-          )}
         </div>
         </div>
       )}
