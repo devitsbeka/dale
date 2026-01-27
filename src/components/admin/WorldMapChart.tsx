@@ -461,6 +461,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
   const [selectedVisaCategory, setSelectedVisaCategory] = useState<string | null>(null);
   const [showVisaDetail, setShowVisaDetail] = useState(false);
   const [selectedVisaId, setSelectedVisaId] = useState<string | null>(null);
+  const [hasVisaDataFromDB, setHasVisaDataFromDB] = useState(false);
   const [selectedVisaData, setSelectedVisaData] = useState<any | null>(null);
   const [viewMode, setViewMode] = useState<'map' | 'country' | 'visa'>('map');
   const chartRef = useRef<any>(null);
@@ -662,6 +663,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
         setCapital(data.capital);
         setSelectedVisaCategory(null); // Reset visa selection
         setViewMode('country');
+        setHasVisaDataFromDB(visaCategoriesFromDB.length > 0);
       } else {
         // Fallback: Create basic CountryData from legacy capital mapping
         const capital = countryCapitals[country] || countryCapitals[
@@ -687,9 +689,11 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
           setCapital(capital);
           setSelectedVisaCategory(null);
           setViewMode('country');
+          setHasVisaDataFromDB(visaCategoriesFromDB.length > 0);
         } else {
           setCapital(null);
           setSelectedCountryData(null);
+          setHasVisaDataFromDB(false);
         }
       }
 
@@ -1112,67 +1116,77 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
                 </div>
               </div>
 
-              {/* Visa Categories */}
-              <div>
-                <div className={`text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Immigration Visa Categories</div>
-                <div className="flex flex-wrap gap-2">
-                  {selectedCountryData.visaCategories.map((visa) => (
-                    <button
-                      key={visa}
-                      onClick={async () => {
-                        // Fetch visa category details and show in panel
-                        const countryCode = selectedRegion || '';
-                        // Convert country name to ISO code
-                        const isoCode = countryCode === 'United States' || countryCode === 'United States of America' ? 'USA' :
-                                       countryCode === 'United Kingdom' || countryCode === 'United Kingdom of Great Britain and Northern Ireland' ? 'GBR' :
-                                       countryCode === 'Canada' ? 'CAN' :
-                                       countryCode === 'Germany' ? 'DEU' :
-                                       countryCode === 'France' ? 'FRA' :
-                                       countryCode === 'Mexico' ? 'MEX' :
-                                       countryCode === 'Brazil' ? 'BRA' :
-                                       countryCode === 'Spain' ? 'ESP' :
-                                       countryCode === 'Italy' ? 'ITA' :
-                                       countryCode === 'Netherlands' ? 'NLD' :
-                                       countryCode === 'Switzerland' ? 'CHE' :
-                                       countryCode === 'Australia' ? 'AUS' :
-                                       countryCode === 'Japan' ? 'JPN' :
-                                       countryCode === 'Singapore' ? 'SGP' :
-                                       countryCode === 'India' ? 'IND' :
-                                       countryCode === 'China' ? 'CHN' :
-                                       countryCode.substring(0, 3).toUpperCase();
-
-                        await fetchVisaCategoryDetails(isoCode, visa);
-                      }}
-                      className={`px-3 py-1.5 text-xs font-medium border transition-colors cursor-pointer ${
-                        isDark
-                          ? 'border-gray-700 bg-gray-800 text-gray-300 hover:bg-gray-700 hover:border-blue-500'
-                          : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-blue-500'
-                      }`}
-                    >
-                      {visa}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Relocation Assistant Tip */}
-              <div className={`p-3 border-l-2 ${
-                isDark ? 'border-blue-500 bg-blue-950/30' : 'border-blue-500 bg-blue-50'
-              }`}>
-                <div className="flex items-start gap-2">
-                  <svg className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
+              {/* Visa Categories or Empty State */}
+              {hasVisaDataFromDB ? (
+                <>
                   <div>
-                    <div className={`text-xs font-medium mb-1 ${isDark ? 'text-blue-400' : 'text-blue-900'}`}>
-                      Relocation Assistant
+                    <div className={`text-xs font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Immigration Visa Categories</div>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedCountryData.visaCategories.map((visa) => (
+                        <button
+                          key={visa}
+                          onClick={async () => {
+                            // Fetch visa category details and show in panel
+                            const countryCode = selectedRegion || '';
+                            // Convert country name to ISO code
+                            const isoCode = countryCode === 'United States' || countryCode === 'United States of America' ? 'USA' :
+                                           countryCode === 'United Kingdom' || countryCode === 'United Kingdom of Great Britain and Northern Ireland' ? 'GBR' :
+                                           countryCode === 'Canada' ? 'CAN' :
+                                           countryCode === 'Germany' ? 'DEU' :
+                                           countryCode === 'France' ? 'FRA' :
+                                           countryCode === 'Mexico' ? 'MEX' :
+                                           countryCode === 'Brazil' ? 'BRA' :
+                                           countryCode === 'Spain' ? 'ESP' :
+                                           countryCode === 'Italy' ? 'ITA' :
+                                           countryCode === 'Netherlands' ? 'NLD' :
+                                           countryCode === 'Switzerland' ? 'CHE' :
+                                           countryCode === 'Australia' ? 'AUS' :
+                                           countryCode === 'Japan' ? 'JPN' :
+                                           countryCode === 'Singapore' ? 'SGP' :
+                                           countryCode === 'India' ? 'IND' :
+                                           countryCode === 'China' ? 'CHN' :
+                                           countryCode.substring(0, 3).toUpperCase();
+
+                            await fetchVisaCategoryDetails(isoCode, visa);
+                          }}
+                          className={`px-3 py-1.5 text-xs font-medium border transition-colors cursor-pointer ${
+                            isDark
+                              ? 'border-gray-700 bg-gray-800 text-gray-300 hover:bg-gray-700 hover:border-blue-500'
+                              : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-blue-500'
+                          }`}
+                        >
+                          {visa}
+                        </button>
+                      ))}
                     </div>
-                    <p className={`text-xs leading-relaxed ${isDark ? 'text-blue-300' : 'text-blue-800'}`}>
-                      {selectedCountryData.relocationTip}
-                    </p>
+                  </div>
+
+                  {/* Relocation Assistant Tip */}
+                  <div className={`p-3 border-l-2 ${
+                    isDark ? 'border-blue-500 bg-blue-950/30' : 'border-blue-500 bg-blue-50'
+                  }`}>
+                    <div className="flex items-start gap-2">
+                      <svg className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div>
+                        <div className={`text-xs font-medium mb-1 ${isDark ? 'text-blue-400' : 'text-blue-900'}`}>
+                          Relocation Assistant
+                        </div>
+                        <p className={`text-xs leading-relaxed ${isDark ? 'text-blue-300' : 'text-blue-800'}`}>
+                          {selectedCountryData.relocationTip}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className={`p-4 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'} text-center`}>
+                  <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                    We are still gathering information on visa categories for this country. Check back soon!
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
 
