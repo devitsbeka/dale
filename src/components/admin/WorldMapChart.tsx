@@ -962,15 +962,8 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
                 <h3 className={`text-lg font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
                   {selectedVisaData.name}
                 </h3>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className={`text-xs px-2 py-0.5 rounded ${
-                    isDark ? 'bg-blue-900/50 text-blue-400' : 'bg-blue-100 text-blue-700'
-                  }`}>
-                    {selectedVisaData.type}
-                  </span>
-                  <span className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
-                    {selectedVisaData.countryName}
-                  </span>
+                <div className={`text-xs mt-1 ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
+                  {selectedVisaData.countryName}
                 </div>
               </div>
 
