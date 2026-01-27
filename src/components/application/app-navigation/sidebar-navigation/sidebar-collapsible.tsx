@@ -204,49 +204,22 @@ export const SidebarCollapsible = ({
                         scrollbarHiddenClass
                     )}
                 >
-                    {/* Header with logo and toggle */}
+                    {/* Header with toggle - aligned with page header */}
                     <div className={cx(
-                        "flex shrink-0 items-center pt-3",
-                        isCollapsed ? "flex-col gap-3 px-1 justify-center" : "justify-between px-3"
+                        "flex shrink-0 items-center h-[52px] border-b border-gray-300",
+                        isCollapsed ? "justify-center px-1" : "justify-end px-4"
                     )}>
-                        {isCollapsed ? (
-                            <button
-                                onClick={() => setIsCollapsed(!isCollapsed)}
-                                className="text-gray-400 hover:text-gray-900 transition-colors"
-                                aria-label="Expand sidebar"
-                            >
+                        <button
+                            onClick={() => setIsCollapsed(!isCollapsed)}
+                            className="text-gray-400 hover:text-gray-900 transition-colors"
+                            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                        >
+                            {isCollapsed ? (
                                 <ChevronRight className="size-5" />
-                            </button>
-                        ) : (
-                            <>
-                                <motion.div
-                                    key={activeUrl}
-                                    className="flex items-center overflow-hidden"
-                                    style={{ width: "70px" }}
-                                >
-                                    <motion.img
-                                        src="/logo.svg"
-                                        alt="Dale"
-                                        className="h-7 w-auto"
-                                        style={{
-                                            width: "70px",
-                                            clipPath: "inset(0 100% 0 0)"
-                                        }}
-                                        animate={{
-                                            clipPath: "inset(0 0% 0 0)"
-                                        }}
-                                        transition={{ duration: 0.8, ease: "easeInOut" }}
-                                    />
-                                </motion.div>
-                                <button
-                                    onClick={() => setIsCollapsed(!isCollapsed)}
-                                    className="text-gray-400 hover:text-gray-900 transition-colors"
-                                    aria-label="Collapse sidebar"
-                                >
-                                    <ChevronLeft className="size-5" />
-                                </button>
-                            </>
-                        )}
+                            ) : (
+                                <ChevronLeft className="size-5" />
+                            )}
+                        </button>
                     </div>
 
                     {/* Navigation content */}
@@ -271,10 +244,10 @@ export const SidebarCollapsible = ({
                             <ul className="mt-4">
                                 {expandedItems.map((group) => (
                                     <li key={group.label}>
-                                        <div className="px-3 pb-1">
+                                        <div className="px-4 pb-1">
                                             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">{group.label}</p>
                                         </div>
-                                        <ul className="px-2 pb-3">
+                                        <ul className="px-3 pb-3">
                                             {group.items.map((item) => (
                                                 <li key={item.label} className="py-0.5">
                                                     <NavItemBase icon={item.icon} href={item.href} badge={item.badge} type="link" current={item.href === activeUrl}>
@@ -292,7 +265,7 @@ export const SidebarCollapsible = ({
                     {/* Footer */}
                     <div className={cx(
                         "mt-auto shrink-0 py-3",
-                        isCollapsed ? "flex flex-col items-center gap-1 px-1" : "flex flex-col gap-3 px-3"
+                        isCollapsed ? "flex flex-col items-center gap-1 px-1" : "flex flex-col gap-3 px-4"
                     )}>
                         {/* Theme Toggle */}
                         {showThemeToggle && (
