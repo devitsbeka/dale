@@ -517,15 +517,9 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
 
     if (viewLevel === 'world') {
       // Clicked a country on world map
-      if (params.name === 'United States of America' || params.name === 'United States') {
-        // Drill into US states
-        setViewLevel('us-states');
-        setSelectedRegion('USA');
-      } else {
-        // Stay in world view but show country data
-        setSelectedRegion(params.name);
-        fetchCountryData(params.name);
-      }
+      // Stay in world view but show country data
+      setSelectedRegion(params.name);
+      fetchCountryData(params.name);
     } else if (viewLevel === 'us-states') {
       // Clicked a US state
       const stateAbbr = Object.entries(stateNameToAbbr).find(
