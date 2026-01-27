@@ -18,10 +18,13 @@ interface AnalyticsData {
   usaMap: any;
 }
 
+type TabType = 'explorer' | 'overview';
+
 export default function AdminAnalyticsPage() {
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState(30);
+  const [activeTab, setActiveTab] = useState<TabType>('explorer');
   const { theme } = useAdminTheme();
   const isDark = theme === 'dark';
 
@@ -69,47 +72,100 @@ export default function AdminAnalyticsPage() {
   }
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Header Bar */}
-      <div className={`h-16 border-b flex items-center justify-between px-6 ${isDark ? 'border-gray-800' : 'border-gray-200'}`}>
-        <div>
-          <h1 className={`text-base font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>Analytics</h1>
-          <p className={`text-xs mt-0.5 ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
-            {data?.overview?.totalJobs?.toLocaleString() || 0} job listings
-          </p>
+    <div className="flex h-full">
+      {/* Left Tabs Panel */}
+      <div className={`w-48 border-r flex flex-col ${isDark ? 'border-gray-800 bg-gray-900' : 'border-gray-200 bg-white'}`}>
+        {/* Header */}
+        <div className={`h-16 border-b px-4 flex items-center ${isDark ? 'border-gray-800' : 'border-gray-200'}`}>
+          <h2 className={`text-sm font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>Analytics</h2>
         </div>
-        <div className="flex items-center gap-3">
-          <select
-            value={dateRange}
-            onChange={(e) => setDateRange(Number(e.target.value))}
-            className={`px-3 py-1.5 text-xs border focus:outline-none transition-colors ${
-              isDark
-                ? 'bg-gray-800 border-gray-700 text-gray-300 focus:border-gray-600'
-                : 'bg-white border-gray-300 text-gray-700 focus:border-gray-400'
-            }`}
-          >
-            <option value={7}>Last 7 days</option>
-            <option value={30}>Last 30 days</option>
-            <option value={90}>Last 90 days</option>
-            <option value={180}>Last 6 months</option>
-            <option value={365}>Last year</option>
-          </select>
+
+        {/* Tabs */}
+        <nav className="flex-1 py-2">
           <button
-            onClick={fetchAnalytics}
-            className={`px-3 py-1.5 text-xs font-medium border transition-colors ${
-              isDark
-                ? 'bg-gray-800 hover:bg-gray-700 border-gray-700 text-gray-300'
-                : 'bg-gray-200 hover:bg-gray-300 border-gray-300 text-gray-700'
+            onClick={() => setActiveTab('explorer')}
+            className={`w-full px-4 py-2.5 text-left text-sm transition-colors ${
+              activeTab === 'explorer'
+                ? isDark
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-blue-500 text-white'
+                : isDark
+                ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
             }`}
           >
-            Refresh
+            Explorer
           </button>
-        </div>
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`w-full px-4 py-2.5 text-left text-sm transition-colors ${
+              activeTab === 'overview'
+                ? isDark
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-blue-500 text-white'
+                : isDark
+                ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+            }`}
+          >
+            Overview
+          </button>
+        </nav>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 overflow-auto p-4">
-        <div className="max-w-[1920px] mx-auto space-y-4">
+      {/* Right Content Area */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Header Bar */}
+        <div className={`h-16 border-b flex items-center justify-between px-6 ${isDark ? 'border-gray-800' : 'border-gray-200'}`}>
+          <div>
+            <h1 className={`text-base font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+              {activeTab === 'explorer' ? 'Job Explorer' : 'Analytics Overview'}
+            </h1>
+            <p className={`text-xs mt-0.5 ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
+              {data?.overview?.totalJobs?.toLocaleString() || 0} job listings
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <select
+              value={dateRange}
+              onChange={(e) => setDateRange(Number(e.target.value))}
+              className={`px-3 py-1.5 text-xs border focus:outline-none transition-colors ${
+                isDark
+                  ? 'bg-gray-800 border-gray-700 text-gray-300 focus:border-gray-600'
+                  : 'bg-white border-gray-300 text-gray-700 focus:border-gray-400'
+              }`}
+            >
+              <option value={7}>Last 7 days</option>
+              <option value={30}>Last 30 days</option>
+              <option value={90}>Last 90 days</option>
+              <option value={180}>Last 6 months</option>
+              <option value={365}>Last year</option>
+            </select>
+            <button
+              onClick={fetchAnalytics}
+              className={`px-3 py-1.5 text-xs font-medium border transition-colors ${
+                isDark
+                  ? 'bg-gray-800 hover:bg-gray-700 border-gray-700 text-gray-300'
+                  : 'bg-gray-200 hover:bg-gray-300 border-gray-300 text-gray-700'
+              }`}
+            >
+              Refresh
+            </button>
+          </div>
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === 'explorer' ? (
+          <div className="flex-1 overflow-hidden">
+            <WorldMapChart
+              data={data?.usaMap}
+              style={{ height: '100%', width: '100%' }}
+              isDark={isDark}
+            />
+          </div>
+        ) : (
+          <div className="flex-1 overflow-auto p-4">
+            <div className="max-w-[1920px] mx-auto space-y-4">
           {/* KPI Grid */}
           <div className="grid grid-cols-4 gap-3">
             <MetricPanel
@@ -265,15 +321,17 @@ export default function AdminAnalyticsPage() {
             </ChartPanel>
           </div>
 
-          {/* Quality Trends */}
-          <ChartPanel title="Data Quality Trends" isDark={isDark}>
-            <ReactECharts
-              option={getQualitySparklineOption(data?.timeseries)}
-              style={{ height: '200px' }}
-              theme="dark"
-            />
-          </ChartPanel>
-        </div>
+              {/* Quality Trends */}
+              <ChartPanel title="Data Quality Trends" isDark={isDark}>
+                <ReactECharts
+                  option={getQualitySparklineOption(data?.timeseries)}
+                  style={{ height: '200px' }}
+                  theme="dark"
+                />
+              </ChartPanel>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

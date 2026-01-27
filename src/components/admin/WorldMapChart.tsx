@@ -393,9 +393,9 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
   }
 
   return (
-    <div className="relative flex gap-4" style={style}>
+    <div className="relative flex" style={style}>
       {/* Map */}
-      <div className="relative" style={{ width: '64%' }}>
+      <div className="relative" style={{ width: '66.666%' }}>
         {viewLevel !== 'world' && (
           <button
             onClick={handleBack}
@@ -423,7 +423,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
           isDark ? 'border-gray-800 bg-gray-950' : 'border-gray-200 bg-white'
         }`}
         style={{
-          width: '36%',
+          width: '33.333%',
           borderLeftWidth: '1px',
           paddingLeft: '1rem',
           height: style?.height || '600px'
