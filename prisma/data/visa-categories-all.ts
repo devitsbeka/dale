@@ -1,6 +1,6 @@
 // COMPREHENSIVE GLOBAL VISA DATABASE
 // Merges all regional visa data into single export
-// Total Coverage: 75+ countries, 89 visa types
+// Total Coverage: 105+ countries, 119 visa types
 
 import { visaCategoriesData } from './visa-categories';
 import { visaCategoriesExpandedData } from './visa-categories-expanded';
@@ -8,6 +8,7 @@ import { visaCategoriesAsiaPacific } from './visa-categories-asia-pacific';
 import { visaCategoriesGlobal } from './visa-categories-global';
 import { visaCategoriesTier2 } from './visa-categories-tier2';
 import { visaCategoriesTier3 } from './visa-categories-tier3';
+import { visaCategoriesTier4 } from './visa-categories-tier4';
 
 // Merge all visa category data from all regions
 export const allVisaCategoriesData = [
@@ -17,6 +18,7 @@ export const allVisaCategoriesData = [
   ...visaCategoriesGlobal,               // Latin America, Africa, Middle East, Eastern Europe (12 visas)
   ...visaCategoriesTier2,                // Tier 2 emerging markets (20 visas)
   ...visaCategoriesTier3,                // Tier 3 global coverage (25 visas)
+  ...visaCategoriesTier4,                // Tier 4 additional global coverage (30 visas)
 ];
 
 // Export count for verification
@@ -27,29 +29,34 @@ export const visaCategoriesCount = {
     ...visaCategoriesExpandedData,
     ...visaCategoriesGlobal,
     ...visaCategoriesTier2,
-    ...visaCategoriesTier3
-  ].filter(v => ['GBR', 'DEU', 'FRA', 'NLD', 'IRL', 'ESP', 'PRT', 'ITA', 'CHE', 'SWE', 'NOR', 'DNK', 'POL', 'CZE', 'EST', 'ROU', 'BGR', 'HUN', 'GRC', 'HRV', 'CYP'].includes(v.countryCode)).length,
+    ...visaCategoriesTier3,
+    ...visaCategoriesTier4
+  ].filter(v => ['GBR', 'DEU', 'FRA', 'NLD', 'IRL', 'ESP', 'PRT', 'ITA', 'CHE', 'SWE', 'NOR', 'DNK', 'POL', 'CZE', 'EST', 'ROU', 'BGR', 'HUN', 'GRC', 'HRV', 'CYP', 'MKD', 'ALB', 'SRB', 'BIH'].includes(v.countryCode)).length,
   asiaPacific: [
     ...visaCategoriesAsiaPacific,
     ...visaCategoriesTier2,
-    ...visaCategoriesTier3
-  ].filter(v => ['SGP', 'JPN', 'AUS', 'NZL', 'KOR', 'HKG', 'TWN', 'MYS', 'THA', 'VNM', 'PHL', 'IDN', 'IND', 'CHN', 'BGD', 'LKA', 'KHM', 'FJI'].includes(v.countryCode)).length,
+    ...visaCategoriesTier3,
+    ...visaCategoriesTier4
+  ].filter(v => ['SGP', 'JPN', 'AUS', 'NZL', 'KOR', 'HKG', 'TWN', 'MYS', 'THA', 'VNM', 'PHL', 'IDN', 'IND', 'CHN', 'BGD', 'LKA', 'KHM', 'FJI', 'KAZ', 'UZB', 'NPL', 'MMR', 'MNG', 'PNG', 'VUT'].includes(v.countryCode)).length,
   middleEast: [
     ...visaCategoriesAsiaPacific,
     ...visaCategoriesGlobal,
     ...visaCategoriesTier2,
-    ...visaCategoriesTier3
-  ].filter(v => ['ARE', 'ISR', 'QAT', 'TUR', 'SAU', 'JOR', 'OMN', 'BHR', 'KWT'].includes(v.countryCode)).length,
+    ...visaCategoriesTier3,
+    ...visaCategoriesTier4
+  ].filter(v => ['ARE', 'ISR', 'QAT', 'TUR', 'SAU', 'JOR', 'OMN', 'BHR', 'KWT', 'LBN', 'YEM', 'IRQ'].includes(v.countryCode)).length,
   latinAmerica: [
     ...visaCategoriesGlobal,
     ...visaCategoriesTier2,
-    ...visaCategoriesTier3
-  ].filter(v => ['BRA', 'CHL', 'ARG', 'CRI', 'COL', 'PER', 'URY', 'PAN', 'ECU', 'JAM', 'BRB', 'CYM'].includes(v.countryCode)).length,
+    ...visaCategoriesTier3,
+    ...visaCategoriesTier4
+  ].filter(v => ['BRA', 'CHL', 'ARG', 'CRI', 'COL', 'PER', 'URY', 'PAN', 'ECU', 'JAM', 'BRB', 'CYM', 'BOL', 'PRY', 'NIC', 'GTM', 'HND', 'TTO', 'BHS', 'GRD'].includes(v.countryCode)).length,
   africa: [
     ...visaCategoriesGlobal,
     ...visaCategoriesTier2,
-    ...visaCategoriesTier3
-  ].filter(v => ['ZAF', 'KEN', 'MAR', 'MUS', 'GHA', 'EGY', 'NGA', 'BWA', 'TZA', 'SEN', 'TUN'].includes(v.countryCode)).length,
+    ...visaCategoriesTier3,
+    ...visaCategoriesTier4
+  ].filter(v => ['ZAF', 'KEN', 'MAR', 'MUS', 'GHA', 'EGY', 'NGA', 'BWA', 'TZA', 'SEN', 'TUN', 'UGA', 'ETH', 'ZWE', 'RWA', 'MOZ', 'NAM'].includes(v.countryCode)).length,
   total: allVisaCategoriesData.length
 };
 
