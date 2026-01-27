@@ -924,6 +924,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
           style={{
             width: '33.333%',
             paddingLeft: '1rem',
+            paddingRight: '1rem',
             height: style?.height || '600px'
           }}
         >

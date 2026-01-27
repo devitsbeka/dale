@@ -99,7 +99,7 @@ export default function SnapshotPage() {
               <select
                 value={dateRange}
                 onChange={(e) => setDateRange(Number(e.target.value))}
-                className="text-xs px-2 py-1.5 border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="text-xs px-2 py-1.5 border border-gray-300 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value={7}>Last 7 days</option>
                 <option value={30}>Last 30 days</option>
