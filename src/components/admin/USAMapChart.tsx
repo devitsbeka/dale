@@ -377,10 +377,13 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
     visualMap: {
       min: 0,
       max: maxValue,
-      left: 'left',
-      bottom: '5%',
+      orient: 'horizontal',  // Horizontal orientation
+      left: 'center',
+      bottom: '3%',
       text: ['High Salary', 'Low Salary'],
       calculable: true,
+      itemWidth: 20,  // Width of the color bar
+      itemHeight: 140, // Height becomes length in horizontal mode
       textStyle: {
         color: isDark ? '#9ca3af' : '#6b7280'
       },
