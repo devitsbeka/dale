@@ -72,10 +72,12 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
   const [enabledSources, setEnabledSources] = useState<Record<string, boolean>>({ usajobs: false });
   const [usajobsData, setUsajobsData] = useState<StateJob[]>([]);
   const jobsCache = useRef<Record<string, { jobs: StateJob[]; avgSalary: number | null; topCity: string | null; topEmployers: Array<{ company: string; logo: string | null; jobCount: number }> }>>({});
+  const mapsLoadedRef = useRef(false);
 
   useEffect(() => {
-    // Register both US and world maps on mount
-    if (typeof window !== 'undefined') {
+    // Register both US and world maps on mount (only once)
+    if (typeof window !== 'undefined' && !mapsLoadedRef.current) {
+      mapsLoadedRef.current = true;
       let usLoaded = false;
       let worldLoaded = false;
 
@@ -128,7 +130,8 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
           checkBothLoaded();
         });
     }
-  }, []); // Only load once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only load once on mount - ref prevents re-registration
 
   useEffect(() => {
     // Fetch USA-wide stats on mount
