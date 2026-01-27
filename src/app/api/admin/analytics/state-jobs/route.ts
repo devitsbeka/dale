@@ -59,14 +59,15 @@ export async function GET(request: NextRequest) {
     const stateName = stateAbbrToName[stateUpper];
 
     // Build optimized where clause with specific patterns
+    // These MUST match the patterns in usa-map API for consistency
     const locationPatterns = [
-      `%, ${stateUpper}`,      // "City, CA"
-      `%, ${stateUpper} %`,    // "City, CA 12345"
+      `, ${stateUpper}`,      // "City, CA" (matches end of string)
+      `, ${stateUpper} `,     // "City, CA 12345" (matches with trailing content)
     ];
 
     if (stateName) {
-      locationPatterns.push(`%, ${stateName}`);       // "City, California"
-      locationPatterns.push(`%, ${stateName} %`);     // "City, California, USA"
+      locationPatterns.push(`, ${stateName}`);       // "City, California"
+      locationPatterns.push(`, ${stateName} `);      // "City, California, USA"
     }
 
     const whereClause: any = {

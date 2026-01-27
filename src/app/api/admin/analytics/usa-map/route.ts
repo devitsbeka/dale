@@ -25,6 +25,21 @@ const abbrToStateName: Record<string, string> = {
   'DC': 'District of Columbia'
 };
 
+// Helper function - matches EXACT same logic as state-jobs API SQL patterns
+function matchesStatePattern(location: string | null, stateAbbr: string, stateName: string): boolean {
+  if (!location) return false;
+
+  // Use EXACT same patterns as state-jobs API for consistency
+  const patterns = [
+    `, ${stateAbbr}`,        // "City, CA"
+    `, ${stateAbbr} `,       // "City, CA 12345"
+    `, ${stateName}`,        // "City, California"
+    `, ${stateName} `,       // "City, California, USA"
+  ];
+
+  return patterns.some(pattern => location.includes(pattern));
+}
+
 export async function GET() {
   try {
     // Get all onsite jobs with locations
@@ -44,15 +59,20 @@ export async function GET() {
       ]
     });
 
-    // Count jobs by state
+    // Count jobs by state using SAME pattern matching as state-jobs API
     const stateCounts: Record<string, number> = {};
 
     for (const job of onsiteJobs) {
-      const state = extractState(job.location);
-      if (state) {
-        stateCounts[state] = (stateCounts[state] || 0) + 1;
+      // Check each state pattern
+      for (const [abbr, stateName] of Object.entries(abbrToStateName)) {
+        if (matchesStatePattern(job.location, abbr, stateName)) {
+          stateCounts[abbr] = (stateCounts[abbr] || 0) + 1;
+          break; // Job matched this state, don't count it twice
+        }
       }
     }
+
+    const totalJobs = Object.values(stateCounts).reduce((sum, count) => sum + count, 0);
 
     // Create complete data array with ALL states (including 0-count states)
     // Use BLS salary data for the map gradient
@@ -70,8 +90,8 @@ export async function GET() {
 
     return NextResponse.json({
       data,  // All 51 states with salary data
-      totalJobs: onsiteJobs.length,
-      jobsWithState: data.reduce((sum, item) => sum + item.jobCount, 0),
+      totalJobs: totalJobs,
+      jobsWithState: totalJobs,
       topStates: statesWithJobs.slice(0, 10)  // Top 10 by job count
     });
   } catch (error) {
