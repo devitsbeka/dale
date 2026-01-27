@@ -505,7 +505,7 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
         emphasis: {
           label: {
             show: true,
-            color: '#fff'
+            color: isDark ? '#fff' : '#1f2937'  // White for dark mode, dark gray for light mode
           },
           itemStyle: {
             areaColor: selectedMetric === 'compensation'
