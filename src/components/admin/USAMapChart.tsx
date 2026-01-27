@@ -40,6 +40,20 @@ interface StateJob {
 
 type MapMetric = 'best' | 'salary' | 'health' | 'tax';
 
+// Country-specific view configurations
+const countryConfigs: Record<string, { center: [number, number]; zoom: number }> = {
+  US: { center: [-95, 38], zoom: 4.2 },
+  CA: { center: [-95, 60], zoom: 3.5 },
+  GB: { center: [-2, 54], zoom: 5.5 },
+  DE: { center: [10, 51], zoom: 6 },
+  FR: { center: [2, 47], zoom: 5.5 },
+  AU: { center: [133, -27], zoom: 4 },
+  IN: { center: [79, 22], zoom: 4.5 },
+  MX: { center: [-102, 24], zoom: 4.5 },
+  BR: { center: [-52, -10], zoom: 4 },
+  JP: { center: [138, 38], zoom: 5 }
+};
+
 export default function USAMapChart({ data, style, isDark = true }: USAMapChartProps) {
   const [mapRegistered, setMapRegistered] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState<string>('US');
@@ -60,47 +74,61 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
   const jobsCache = useRef<Record<string, { jobs: StateJob[]; avgSalary: number | null; topCity: string | null; topEmployers: Array<{ company: string; logo: string | null; jobCount: number }> }>>({});
 
   useEffect(() => {
-    // Register maps based on selected country
+    // Register both US and world maps on mount
     if (typeof window !== 'undefined') {
-      setMapRegistered(false);
+      let usLoaded = false;
+      let worldLoaded = false;
 
-      const mapName = `MAP_${selectedCountry}`;
+      const checkBothLoaded = () => {
+        if (usLoaded && worldLoaded) {
+          setMapRegistered(true);
+        }
+      };
 
-      if (selectedCountry === 'US') {
-        // Load US states map
-        fetch('https://raw.githubusercontent.com/python-visualization/folium/master/examples/data/us-states.json')
-          .then(response => response.json())
-          .then(usaJson => {
-            try {
-              echarts.registerMap(mapName, usaJson);
-              setMapRegistered(true);
-            } catch (error) {
-              console.error('Error registering US map:', error);
-            }
-          })
-          .catch(error => {
-            console.error('Error loading US map:', error);
-            setMapRegistered(true); // Still set to true to show something
-          });
-      } else {
-        // Load world countries map for other countries
-        fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
-          .then(response => response.json())
-          .then(worldJson => {
-            try {
-              echarts.registerMap(mapName, worldJson);
-              setMapRegistered(true);
-            } catch (error) {
-              console.error('Error registering world map:', error);
-            }
-          })
-          .catch(error => {
-            console.error('Error loading world map:', error);
-            setMapRegistered(true); // Still set to true to show something
-          });
-      }
+      // Load US states map
+      fetch('https://raw.githubusercontent.com/python-visualization/folium/master/examples/data/us-states.json')
+        .then(response => response.json())
+        .then(usaJson => {
+          try {
+            echarts.registerMap('MAP_US', usaJson);
+            usLoaded = true;
+            checkBothLoaded();
+          } catch (error) {
+            console.error('Error registering US map:', error);
+            usLoaded = true;
+            checkBothLoaded();
+          }
+        })
+        .catch(error => {
+          console.error('Error loading US map:', error);
+          usLoaded = true;
+          checkBothLoaded();
+        });
+
+      // Load world countries map for all other countries (they all use the same map)
+      fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+        .then(response => response.json())
+        .then(worldJson => {
+          try {
+            // Register same world map for all non-US countries
+            ['CA', 'GB', 'DE', 'FR', 'AU', 'IN', 'MX', 'BR', 'JP'].forEach(country => {
+              echarts.registerMap(`MAP_${country}`, worldJson);
+            });
+            worldLoaded = true;
+            checkBothLoaded();
+          } catch (error) {
+            console.error('Error registering world map:', error);
+            worldLoaded = true;
+            checkBothLoaded();
+          }
+        })
+        .catch(error => {
+          console.error('Error loading world map:', error);
+          worldLoaded = true;
+          checkBothLoaded();
+        });
     }
-  }, [selectedCountry]);
+  }, []); // Only load once on mount
 
   useEffect(() => {
     // Fetch USA-wide stats on mount
@@ -490,9 +518,13 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
   };
 
   const currentConfig = metricConfig[selectedMetric];
+  const viewConfig = countryConfigs[selectedCountry] || { center: [0, 30], zoom: 1.5 };
 
   const option = {
     backgroundColor: 'transparent',
+    animation: true,
+    animationDuration: 1000,
+    animationEasing: 'cubicInOut',
     tooltip: {
       trigger: 'item',
       formatter: (params: any) => {
@@ -538,12 +570,15 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
         type: 'map',
         map: `MAP_${selectedCountry}`,
         roam: 'move',  // Only allow panning, not scroll zoom
-        center: selectedCountry === 'US' ? [-92, 38] : [0, 30],  // US center or world center
+        center: viewConfig.center,
         scaleLimit: {
           min: 1,
-          max: selectedCountry === 'US' ? 5 : 8
+          max: 8
         },
-        zoom: selectedCountry === 'US' ? 4.2 : 1.5,  // Zoomed in for US, out for world
+        zoom: viewConfig.zoom,
+        animation: true,
+        animationDuration: 1000,
+        animationEasing: 'cubicInOut',
         label: {
           show: false
         },
