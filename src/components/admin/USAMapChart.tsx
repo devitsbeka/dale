@@ -460,10 +460,12 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
           ? ['#1e3a8a', '#3b82f6', '#60a5fa', '#fbbf24', '#f97316', '#ef4444']  // Dark: deep blue → bright blue → light blue → yellow → orange → red
           : ['#dbeafe', '#93c5fd', '#60a5fa', '#fde68a', '#fbbf24', '#f97316']  // Light: light blue → mid blue → bright blue → light yellow → yellow → orange
       },
-      // Make the control handle more visible - use gradient
+      // Controller uses same blue-to-orange gradient
       controller: {
         inRange: {
-          color: isDark ? '#f97316' : '#f97316'  // Orange for all metrics
+          color: isDark
+            ? ['#1e3a8a', '#3b82f6', '#60a5fa', '#fbbf24', '#f97316', '#ef4444']
+            : ['#dbeafe', '#93c5fd', '#60a5fa', '#fde68a', '#fbbf24', '#f97316']
         }
       }
     },
