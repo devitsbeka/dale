@@ -269,6 +269,20 @@ const countryCapitals: Record<string, string> = {
   'Bolivia': 'La Paz',
   'Uruguay': 'Montevideo',
   'Paraguay': 'Asunción',
+  'Cuba': 'Havana',
+  'Costa Rica': 'San José',
+  'Panama': 'Panama City',
+  'Guatemala': 'Guatemala City',
+  'Honduras': 'Tegucigalpa',
+  'Nicaragua': 'Managua',
+  'El Salvador': 'San Salvador',
+  'Dominican Republic': 'Santo Domingo',
+  'Haiti': 'Port-au-Prince',
+  'Jamaica': 'Kingston',
+  'Trinidad and Tobago': 'Port of Spain',
+  'Belize': 'Belmopan',
+  'Guyana': 'Georgetown',
+  'Suriname': 'Paramaribo',
 
   // Europe
   'United Kingdom': 'London',
@@ -303,6 +317,24 @@ const countryCapitals: Record<string, string> = {
   'Lithuania': 'Vilnius',
   'Iceland': 'Reykjavik',
   'Luxembourg': 'Luxembourg',
+  'Malta': 'Valletta',
+  'Cyprus': 'Nicosia',
+  'Albania': 'Tirana',
+  'Bosnia and Herzegovina': 'Sarajevo',
+  'North Macedonia': 'Skopje',
+  'Macedonia': 'Skopje',
+  'Montenegro': 'Podgorica',
+  'Kosovo': 'Pristina',
+  'Moldova': 'Chișinău',
+  'Ukraine': 'Kyiv',
+  'Belarus': 'Minsk',
+  'Russia': 'Moscow',
+  'Russian Federation': 'Moscow',
+  'Monaco': 'Monaco',
+  'Andorra': 'Andorra la Vella',
+  'San Marino': 'San Marino',
+  'Vatican City': 'Vatican City',
+  'Liechtenstein': 'Vaduz',
 
   // Asia
   'China': 'Beijing',
@@ -323,12 +355,24 @@ const countryCapitals: Record<string, string> = {
   'Bangladesh': 'Dhaka',
   'Sri Lanka': 'Colombo',
   'Nepal': 'Kathmandu',
+  'Myanmar': 'Naypyidaw',
+  'Cambodia': 'Phnom Penh',
+  'Laos': 'Vientiane',
+  'Mongolia': 'Ulaanbaatar',
+  'Bhutan': 'Thimphu',
+  'Maldives': 'Malé',
+  'Brunei': 'Bandar Seri Begawan',
+  'Timor-Leste': 'Dili',
+  'East Timor': 'Dili',
+  'North Korea': 'Pyongyang',
+  'Dem. Rep. Korea': 'Pyongyang',
 
   // Middle East
   'Israel': 'Jerusalem',
   'United Arab Emirates': 'Abu Dhabi',
   'Saudi Arabia': 'Riyadh',
   'Turkey': 'Ankara',
+  'Türkiye': 'Ankara',
   'Iran': 'Tehran',
   'Iraq': 'Baghdad',
   'Jordan': 'Amman',
@@ -337,6 +381,17 @@ const countryCapitals: Record<string, string> = {
   'Qatar': 'Doha',
   'Bahrain': 'Manama',
   'Oman': 'Muscat',
+  'Yemen': 'Sanaa',
+  'Syria': 'Damascus',
+  'Afghanistan': 'Kabul',
+  'Armenia': 'Yerevan',
+  'Azerbaijan': 'Baku',
+  'Georgia': 'Tbilisi',
+  'Kazakhstan': 'Nur-Sultan',
+  'Kyrgyzstan': 'Bishkek',
+  'Tajikistan': 'Dushanbe',
+  'Turkmenistan': 'Ashgabat',
+  'Uzbekistan': 'Tashkent',
 
   // Africa
   'South Africa': 'Pretoria',
@@ -350,6 +405,25 @@ const countryCapitals: Record<string, string> = {
   'Morocco': 'Rabat',
   'Algeria': 'Algiers',
   'Tunisia': 'Tunis',
+  'Libya': 'Tripoli',
+  'Sudan': 'Khartoum',
+  'Senegal': 'Dakar',
+  'Côte d\'Ivoire': 'Yamoussoukro',
+  'Ivory Coast': 'Yamoussoukro',
+  'Zimbabwe': 'Harare',
+  'Angola': 'Luanda',
+  'Mozambique': 'Maputo',
+  'Cameroon': 'Yaoundé',
+  'Rwanda': 'Kigali',
+  'Zambia': 'Lusaka',
+  'Mali': 'Bamako',
+  'Somalia': 'Mogadishu',
+  'Chad': 'N\'Djamena',
+  'Niger': 'Niamey',
+  'Madagascar': 'Antananarivo',
+  'Mauritius': 'Port Louis',
+  'Botswana': 'Gaborone',
+  'Namibia': 'Windhoek',
 
   // Oceania
   'Australia': 'Canberra',
@@ -513,12 +587,27 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
         setCapital(data.capital);
         setSelectedVisaCategory(null); // Reset visa selection
       } else {
-        // Fallback to legacy capital mapping
+        // Fallback: Create basic CountryData from legacy capital mapping
         const capital = countryCapitals[country] || countryCapitals[
           country.replace(/^(Republic of |Kingdom of |United States of |The )/i, '').trim()
         ];
-        setCapital(capital || null);
-        setSelectedCountryData(null);
+
+        if (capital) {
+          // Create a basic fallback data object
+          const fallbackData: CountryData = {
+            capital: capital,
+            population: 'N/A',
+            costOfLiving: 3, // Default to medium
+            visaCategories: ['Work Visa', 'Business Visa', 'Student Visa'],
+            relocationTip: 'Limited visa and relocation information available. Research local immigration policies for specific requirements.'
+          };
+          setSelectedCountryData(fallbackData);
+          setCapital(capital);
+          setSelectedVisaCategory(null);
+        } else {
+          setCapital(null);
+          setSelectedCountryData(null);
+        }
       }
 
       // TODO: Implement country jobs API endpoint

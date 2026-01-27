@@ -353,18 +353,20 @@ export const SidebarCollapsible = ({
                         ) : user ? (
                             isCollapsed ? (
                                 <AriaDialogTrigger>
-                                    <AriaButton
-                                        className={({ isPressed, isFocused }) =>
-                                            cx("group relative inline-flex rounded-full", (isPressed || isFocused) && "outline-2 outline-offset-2 outline-focus-ring")
-                                        }
-                                    >
-                                        <Avatar
-                                            status="online"
-                                            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(userDisplayName)}&background=E9684B&color=fff`}
-                                            size="md"
-                                            alt={userDisplayName}
-                                        />
-                                    </AriaButton>
+                                    <div suppressHydrationWarning>
+                                        <AriaButton
+                                            className={({ isPressed, isFocused }) =>
+                                                cx("group relative inline-flex rounded-full", (isPressed || isFocused) && "outline-2 outline-offset-2 outline-focus-ring")
+                                            }
+                                        >
+                                            <Avatar
+                                                status="online"
+                                                src={`https://ui-avatars.com/api/?name=${encodeURIComponent(userDisplayName)}&background=E9684B&color=fff`}
+                                                size="md"
+                                                alt={userDisplayName}
+                                            />
+                                        </AriaButton>
+                                    </div>
                                     <AriaPopover
                                         placement="right bottom"
                                         offset={8}
