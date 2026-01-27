@@ -509,10 +509,10 @@ export default function USAMapChart({ data, style, isDark = true }: USAMapChartP
           },
           itemStyle: {
             areaColor: selectedMetric === 'compensation'
-              ? (isDark ? '#3a7050' : '#d9f0e0')  // Green - 20% lighter
+              ? (isDark ? '#4d8f66' : '#a8ddb5')  // Green - clearly visible
               : selectedMetric === 'quality-of-life'
-              ? (isDark ? '#8a5298' : '#e6ddf0')  // Purple - 20% lighter
-              : (isDark ? '#4d7585' : '#d9e8f0'), // Blue - 20% lighter
+              ? (isDark ? '#9966aa' : '#c9b3db')  // Purple - clearly visible
+              : (isDark ? '#5a90a8' : '#b3d4e6'), // Blue - clearly visible
             borderWidth: 0
           }
         },
