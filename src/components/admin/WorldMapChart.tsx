@@ -1125,7 +1125,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
               : selectedRegion || 'World'}
           </h3>
           <p className={`text-xs mt-0.5 ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
-            {selectedCity ? 'Location Details' : viewLevel === 'world' ? 'Select a country to view details' : 'Select a location'}
+            {selectedCity ? 'Location Details' : (viewLevel === 'world' && !selectedRegion) ? 'Select a country to view details' : 'Select a location'}
           </p>
 
           {/* Visa Details View */}
@@ -1296,7 +1296,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
               {countryTab === 'overview' && (
                 <div className="space-y-3">
                   {/* Dale Rank - Highlighted Widget */}
-                  {selectedCountryData.daleRank && selectedCountryData.daleRank > 0 && (
+                  {(selectedCountryData.daleRank ?? 0) > 0 && (
                     <div className={`p-4 border-2 ${isDark ? 'border-blue-500/50 bg-blue-950/30' : 'border-blue-500/30 bg-blue-50'}`}>
                       <div className="flex items-center justify-between">
                         <div className={`text-xs font-medium ${isDark ? 'text-blue-400' : 'text-blue-700'}`}>
@@ -1304,7 +1304,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
                         </div>
                         <div className="flex items-center gap-2">
                           <div className={`text-2xl font-bold ${isDark ? 'text-blue-400' : 'text-blue-700'}`}>
-                            {selectedCountryData.daleRank.toFixed(1)}
+                            {selectedCountryData.daleRank!.toFixed(1)}
                             <span className={`text-sm font-normal ml-1 ${isDark ? 'text-blue-500' : 'text-blue-600'}`}>/10</span>
                           </div>
                           {selectedCountryData.daleRankChange !== undefined && selectedCountryData.daleRankChange !== 0 && (
@@ -1322,7 +1322,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
                       <div className={`mt-2 h-2 ${isDark ? 'bg-gray-800' : 'bg-gray-200'} overflow-hidden`}>
                         <div
                           className="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all"
-                          style={{ width: `${(selectedCountryData.daleRank / 10) * 100}%` }}
+                          style={{ width: `${(selectedCountryData.daleRank! / 10) * 100}%` }}
                         />
                       </div>
                     </div>
@@ -1345,7 +1345,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
                   </div>
 
                   {/* Rankings Grid */}
-                  {selectedCountryData.gdpRank && selectedCountryData.gdpRank > 0 && (
+                  {(selectedCountryData.gdpRank ?? 0) > 0 && (
                     <div className="space-y-2">
                       <div className={`text-xs font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Global Rankings</div>
                       <div className="grid grid-cols-2 gap-2">
