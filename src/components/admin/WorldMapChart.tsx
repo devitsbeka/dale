@@ -942,6 +942,21 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
           {/* Visa Details View */}
           {!loading && viewMode === 'visa' && selectedVisaData && (
             <div className="mt-4 space-y-4">
+              {/* Back Button */}
+              <button
+                onClick={handleBack}
+                className={`flex items-center gap-2 text-sm font-medium transition ${
+                  isDark
+                    ? 'text-gray-400 hover:text-gray-300'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Back to {selectedRegion}
+              </button>
+
               {/* Visa Header */}
               <div className={`p-4 border ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
                 <h3 className={`text-lg font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
