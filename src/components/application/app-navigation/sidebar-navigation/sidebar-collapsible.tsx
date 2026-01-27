@@ -101,7 +101,7 @@ export const SidebarCollapsible = ({
     const mobileContent = (
         <aside className={cx("group flex h-full max-h-full w-full max-w-full flex-col justify-between overflow-y-auto bg-white pt-3", scrollbarHiddenClass)}>
             <div className="px-3">
-                <img src="/logo.svg" alt="Dale" className="h-7 w-auto" />
+                <img src="/logo.svg" alt="Dale" className="h-6 w-auto" />
             </div>
 
             <ul className="mt-4">
@@ -206,7 +206,7 @@ export const SidebarCollapsible = ({
                 >
                     {/* Header with logo and toggle - aligned with page header */}
                     <div className={cx(
-                        "flex shrink-0 items-center justify-between h-[52px] border-b border-gray-300",
+                        "flex shrink-0 items-center justify-between h-[66px] border-b border-gray-300",
                         isCollapsed ? "px-1" : "px-4"
                     )}>
                         {isCollapsed ? (
@@ -219,7 +219,7 @@ export const SidebarCollapsible = ({
                             </button>
                         ) : (
                             <>
-                                <img src="/logo.svg" alt="Dale" className="h-[21px] w-auto" />
+                                <img src="/logo.svg" alt="Dale" className="h-6 w-auto" />
                                 <button
                                     onClick={() => setIsCollapsed(!isCollapsed)}
                                     className="text-gray-400 hover:text-gray-900 transition-colors"
