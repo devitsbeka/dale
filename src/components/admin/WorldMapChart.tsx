@@ -844,10 +844,10 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
       const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
       const cmdOrCtrl = isMac ? e.metaKey : e.ctrlKey;
 
-      // CMD+R or CMD+→ to open panel
+      // CMD+R or CMD+→ to toggle panel
       if (cmdOrCtrl && (e.key === 'r' || e.key === 'ArrowRight')) {
         e.preventDefault();
-        setIsPanelCollapsed(false);
+        setIsPanelCollapsed(prev => !prev);
       }
     };
 
