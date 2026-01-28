@@ -162,7 +162,7 @@ export default function SharePage() {
                         {resumeData.personalInfo?.firstName} {resumeData.personalInfo?.lastName}'s Resume
                     </h1>
                     <p className="mt-2 text-sm text-tertiary">
-                        Shared via Dale Resume Builder
+                        Shared via planeta.id Resume Builder
                     </p>
                 </div>
 

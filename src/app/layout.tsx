@@ -6,8 +6,8 @@ import { AuthProvider } from "@/contexts/auth-context";
 import "@/styles/globals.css";
 
 export const metadata: Metadata = {
-    title: "Dale — Your AI Career Companion",
-    description: "Find your dream job with Dale",
+    title: "planeta.id — Your AI Career Companion",
+    description: "Find your dream job with planeta.id",
 };
 
 export const viewport: Viewport = {

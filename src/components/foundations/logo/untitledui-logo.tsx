@@ -11,7 +11,7 @@ export const UntitledLogo = (props: HTMLAttributes<HTMLOrSVGElement>) => {
             <UntitledLogoMinimal className="aspect-square h-full w-auto shrink-0" />
 
             {/* Logomark text */}
-            <span className="text-xl font-bold text-fg-primary tracking-tight">Dale</span>
+            <span className="text-xl font-bold text-fg-primary tracking-tight">planeta.id</span>
         </div>
     );
 };

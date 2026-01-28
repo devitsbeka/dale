@@ -36,7 +36,7 @@ async function fetchWithTimeout(
       signal: controller.signal,
       headers: {
         'Accept': 'application/json',
-        'User-Agent': 'Dale-Jobs-Aggregator/1.0',
+        'User-Agent': 'Planeta-Jobs-Aggregator/1.0',
         ...options.headers,
       },
     });

@@ -137,7 +137,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 expandedItems={expandedNavItems}
                 collapsedItems={collapsedNavItems}
                 footerItems={footerNavItems}
-                showThemeToggle={false}
+                showThemeToggle={true}
             />
             <main className="min-w-0 flex-1 bg-primary">
                 {children}
