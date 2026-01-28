@@ -961,11 +961,13 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
 
   const option = {
     backgroundColor: 'transparent',
-    animation: true,
-    animationDuration: 800,
-    animationEasing: 'cubicOut',
+    animation: false,
     tooltip: {
       trigger: 'item',
+      triggerOn: 'mousemove',
+      enterable: false,
+      confine: true,
+      transitionDuration: 0,
       formatter: (params: any) => {
         if (params.componentType === 'series' && params.seriesType === 'map') {
           return `${params.name}<br/>Jobs: ${params.value || 0}`;
@@ -974,7 +976,9 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
       },
       backgroundColor: isDark ? '#1f2937' : '#ffffff',
       borderColor: isDark ? '#374151' : '#e5e7eb',
-      textStyle: { color: isDark ? '#e5e7eb' : '#1f2937' }
+      borderWidth: 1,
+      textStyle: { color: isDark ? '#e5e7eb' : '#1f2937', fontSize: 12 },
+      padding: [4, 8]
     },
     visualMap: viewLevel === 'us-states' ? {
       min: 0,
@@ -1019,9 +1023,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
           itemStyle: {
             areaColor: isDark ? '#f59e0b' : '#fbbf24',
             borderColor: isDark ? '#f59e0b' : '#f59e0b',
-            borderWidth: 2,
-            shadowBlur: 8,
-            shadowColor: 'rgba(245, 158, 11, 0.4)'
+            borderWidth: 2
           }
         },
         select: {
@@ -1029,9 +1031,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
           itemStyle: {
             areaColor: isDark ? '#f59e0b' : '#fbbf24',
             borderColor: '#f59e0b',
-            borderWidth: 2,
-            shadowBlur: 8,
-            shadowColor: 'rgba(245, 158, 11, 0.4)'
+            borderWidth: 2
           }
         },
         selectedMode: 'single',
