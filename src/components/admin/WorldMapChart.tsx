@@ -995,8 +995,8 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
       },
       inRange: {
         color: isDark
-          ? ['var(--color-gray-900)', 'var(--color-gray-600)', 'var(--color-gray-500)', '#fbbf24', '#f97316', '#ef4444']
-          : ['#dbeafe', '#93c5fd', 'var(--color-gray-500)', '#fde68a', '#fbbf24', '#f97316']
+          ? ['#1a1a1a', '#2a2a2a', '#404040', '#505050', '#707070', '#909090']
+          : ['#f5f5f5', '#e5e5e5', '#d4d4d4', '#a3a3a3', '#737373', '#525252']
       }
     } : undefined,
     series: [
@@ -1021,16 +1021,16 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
         emphasis: {
           label: { show: true, color: isDark ? '#fff' : '#000' },
           itemStyle: {
-            areaColor: isDark ? '#f59e0b' : '#fbbf24',
-            borderColor: isDark ? '#f59e0b' : '#f59e0b',
+            areaColor: isDark ? '#505050' : '#d4d4d4',
+            borderColor: isDark ? '#707070' : '#a3a3a3',
             borderWidth: 2
           }
         },
         select: {
           label: { show: true, color: isDark ? '#fff' : '#000' },
           itemStyle: {
-            areaColor: isDark ? '#f59e0b' : '#fbbf24',
-            borderColor: '#f59e0b',
+            areaColor: isDark ? '#505050' : '#d4d4d4',
+            borderColor: isDark ? '#707070' : '#a3a3a3',
             borderWidth: 2
           }
         },
