@@ -7,6 +7,7 @@
 
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
+import { useTheme } from 'next-themes';
 import { Select } from '@/components/base/select/select';
 
 const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
@@ -26,6 +27,8 @@ export default function SnapshotPage() {
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState(30);
   const [activeTab, setActiveTab] = useState<TabType>('explorer');
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
 
   useEffect(() => {
     fetchData();
@@ -57,20 +60,20 @@ export default function SnapshotPage() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-primary">
       {loading ? (
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-            <p className="text-gray-600">Loading market data...</p>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-brand mb-4"></div>
+            <p className="text-tertiary">Loading market data...</p>
           </div>
         </div>
       ) : (
         <div className="flex flex-col h-screen">
           {/* Header with tabs and controls */}
-          <div className="border-b border-gray-300 bg-white">
+          <div className="border-b border-secondary bg-primary">
             <div className="px-4 h-[65px] flex items-center justify-between">
-              <h1 className="text-base font-semibold text-gray-900">Discover</h1>
+              <h1 className="text-base font-semibold text-primary">Discover</h1>
 
               {/* Tabs - Centered */}
               <div className="absolute left-1/2 -translate-x-1/2 flex gap-6">
@@ -78,8 +81,8 @@ export default function SnapshotPage() {
                   onClick={() => setActiveTab('explorer')}
                   className={`text-sm font-medium transition-colors ${
                     activeTab === 'explorer'
-                      ? 'text-gray-900'
-                      : 'text-gray-500 hover:text-gray-700'
+                      ? 'text-primary'
+                      : 'text-tertiary hover:text-secondary'
                   }`}
                 >
                   Explorer
@@ -88,15 +91,15 @@ export default function SnapshotPage() {
                   onClick={() => setActiveTab('overview')}
                   className={`text-sm font-medium transition-colors ${
                     activeTab === 'overview'
-                      ? 'text-gray-900'
-                      : 'text-gray-500 hover:text-gray-700'
+                      ? 'text-primary'
+                      : 'text-tertiary hover:text-secondary'
                   }`}
                 >
                   Overview
                 </button>
               </div>
 
-              <div className="[&_button]:!h-8 [&_button]:!text-sm [&_button]:!px-3 [&_button]:!gap-2 [&_button]:!shadow-none [&_button]:!ring-0 [&_button]:!bg-transparent hover:[&_button]:!bg-gray-50 [&_button]:!rounded-md [&_button_svg]:!size-4">
+              <div className="[&_button]:!h-8 [&_button]:!text-sm [&_button]:!px-3 [&_button]:!gap-2 [&_button]:!shadow-none [&_button]:!ring-0 [&_button]:!bg-transparent hover:[&_button]:!bg-secondary [&_button]:!rounded-md [&_button_svg]:!size-4">
                 <Select
                   size="sm"
                   selectedKey={String(dateRange)}
@@ -115,11 +118,11 @@ export default function SnapshotPage() {
 
           {/* Tab Content */}
           {activeTab === 'explorer' ? (
-            <div className="flex-1 overflow-hidden">
-              <WorldMapChart data={data?.usaMap} style={{ height: '100%', width: '100%' }} isDark={false} />
+            <div className="flex-1 overflow-hidden bg-primary">
+              <WorldMapChart data={data?.usaMap} style={{ height: '100%', width: '100%' }} isDark={isDark} />
             </div>
           ) : (
-        <div className="flex-1 overflow-auto p-6 md:p-8">
+        <div className="flex-1 overflow-auto p-6 md:p-8 bg-primary">
           <div className="space-y-8">
 
           {/* KPI Grid */}
@@ -185,7 +188,7 @@ export default function SnapshotPage() {
           <div className="space-y-8">
             {/* USA Map Chart */}
             <ChartCard title="Jobs by State" description="Geographic distribution of tech jobs across the United States">
-              <WorldMapChart data={data?.usaMap} style={{ height: '600px' }} isDark={false} />
+              <WorldMapChart data={data?.usaMap} style={{ height: '600px' }} isDark={isDark} />
             </ChartCard>
 
             {/* Stacked Area Chart */}
@@ -200,7 +203,7 @@ export default function SnapshotPage() {
           </div>
 
             {/* Footer Info */}
-            <div className="mt-8 text-center text-gray-500 text-sm">
+            <div className="mt-8 text-center text-tertiary text-sm">
               <p>Data updated in real-time • Last refresh: {new Date().toLocaleString()}</p>
             </div>
           </div>
@@ -215,11 +218,11 @@ export default function SnapshotPage() {
 // Stat Card Component
 function StatCard({ label, value, change, changeType }: any) {
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+    <div className="bg-primary rounded-xl p-6 shadow-sm border border-secondary hover:shadow-md transition-shadow">
       <div>
-        <p className="text-sm font-medium text-gray-600 mb-1">{label}</p>
-        <p className="text-3xl font-bold text-gray-900">{value}</p>
-        <p className={`text-sm mt-2 ${changeType === 'positive' ? 'text-green-600' : 'text-red-600'}`}>
+        <p className="text-sm font-medium text-tertiary mb-1">{label}</p>
+        <p className="text-3xl font-bold text-primary">{value}</p>
+        <p className={`text-sm mt-2 ${changeType === 'positive' ? 'text-success-600' : 'text-error-600'}`}>
           {change} vs last period
         </p>
       </div>
@@ -230,10 +233,10 @@ function StatCard({ label, value, change, changeType }: any) {
 // Chart Card Component
 function ChartCard({ title, description, children }: any) {
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+    <div className="bg-primary rounded-xl p-6 shadow-sm border border-secondary hover:shadow-md transition-shadow">
       <div className="mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-        <p className="text-sm text-gray-500 mt-1">{description}</p>
+        <h3 className="text-lg font-semibold text-primary">{title}</h3>
+        <p className="text-sm text-tertiary mt-1">{description}</p>
       </div>
       {children}
     </div>
