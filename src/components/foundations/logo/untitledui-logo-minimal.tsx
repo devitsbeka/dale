@@ -1,6 +1,7 @@
 "use client";
 
 import type { SVGProps } from "react";
+import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { cx } from "@/utils/cx";
 
@@ -8,8 +9,33 @@ import { cx } from "@/utils/cx";
 const GRADIENT_ID = "dale-logo-gradient";
 
 export const UntitledLogoMinimal = (props: SVGProps<SVGSVGElement>) => {
+    const [mounted, setMounted] = useState(false);
     const { resolvedTheme } = useTheme();
     const isDark = resolvedTheme === "dark";
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    // Render light version during SSR to avoid hydration mismatch
+    if (!mounted) {
+        return (
+            <svg viewBox="0 0 32 32" fill="none" {...props} className={cx("size-8", props.className)}>
+                <rect width="32" height="32" rx="8" fill="#1F1F1F" />
+                <text
+                    x="16"
+                    y="23"
+                    textAnchor="middle"
+                    fill="#FAFAF7"
+                    fontSize="20"
+                    fontWeight="700"
+                    fontFamily="'Styrene A', system-ui, -apple-system, sans-serif"
+                >
+                    D
+                </text>
+            </svg>
+        );
+    }
 
     return (
         <svg viewBox="0 0 32 32" fill="none" {...props} className={cx("size-8", props.className)}>

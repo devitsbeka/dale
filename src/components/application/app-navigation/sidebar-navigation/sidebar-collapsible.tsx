@@ -59,6 +59,7 @@ export const SidebarCollapsible = ({
     showThemeToggle = true,
 }: SidebarCollapsibleProps) => {
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const [mounted, setMounted] = useState(false);
     const { resolvedTheme, setTheme } = useTheme();
     const { user, isLoading: authLoading } = useAuth();
 
@@ -66,7 +67,11 @@ export const SidebarCollapsible = ({
     const COLLAPSED_WIDTH = 56;
     const COLLAPSE_BREAKPOINT = 1240;
 
-    const isDarkMode = resolvedTheme === "dark";
+    const isDarkMode = mounted ? resolvedTheme === "dark" : false;
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     // Get user display info - only if loaded
     const userDisplayName = user?.name || user?.email?.split('@')[0] || '';

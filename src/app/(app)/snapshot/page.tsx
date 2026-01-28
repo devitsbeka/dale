@@ -27,8 +27,13 @@ export default function SnapshotPage() {
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState(30);
   const [activeTab, setActiveTab] = useState<TabType>('explorer');
+  const [mounted, setMounted] = useState(false);
   const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === 'dark';
+  const isDark = mounted ? resolvedTheme === 'dark' : false;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     fetchData();
