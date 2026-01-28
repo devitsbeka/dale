@@ -1057,7 +1057,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
   return (
     <div ref={containerRef} className="relative flex transition-all duration-300" style={style}>
       {/* Map */}
-      <div className={`relative transition-all duration-300 overflow-hidden ${isDark ? 'bg-[#0f0f10]' : 'bg-gray-50'}`} style={{ width: isPanelCollapsed ? '100%' : `${100 - panelWidth}%` }}>
+      <div className={`relative transition-all duration-300 overflow-hidden ${isDark ? 'bg-[#1a1a1d]' : 'bg-[#fafafa]'}`} style={{ width: isPanelCollapsed ? '100%' : `${100 - panelWidth}%` }}>
         {viewLevel !== 'world' && (
           <button
             onClick={handleBack}
@@ -1115,9 +1115,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
       {/* Right Panel */}
       {!isPanelCollapsed && (
         <div
-          className={`overflow-y-auto transition-none border-l ${
-            isDark ? 'border-gray-800 bg-[#18181b]' : 'border-gray-300 bg-white'
-          }`}
+          className={`overflow-y-auto transition-none border-l border-secondary bg-primary`}
           style={{
             width: `${panelWidth}%`,
             paddingLeft: '1rem',
