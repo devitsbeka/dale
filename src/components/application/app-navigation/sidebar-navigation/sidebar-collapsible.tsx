@@ -99,16 +99,16 @@ export const SidebarCollapsible = ({
 
     // Mobile expanded content
     const mobileContent = (
-        <aside className={cx("group flex h-full max-h-full w-full max-w-full flex-col justify-between overflow-y-auto bg-white pt-3", scrollbarHiddenClass)}>
+        <aside className={cx("group flex h-full max-h-full w-full max-w-full flex-col justify-between overflow-y-auto bg-primary pt-3", scrollbarHiddenClass)}>
             <div className="px-3">
-                <img src={isDarkMode ? "/planeta-dark.svg" : "/planeta-light.svg"} alt="planeta.id" className="h-6 w-auto" />
+                <img src={isDarkMode ? "/planeta-light.svg" : "/planeta-dark.svg"} alt="planeta.id" className="h-6 w-auto" />
             </div>
 
             <ul className="mt-4">
                 {expandedItems.map((group) => (
                     <li key={group.label}>
                         <div className="px-3 pb-1">
-                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{group.label}</p>
+                            <p className="text-xs font-semibold text-tertiary uppercase tracking-wide">{group.label}</p>
                         </div>
                         <ul className="px-2 pb-3">
                             {group.items.map((item) => (
@@ -126,14 +126,14 @@ export const SidebarCollapsible = ({
             <div className="mt-auto flex flex-col gap-4 px-2 py-3">
                 {/* Theme Toggle */}
                 {showThemeToggle && (
-                    <div className="mx-1 flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2">
+                    <div className="mx-1 flex items-center justify-between rounded-lg bg-secondary px-3 py-2">
                         <div className="flex items-center gap-2">
                             {isDarkMode ? (
-                                <MoonIcon className="size-4 text-gray-500" />
+                                <MoonIcon className="size-4 text-fg-tertiary" />
                             ) : (
-                                <SunIcon className="size-4 text-gray-500" />
+                                <SunIcon className="size-4 text-fg-tertiary" />
                             )}
-                            <span className="text-sm font-medium text-gray-700">
+                            <span className="text-sm font-medium text-secondary">
                                 {isDarkMode ? "Dark mode" : "Light mode"}
                             </span>
                         </div>
@@ -200,29 +200,29 @@ export const SidebarCollapsible = ({
                     animate={{ width: isCollapsed ? COLLAPSED_WIDTH : EXPANDED_WIDTH }}
                     transition={{ type: "spring", damping: 30, stiffness: 400 }}
                     className={cx(
-                        "flex h-full flex-col justify-between overflow-hidden bg-white border-r border-gray-300",
+                        "flex h-full flex-col justify-between overflow-hidden bg-primary border-r border-secondary",
                         scrollbarHiddenClass
                     )}
                 >
                     {/* Header with logo and toggle - aligned with page header */}
                     <div className={cx(
-                        "flex shrink-0 items-center justify-between h-[66px] border-b border-gray-300",
+                        "flex shrink-0 items-center justify-between h-[66px] border-b border-secondary",
                         isCollapsed ? "px-1" : "px-4"
                     )}>
                         {isCollapsed ? (
                             <button
                                 onClick={() => setIsCollapsed(!isCollapsed)}
-                                className="text-gray-400 hover:text-gray-900 transition-colors mx-auto"
+                                className="text-fg-quaternary hover:text-fg-primary transition-colors mx-auto"
                                 aria-label="Expand sidebar"
                             >
                                 <ChevronRight className="size-5" />
                             </button>
                         ) : (
                             <>
-                                <img src={isDarkMode ? "/planeta-dark.svg" : "/planeta-light.svg"} alt="planeta.id" className="h-6 w-auto" />
+                                <img src={isDarkMode ? "/planeta-light.svg" : "/planeta-dark.svg"} alt="planeta.id" className="h-6 w-auto" />
                                 <button
                                     onClick={() => setIsCollapsed(!isCollapsed)}
-                                    className="text-gray-400 hover:text-gray-900 transition-colors"
+                                    className="text-fg-quaternary hover:text-fg-primary transition-colors"
                                     aria-label="Collapse sidebar"
                                 >
                                     <ChevronLeft className="size-5" />
@@ -254,7 +254,7 @@ export const SidebarCollapsible = ({
                                 {expandedItems.map((group) => (
                                     <li key={group.label}>
                                         <div className="px-4 pb-1">
-                                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">{group.label}</p>
+                                            <p className="text-xs font-semibold text-tertiary uppercase tracking-wide whitespace-nowrap">{group.label}</p>
                                         </div>
                                         <ul className="px-3 pb-3">
                                             {group.items.map((item) => (
@@ -281,20 +281,20 @@ export const SidebarCollapsible = ({
                             isCollapsed ? (
                                 <button
                                     onClick={() => setTheme(isDarkMode ? "light" : "dark")}
-                                    className="flex size-10 items-center justify-center text-gray-500 transition hover:text-gray-700"
+                                    className="flex size-10 items-center justify-center text-tertiary transition hover:text-secondary"
                                     aria-label="Toggle dark mode"
                                 >
                                     {isDarkMode ? <MoonIcon className="size-5" /> : <SunIcon className="size-5" />}
                                 </button>
                             ) : (
-                                <div className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2">
+                                <div className="flex items-center justify-between rounded-lg bg-secondary px-3 py-2">
                                     <div className="flex items-center gap-2">
                                         {isDarkMode ? (
-                                            <MoonIcon className="size-4 text-gray-500" />
+                                            <MoonIcon className="size-4 text-tertiary" />
                                         ) : (
-                                            <SunIcon className="size-4 text-gray-500" />
+                                            <SunIcon className="size-4 text-tertiary" />
                                         )}
-                                        <span className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                                        <span className="text-sm font-medium text-secondary whitespace-nowrap">
                                             {isDarkMode ? "Dark mode" : "Light mode"}
                                         </span>
                                     </div>
