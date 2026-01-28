@@ -960,7 +960,7 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
   const config = getMapConfig();
 
   const option = {
-    backgroundColor: isDark ? '#111827' : '#fafbfc',
+    backgroundColor: 'transparent',
     animation: true,
     animationDuration: 800,
     animationEasing: 'cubicOut',
@@ -1006,8 +1006,8 @@ export default function WorldMapChart({ data, style, isDark = true }: WorldMapCh
         scaleLimit: { min: 1, max: 8 },
         label: { show: false },
         itemStyle: {
-          areaColor: isDark ? '#1f2937' : '#ffffff',
-          borderColor: isDark ? '#374151' : '#e2e8f0',
+          areaColor: isDark ? '#27272a' : '#ffffff',
+          borderColor: isDark ? '#3f3f46' : '#e2e8f0',
           borderWidth: 1.5,
           shadowColor: isDark ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.04)',
           shadowBlur: 2,
