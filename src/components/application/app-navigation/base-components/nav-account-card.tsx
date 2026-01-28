@@ -171,7 +171,7 @@ export const NavAccountCard = ({
     // Only use real user data when loaded
     const userDisplayName = user?.name || user?.email?.split('@')[0] || '';
     const userEmail = user?.email || '';
-    const userAvatar = userDisplayName ? `https://ui-avatars.com/api/?name=${encodeURIComponent(userDisplayName)}&background=E9684B&color=fff` : '';
+    const userAvatar = userDisplayName ? `https://ui-avatars.com/api/?name=${encodeURIComponent(userDisplayName)}&background=525252&color=fff` : '';
 
     if (authLoading) {
         return (

@@ -131,14 +131,14 @@ export const SidebarCollapsible = ({
             <div className="mt-auto flex flex-col gap-4 px-2 py-3">
                 {/* Theme Toggle */}
                 {showThemeToggle && (
-                    <div className="mx-1 flex items-center justify-between rounded-lg bg-secondary px-3 py-2">
+                    <div className="mx-1 flex items-center justify-between px-3 py-2">
                         <div className="flex items-center gap-2">
                             {isDarkMode ? (
                                 <MoonIcon className="size-4 text-fg-tertiary" />
                             ) : (
                                 <SunIcon className="size-4 text-fg-tertiary" />
                             )}
-                            <span className="text-sm font-medium text-secondary">
+                            <span className="text-sm font-medium text-tertiary">
                                 {isDarkMode ? "Dark mode" : "Light mode"}
                             </span>
                         </div>
@@ -292,14 +292,14 @@ export const SidebarCollapsible = ({
                                     {isDarkMode ? <MoonIcon className="size-5" /> : <SunIcon className="size-5" />}
                                 </button>
                             ) : (
-                                <div className="flex items-center justify-between rounded-lg bg-secondary px-3 py-2">
+                                <div className="flex items-center justify-between px-3 py-2">
                                     <div className="flex items-center gap-2">
                                         {isDarkMode ? (
                                             <MoonIcon className="size-4 text-tertiary" />
                                         ) : (
                                             <SunIcon className="size-4 text-tertiary" />
                                         )}
-                                        <span className="text-sm font-medium text-secondary whitespace-nowrap">
+                                        <span className="text-sm font-medium text-tertiary whitespace-nowrap">
                                             {isDarkMode ? "Dark mode" : "Light mode"}
                                         </span>
                                     </div>
