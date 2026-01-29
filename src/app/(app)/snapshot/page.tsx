@@ -75,22 +75,11 @@ export default function SnapshotPage() {
         </div>
       ) : (
         <div className="flex flex-col h-screen">
-          {/* Header with tabs and controls */}
+          {/* Header */}
           <div className="border-b border-secondary bg-primary">
-            {/* Top row: Title, Search, Date selector */}
-            <div className="px-4 pt-4 pb-2 flex items-center justify-between">
+            <div className="px-4 h-[65px] flex items-center justify-between">
               <h1 className="text-base font-semibold text-primary">Discover</h1>
 
-              {/* Center: Search bar */}
-              <div className="flex-1 max-w-md mx-8">
-                <input
-                  type="text"
-                  placeholder="Search country..."
-                  className="w-full bg-transparent text-sm text-primary placeholder:text-tertiary outline-none border-b border-transparent hover:border-secondary focus:border-primary transition-colors px-2 py-1.5"
-                />
-              </div>
-
-              {/* Right: Date range selector */}
               <div className="[&_button]:!h-8 [&_button]:!text-sm [&_button]:!px-3 [&_button]:!gap-2 [&_button]:!shadow-none [&_button]:!ring-0 [&_button]:!bg-transparent hover:[&_button]:!bg-secondary [&_button]:!rounded-md [&_button_svg]:!size-4">
                 <Select
                   size="sm"
@@ -106,43 +95,57 @@ export default function SnapshotPage() {
                 </Select>
               </div>
             </div>
-
-            {/* Bottom row: Tabs */}
-            <div className="px-4 pb-3 flex gap-6">
-              <button
-                onClick={() => setActiveTab('explorer')}
-                className={`text-sm font-medium transition-colors ${
-                  activeTab === 'explorer'
-                    ? 'text-primary'
-                    : 'text-tertiary hover:text-secondary'
-                }`}
-              >
-                Explorer
-              </button>
-              <button
-                onClick={() => setActiveTab('overview')}
-                className={`text-sm font-medium transition-colors ${
-                  activeTab === 'overview'
-                    ? 'text-primary'
-                    : 'text-tertiary hover:text-secondary'
-                }`}
-              >
-                Overview
-              </button>
-            </div>
           </div>
 
           {/* Tab Content */}
-          {activeTab === 'explorer' ? (
-            <div className="flex-1 overflow-hidden bg-primary">
-              <WorldMapChart data={data?.usaMap} style={{ height: '100%', width: '100%' }} isDark={isDark} />
-            </div>
-          ) : (
-        <div className="flex-1 overflow-auto p-6 md:p-8 bg-primary">
-          <div className="space-y-8">
+          <div className="flex-1 overflow-hidden bg-primary relative">
+            {/* Tabs and Search overlaid on top */}
+            <div className="absolute top-0 left-0 right-0 z-10 px-4 py-3 flex items-center justify-between">
+              {/* Left: Tabs */}
+              <div className="flex gap-6">
+                <button
+                  onClick={() => setActiveTab('explorer')}
+                  className={`text-sm font-medium transition-colors ${
+                    activeTab === 'explorer'
+                      ? 'text-primary'
+                      : 'text-tertiary hover:text-secondary'
+                  }`}
+                >
+                  Explorer
+                </button>
+                <button
+                  onClick={() => setActiveTab('overview')}
+                  className={`text-sm font-medium transition-colors ${
+                    activeTab === 'overview'
+                      ? 'text-primary'
+                      : 'text-tertiary hover:text-secondary'
+                  }`}
+                >
+                  Overview
+                </button>
+              </div>
 
-          {/* KPI Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              {/* Center: Search bar */}
+              <div className="flex-1 max-w-md mx-8">
+                <input
+                  type="text"
+                  placeholder="What are you looking for?"
+                  className="w-full bg-transparent text-sm text-primary placeholder:text-tertiary outline-none border-b border-transparent hover:border-secondary focus:border-primary transition-colors px-2 py-1.5"
+                />
+              </div>
+
+              {/* Right: Spacer for arrow button alignment */}
+              <div className="w-10"></div>
+            </div>
+
+            {/* Content based on active tab */}
+            {activeTab === 'explorer' ? (
+              <WorldMapChart data={data?.usaMap} style={{ height: '100%', width: '100%' }} isDark={isDark} />
+            ) : (
+              <div className="h-full overflow-auto p-6 md:p-8 bg-primary">
+                <div className="space-y-8">
+                  {/* KPI Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <StatCard
               label="Total Listings"
               value={data?.overview?.totalJobs?.toLocaleString() || '0'}
@@ -167,10 +170,10 @@ export default function SnapshotPage() {
               change="+2%"
               changeType="positive"
             />
-          </div>
+                  </div>
 
-          {/* Main Charts Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                  {/* Main Charts Grid */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             {/* Jobs Timeline */}
             <ChartCard title="Job Postings Trend" description="Daily new job listings by category">
               <ReactECharts option={getTimelineChartOption(data?.timeseries)} style={{ height: '350px' }} />
@@ -216,15 +219,16 @@ export default function SnapshotPage() {
             <ChartCard title="Posting Patterns" description="When companies typically post jobs (by day and hour)">
               <ReactECharts option={getHeatmapChartOption(data?.timeseries)} style={{ height: '450px' }} />
             </ChartCard>
-          </div>
+                  </div>
 
-            {/* Footer Info */}
-            <div className="mt-8 text-center text-tertiary text-sm">
-              <p>Data updated in real-time • Last refresh: {new Date().toLocaleString()}</p>
-            </div>
+                  {/* Footer Info */}
+                  <div className="mt-8 text-center text-tertiary text-sm">
+                    <p>Data updated in real-time • Last refresh: {new Date().toLocaleString()}</p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
-        </div>
-          )}
         </div>
       )}
     </div>
