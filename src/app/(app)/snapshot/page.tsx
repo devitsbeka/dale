@@ -78,32 +78,43 @@ export default function SnapshotPage() {
           {/* Header with tabs and controls */}
           <div className="border-b border-secondary bg-primary">
             <div className="px-4 h-[65px] flex items-center justify-between">
-              <h1 className="text-base font-semibold text-primary">Discover</h1>
-
-              {/* Tabs - Centered */}
-              <div className="absolute left-1/2 -translate-x-1/2 flex gap-6">
-                <button
-                  onClick={() => setActiveTab('explorer')}
-                  className={`text-sm font-medium transition-colors ${
-                    activeTab === 'explorer'
-                      ? 'text-primary'
-                      : 'text-tertiary hover:text-secondary'
-                  }`}
-                >
-                  Explorer
-                </button>
-                <button
-                  onClick={() => setActiveTab('overview')}
-                  className={`text-sm font-medium transition-colors ${
-                    activeTab === 'overview'
-                      ? 'text-primary'
-                      : 'text-tertiary hover:text-secondary'
-                  }`}
-                >
-                  Overview
-                </button>
+              {/* Left: Discover title + Tabs */}
+              <div className="flex items-center gap-8">
+                <h1 className="text-base font-semibold text-primary">Discover</h1>
+                <div className="flex gap-6">
+                  <button
+                    onClick={() => setActiveTab('explorer')}
+                    className={`text-sm font-medium transition-colors ${
+                      activeTab === 'explorer'
+                        ? 'text-primary'
+                        : 'text-tertiary hover:text-secondary'
+                    }`}
+                  >
+                    Explorer
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('overview')}
+                    className={`text-sm font-medium transition-colors ${
+                      activeTab === 'overview'
+                        ? 'text-primary'
+                        : 'text-tertiary hover:text-secondary'
+                    }`}
+                  >
+                    Overview
+                  </button>
+                </div>
               </div>
 
+              {/* Center: Search bar */}
+              <div className="flex-1 max-w-md mx-8">
+                <input
+                  type="text"
+                  placeholder="Search country..."
+                  className="w-full bg-transparent text-sm text-primary placeholder:text-tertiary outline-none border-b border-transparent hover:border-secondary focus:border-primary transition-colors px-2 py-1.5"
+                />
+              </div>
+
+              {/* Right: Date range selector */}
               <div className="[&_button]:!h-8 [&_button]:!text-sm [&_button]:!px-3 [&_button]:!gap-2 [&_button]:!shadow-none [&_button]:!ring-0 [&_button]:!bg-transparent hover:[&_button]:!bg-secondary [&_button]:!rounded-md [&_button_svg]:!size-4">
                 <Select
                   size="sm"
