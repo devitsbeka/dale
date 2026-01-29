@@ -77,33 +77,9 @@ export default function SnapshotPage() {
         <div className="flex flex-col h-screen">
           {/* Header with tabs and controls */}
           <div className="border-b border-secondary bg-primary">
-            <div className="px-4 h-[65px] flex items-center justify-between">
-              {/* Left: Discover title + Tabs */}
-              <div className="flex items-center gap-8">
-                <h1 className="text-base font-semibold text-primary">Discover</h1>
-                <div className="flex gap-6">
-                  <button
-                    onClick={() => setActiveTab('explorer')}
-                    className={`text-sm font-medium transition-colors ${
-                      activeTab === 'explorer'
-                        ? 'text-primary'
-                        : 'text-tertiary hover:text-secondary'
-                    }`}
-                  >
-                    Explorer
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('overview')}
-                    className={`text-sm font-medium transition-colors ${
-                      activeTab === 'overview'
-                        ? 'text-primary'
-                        : 'text-tertiary hover:text-secondary'
-                    }`}
-                  >
-                    Overview
-                  </button>
-                </div>
-              </div>
+            {/* Top row: Title, Search, Date selector */}
+            <div className="px-4 pt-4 pb-2 flex items-center justify-between">
+              <h1 className="text-base font-semibold text-primary">Discover</h1>
 
               {/* Center: Search bar */}
               <div className="flex-1 max-w-md mx-8">
@@ -129,6 +105,30 @@ export default function SnapshotPage() {
                   {(item) => <Select.Item id={item.id}>{item.label}</Select.Item>}
                 </Select>
               </div>
+            </div>
+
+            {/* Bottom row: Tabs */}
+            <div className="px-4 pb-3 flex gap-6">
+              <button
+                onClick={() => setActiveTab('explorer')}
+                className={`text-sm font-medium transition-colors ${
+                  activeTab === 'explorer'
+                    ? 'text-primary'
+                    : 'text-tertiary hover:text-secondary'
+                }`}
+              >
+                Explorer
+              </button>
+              <button
+                onClick={() => setActiveTab('overview')}
+                className={`text-sm font-medium transition-colors ${
+                  activeTab === 'overview'
+                    ? 'text-primary'
+                    : 'text-tertiary hover:text-secondary'
+                }`}
+              >
+                Overview
+              </button>
             </div>
           </div>
 
