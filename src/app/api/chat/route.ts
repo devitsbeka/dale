@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { anthropic, AI_MODEL, SYSTEM_PROMPTS } from "@/lib/ai";
 import { auth } from "@/lib/auth";
+import { getAgent } from "@/lib/agents";
 
 export async function POST(request: NextRequest) {
   const session = await auth();
@@ -12,9 +13,16 @@ export async function POST(request: NextRequest) {
     return new Response("AI service not configured", { status: 503 });
   }
 
-  const { messages, role = "career_advisor" } = await request.json();
+  const { messages, role = "career_advisor", agentId } = await request.json();
 
-  const systemPrompt = SYSTEM_PROMPTS[role as keyof typeof SYSTEM_PROMPTS] ?? SYSTEM_PROMPTS.career_advisor;
+  // Use agent system prompt if agentId provided, otherwise fall back to role-based prompts
+  let systemPrompt: string;
+  if (agentId) {
+    const agent = getAgent(agentId);
+    systemPrompt = agent?.systemPrompt ?? SYSTEM_PROMPTS.career_advisor;
+  } else {
+    systemPrompt = SYSTEM_PROMPTS[role as keyof typeof SYSTEM_PROMPTS] ?? SYSTEM_PROMPTS.career_advisor;
+  }
 
   // Stream the response
   const stream = anthropic.messages.stream({
