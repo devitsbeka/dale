@@ -5,6 +5,7 @@ import { ArrowLeft, Send01 } from "@untitledui/icons";
 import { Badge } from "@/components/base/badges/badges";
 import { Button } from "@/components/base/buttons/button";
 import { AGENTS, type AgentDef } from "@/lib/agents";
+import { AGENT_TOOL_MAP, TOOL_LABELS } from "@/lib/agent-tool-labels";
 
 interface Message {
   role: "user" | "assistant";
@@ -169,25 +170,44 @@ export default function AgentsPage() {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input */}
-        <form onSubmit={handleSubmit} className="border-t border-secondary pt-3">
-          <div className="flex items-center gap-2">
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={`Ask ${selectedAgent.name}...`}
-              className="flex-1 rounded-lg bg-secondary px-4 py-3 text-sm text-primary outline-none placeholder:text-placeholder"
-              disabled={streaming}
-            />
-            <button
-              type="submit"
-              disabled={!input.trim() || streaming}
-              className="flex size-10 items-center justify-center rounded-lg bg-brand-solid text-white disabled:opacity-50"
-            >
-              <Send01 className="size-4" />
-            </button>
+        {/* Tools + Input */}
+        <div className="border-t border-secondary pt-3">
+          {/* Enabled tools bar */}
+          <div className="mb-2 flex items-center gap-1.5">
+            <span className="text-xs font-medium text-quaternary">Tools:</span>
+            {(AGENT_TOOL_MAP[selectedAgent.id] ?? []).map((toolName) => {
+              const tool = TOOL_LABELS[toolName];
+              if (!tool) return null;
+              return (
+                <span
+                  key={toolName}
+                  className="inline-flex items-center gap-1 rounded-md bg-utility-brand-50 px-2 py-0.5 text-xs font-medium text-utility-brand-700"
+                >
+                  <span>{tool.icon}</span>
+                  {tool.label}
+                </span>
+              );
+            })}
           </div>
-        </form>
+          <form onSubmit={handleSubmit}>
+            <div className="flex items-center gap-2">
+              <input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder={`Ask ${selectedAgent.name}...`}
+                className="flex-1 rounded-lg bg-secondary px-4 py-3 text-sm text-primary outline-none placeholder:text-placeholder"
+                disabled={streaming}
+              />
+              <button
+                type="submit"
+                disabled={!input.trim() || streaming}
+                className="flex size-10 items-center justify-center rounded-lg bg-brand-solid text-white disabled:opacity-50"
+              >
+                <Send01 className="size-4" />
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     );
   }
