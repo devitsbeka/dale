@@ -4,12 +4,12 @@ import { Theme } from "@/providers/theme";
 import "@/styles/globals.css";
 
 export const metadata: Metadata = {
-    title: "Dale — Your AI Career Companion",
-    description: "Find your dream job with Dale",
+    title: "Planeta.id — Career Operating System for Earth",
+    description: "The unified intelligence platform that replaces 30+ fragmented career services",
 };
 
 export const viewport: Viewport = {
-    themeColor: "#CC785C",
+    themeColor: "#7C3AED",
     colorScheme: "light dark",
 };
 
