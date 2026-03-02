@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { RouteProvider } from "@/providers/router-provider";
+import { SessionProvider } from "@/providers/session-provider";
 import { Theme } from "@/providers/theme";
 import "@/styles/globals.css";
 
@@ -21,9 +22,11 @@ export default function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning>
             <body className="bg-primary antialiased">
-                <RouteProvider>
-                    <Theme>{children}</Theme>
-                </RouteProvider>
+                <SessionProvider>
+                    <RouteProvider>
+                        <Theme>{children}</Theme>
+                    </RouteProvider>
+                </SessionProvider>
             </body>
         </html>
     );
