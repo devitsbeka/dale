@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { RouteProvider } from "@/providers/router-provider";
 import { SessionProvider } from "@/providers/session-provider";
 import { Theme } from "@/providers/theme";
+import { TRPCProvider } from "@/providers/trpc-provider";
 import "@/styles/globals.css";
 
 export const metadata: Metadata = {
@@ -23,9 +24,11 @@ export default function RootLayout({
         <html lang="en" suppressHydrationWarning>
             <body className="bg-primary antialiased">
                 <SessionProvider>
-                    <RouteProvider>
-                        <Theme>{children}</Theme>
-                    </RouteProvider>
+                    <TRPCProvider>
+                        <RouteProvider>
+                            <Theme>{children}</Theme>
+                        </RouteProvider>
+                    </TRPCProvider>
                 </SessionProvider>
             </body>
         </html>
