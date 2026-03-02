@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { router, publicProcedure, protectedProcedure } from "../trpc";
+import { getTransferableRoles, getAdjacentSkills } from "@/lib/transferability";
 
 export const skillRouter = router({
   list: publicProcedure
@@ -57,5 +58,17 @@ export const skillRouter = router({
           ...input,
         },
       });
+    }),
+
+  transferableRoles: protectedProcedure
+    .input(z.object({ limit: z.number().min(1).max(20).default(10) }).optional())
+    .query(async ({ ctx, input }) => {
+      return getTransferableRoles(ctx.db, ctx.session.user.id, input?.limit ?? 10);
+    }),
+
+  adjacentSkills: protectedProcedure
+    .input(z.object({ limit: z.number().min(1).max(30).default(15) }).optional())
+    .query(async ({ ctx, input }) => {
+      return getAdjacentSkills(ctx.db, ctx.session.user.id, input?.limit ?? 15);
     }),
 });

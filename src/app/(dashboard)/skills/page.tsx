@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { SearchLg } from "@untitledui/icons";
+import { ArrowRight, SearchLg, TrendUp01 } from "@untitledui/icons";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from "recharts";
 import { Badge } from "@/components/base/badges/badges";
 import { Button } from "@/components/base/buttons/button";
@@ -33,6 +33,8 @@ export default function SkillsPage() {
   });
 
   const addSkill = trpc.skill.addUserSkill.useMutation();
+  const { data: transferableRoles } = trpc.skill.transferableRoles.useQuery();
+  const { data: adjacentSkills } = trpc.skill.adjacentSkills.useQuery();
 
   // Radar chart data from user skills
   const radarData = userSkills?.slice(0, 8).map((us) => ({
@@ -114,6 +116,108 @@ export default function SkillsPage() {
           )}
         </div>
       </div>
+
+      {/* Transferable Roles */}
+      {transferableRoles && transferableRoles.length > 0 && (
+        <div className="mt-8">
+          <h2 className="text-lg font-semibold text-primary">You Could Become a...</h2>
+          <p className="mt-1 text-sm text-tertiary">Roles your current skills transfer to</p>
+          <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+            {transferableRoles.slice(0, 6).map((role) => (
+              <div
+                key={role.title}
+                className="rounded-xl bg-primary p-4 shadow-xs ring-1 ring-secondary"
+              >
+                <div className="flex items-start justify-between">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-primary">{role.title}</p>
+                    <p className="mt-0.5 text-xs text-tertiary">
+                      {role.jobCount} open position{role.jobCount !== 1 ? "s" : ""}
+                      {role.salaryRange && (
+                        <> &middot; ${Math.round(role.salaryRange.min / 1000)}k – ${Math.round(role.salaryRange.max / 1000)}k</>
+                      )}
+                    </p>
+                  </div>
+                  <span className={`text-sm font-bold ${
+                    role.transferScore >= 80 ? "text-success-primary" :
+                    role.transferScore >= 60 ? "text-brand-primary" :
+                    role.transferScore >= 40 ? "text-warning-primary" :
+                    "text-tertiary"
+                  }`}>
+                    {role.transferScore}%
+                  </span>
+                </div>
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-secondary">
+                  <div
+                    className="h-full rounded-full bg-brand-solid"
+                    style={{ width: `${role.transferScore}%` }}
+                  />
+                </div>
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {role.matchedSkills.slice(0, 3).map((s) => (
+                    <Badge key={s} color="success" size="sm">{s}</Badge>
+                  ))}
+                  {role.gapSkills.slice(0, 2).map((s) => (
+                    <Badge key={s} color="gray" size="sm">{s}</Badge>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Adjacent Skills */}
+      {adjacentSkills && adjacentSkills.length > 0 && (
+        <div className="mt-8">
+          <h2 className="text-lg font-semibold text-primary">Skills to Learn Next</h2>
+          <p className="mt-1 text-sm text-tertiary">High-value skills that complement yours</p>
+          <div className="mt-4 flex flex-col gap-2">
+            {adjacentSkills.slice(0, 8).map((skill) => (
+              <div
+                key={skill.id}
+                className="flex items-center justify-between rounded-lg px-3 py-2.5 ring-1 ring-secondary"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-medium text-primary">{skill.name}</span>
+                  <Badge color="gray" size="sm">{skill.category}</Badge>
+                  {skill.growthRate > 10 && (
+                    <Badge color="success" size="sm">
+                      <TrendUp01 className="mr-0.5 size-3" />
+                      +{skill.growthRate}%
+                    </Badge>
+                  )}
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1">
+                    <div className="h-1.5 w-12 overflow-hidden rounded-full bg-secondary">
+                      <div
+                        className="h-full rounded-full bg-brand-solid"
+                        style={{ width: `${skill.demandScore}%` }}
+                      />
+                    </div>
+                    <span className="text-xs text-quaternary">{skill.demandScore}%</span>
+                  </div>
+                  <Button
+                    color="secondary"
+                    size="sm"
+                    onClick={async () => {
+                      await addSkill.mutateAsync({
+                        skillId: skill.id,
+                        level: "beginner",
+                        yearsOfExperience: 0,
+                      });
+                      window.location.reload();
+                    }}
+                  >
+                    Add
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Skill Catalog */}
       <div className="mt-8">
