@@ -5,7 +5,13 @@
     "scripts": {
         "dev": "next dev --turbopack",
         "build": "next build",
-        "start": "next start"
+        "start": "next start",
+        "db:seed": "npx tsx prisma/seed.ts",
+        "db:push": "npx prisma db push",
+        "db:studio": "npx prisma studio"
+    },
+    "prisma": {
+        "seed": "tsx prisma/seed.ts"
     },
     "dependencies": {
         "@auth/prisma-adapter": "^2.11.1",
@@ -52,6 +58,7 @@
         "postcss-loader": "^8.2.0",
         "prettier": "^3.7.4",
         "prettier-plugin-tailwindcss": "^0.6.14",
+        "tsx": "^4.21.0",
         "typescript": "^5.9.3"
     }
 }
