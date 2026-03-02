@@ -10,6 +10,8 @@
     "dependencies": {
         "@auth/prisma-adapter": "^2.11.1",
         "@prisma/client": "^6.19.2",
+        "@simplewebauthn/browser": "^9.0.1",
+        "@simplewebauthn/server": "^9.0.3",
         "@tailwindcss/postcss": "^4.1.18",
         "@tailwindcss/typography": "^0.5.19",
         "@types/bcryptjs": "^2.4.6",

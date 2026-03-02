@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/base/buttons/button";
+import { usePasskey } from "@/hooks/use-passkey";
 import { APP_NAME } from "@/lib/constants";
 import { signInWithCredentials } from "@/lib/auth-actions";
 
@@ -12,6 +13,18 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const { authenticateWithPasskey, loading: passkeyLoading } = usePasskey();
+
+  async function handlePasskeyLogin() {
+    setError("");
+    const result = await authenticateWithPasskey();
+    if (result.success) {
+      router.push("/");
+      router.refresh();
+    } else {
+      setError(result.error ?? "Passkey authentication failed");
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -83,6 +96,23 @@ export default function LoginPage() {
           Sign in
         </Button>
       </form>
+
+      <div className="flex items-center gap-3">
+        <div className="h-px flex-1 bg-secondary" />
+        <span className="text-sm text-quaternary">or</span>
+        <div className="h-px flex-1 bg-secondary" />
+      </div>
+
+      <Button
+        type="button"
+        color="secondary"
+        size="lg"
+        isLoading={passkeyLoading}
+        onClick={handlePasskeyLogin}
+        className="w-full"
+      >
+        Sign in with passkey
+      </Button>
 
       <p className="text-center text-sm text-tertiary">
         Don&apos;t have an account?{" "}
