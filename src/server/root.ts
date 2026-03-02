@@ -4,6 +4,7 @@ import { jobRouter } from "./routers/job";
 import { skillRouter } from "./routers/skill";
 import { salaryRouter } from "./routers/salary";
 import { negotiationRouter } from "./routers/negotiation";
+import { gameRouter } from "./routers/game";
 
 export const appRouter = router({
   user: userRouter,
@@ -11,6 +12,7 @@ export const appRouter = router({
   skill: skillRouter,
   salary: salaryRouter,
   negotiation: negotiationRouter,
+  game: gameRouter,
 });
 
 export type AppRouter = typeof appRouter;
