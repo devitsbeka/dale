@@ -19,6 +19,7 @@ interface JobCardProps {
   postedAt: Date;
   featured: boolean;
   skills?: Array<{ skill: { name: string; slug: string } }>;
+  matchScore?: number | null;
 }
 
 const remoteBadgeColor = {
@@ -76,8 +77,15 @@ export function JobCard({
   postedAt,
   featured,
   skills,
+  matchScore,
 }: JobCardProps) {
   const salary = formatSalary(salaryMin, salaryMax, salaryCurrency);
+  const matchColor =
+    matchScore == null ? "" :
+    matchScore >= 80 ? "text-utility-success-600" :
+    matchScore >= 60 ? "text-utility-brand-600" :
+    matchScore >= 40 ? "text-utility-warning-600" :
+    "text-utility-error-600";
 
   return (
     <a
@@ -100,9 +108,14 @@ export function JobCard({
           </p>
           <p className="text-sm text-tertiary">{company}</p>
         </div>
-        {featured && (
-          <Badge color="warning" size="sm">Featured</Badge>
-        )}
+        <div className="flex items-center gap-2">
+          {matchScore != null && (
+            <span className={`text-sm font-bold ${matchColor}`}>{matchScore}%</span>
+          )}
+          {featured && (
+            <Badge color="warning" size="sm">Featured</Badge>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-2 text-sm text-tertiary">

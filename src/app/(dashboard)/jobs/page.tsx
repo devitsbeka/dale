@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import { SearchLg } from "@untitledui/icons";
 import { Button } from "@/components/base/buttons/button";
 import { JobCard } from "@/components/jobs/job-card";
@@ -8,6 +9,7 @@ import { JobFilters } from "@/components/jobs/job-filters";
 import { trpc } from "@/lib/trpc";
 
 export default function JobsPage() {
+  const { data: session } = useSession();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState<{
@@ -22,6 +24,12 @@ export default function JobsPage() {
     search: search || undefined,
     ...filters,
   } as Parameters<typeof trpc.job.list.useQuery>[0]);
+
+  const jobIds = data?.items.map((j) => j.id) ?? [];
+  const { data: matchScores } = trpc.job.batchMatchScores.useQuery(
+    { jobIds },
+    { enabled: !!session && jobIds.length > 0 }
+  );
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
@@ -94,6 +102,7 @@ export default function JobsPage() {
               postedAt={job.postedAt}
               featured={job.featured}
               skills={job.skills}
+              matchScore={matchScores?.[job.id] ?? null}
             />
           ))
         )}

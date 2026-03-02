@@ -2,7 +2,8 @@
 
 import { use, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, BookmarkCheck, Briefcase01, MarkerPin01, Send01 } from "@untitledui/icons";
+import { useSession } from "next-auth/react";
+import { ArrowLeft, BookmarkCheck, Briefcase01, CheckCircle, MarkerPin01, Send01, XCircle } from "@untitledui/icons";
 import { Badge } from "@/components/base/badges/badges";
 import { Button } from "@/components/base/buttons/button";
 import { getLogoUrl, JOB_LEVELS, REMOTE_POLICIES } from "@/lib/constants";
@@ -11,7 +12,12 @@ import { trpc } from "@/lib/trpc";
 export default function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
+  const { data: session } = useSession();
   const { data: job, isLoading } = trpc.job.getById.useQuery({ id });
+  const { data: matchData } = trpc.job.matchScore.useQuery(
+    { jobId: id },
+    { enabled: !!session }
+  );
   const saveMutation = trpc.job.save.useMutation();
   const applyMutation = trpc.job.applyToJob.useMutation();
   const [saved, setSaved] = useState(false);
@@ -128,6 +134,115 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
           {saved ? "Saved" : "Save"}
         </Button>
       </div>
+
+      {/* Match Breakdown */}
+      {matchData && (
+        <div className="mt-8 rounded-xl bg-primary p-5 shadow-xs ring-1 ring-secondary">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-primary">Your Match</h2>
+            <span className={`text-display-xs font-bold ${
+              matchData.overall >= 80 ? "text-success-primary" :
+              matchData.overall >= 60 ? "text-brand-primary" :
+              matchData.overall >= 40 ? "text-warning-primary" :
+              "text-error-primary"
+            }`}>
+              {matchData.overall}%
+            </span>
+          </div>
+
+          <div className="mt-4 flex flex-col gap-3">
+            {/* Skills */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-primary">Skills</span>
+                <span className="text-xs text-tertiary">
+                  {matchData.skills.matched.length}/{matchData.skills.total} matched
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-20 overflow-hidden rounded-full bg-secondary">
+                  <div
+                    className="h-full rounded-full bg-brand-solid"
+                    style={{ width: `${matchData.skills.score}%` }}
+                  />
+                </div>
+                <span className="w-8 text-right text-xs font-medium text-tertiary">{matchData.skills.score}%</span>
+              </div>
+            </div>
+
+            {/* Salary */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-primary">Salary</span>
+                <span className="text-xs text-tertiary">
+                  {matchData.salary.inRange ? "In range" : "Check range"}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-20 overflow-hidden rounded-full bg-secondary">
+                  <div
+                    className="h-full rounded-full bg-brand-solid"
+                    style={{ width: `${matchData.salary.score}%` }}
+                  />
+                </div>
+                <span className="w-8 text-right text-xs font-medium text-tertiary">{matchData.salary.score}%</span>
+              </div>
+            </div>
+
+            {/* Location */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-primary">Location</span>
+                <span className="text-xs text-tertiary capitalize">{matchData.location.match}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-20 overflow-hidden rounded-full bg-secondary">
+                  <div
+                    className="h-full rounded-full bg-brand-solid"
+                    style={{ width: `${matchData.location.score}%` }}
+                  />
+                </div>
+                <span className="w-8 text-right text-xs font-medium text-tertiary">{matchData.location.score}%</span>
+              </div>
+            </div>
+
+            {/* Level */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-primary">Level</span>
+                <span className="text-xs text-tertiary capitalize">{matchData.level.match}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-20 overflow-hidden rounded-full bg-secondary">
+                  <div
+                    className="h-full rounded-full bg-brand-solid"
+                    style={{ width: `${matchData.level.score}%` }}
+                  />
+                </div>
+                <span className="w-8 text-right text-xs font-medium text-tertiary">{matchData.level.score}%</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Matched / Missing skills */}
+          {(matchData.skills.matched.length > 0 || matchData.skills.missing.length > 0) && (
+            <div className="mt-4 flex flex-wrap gap-2 border-t border-secondary pt-4">
+              {matchData.skills.matched.map((s) => (
+                <Badge key={s} color="success" size="sm">
+                  <CheckCircle className="mr-1 size-3" />
+                  {s}
+                </Badge>
+              ))}
+              {matchData.skills.missing.map((s) => (
+                <Badge key={s} color="error" size="sm">
+                  <XCircle className="mr-1 size-3" />
+                  {s}
+                </Badge>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Skills */}
       {job.skills.length > 0 && (

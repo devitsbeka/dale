@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { router, publicProcedure, protectedProcedure } from "../trpc";
+import { computeMatchScore, computeBatchMatchScores } from "@/lib/match-scoring";
 
 export const jobRouter = router({
   list: publicProcedure
@@ -109,5 +110,27 @@ export const jobRouter = router({
           resumeUrl: input.resumeUrl,
         },
       });
+    }),
+
+  matchScore: protectedProcedure
+    .input(z.object({ jobId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const job = await ctx.db.job.findUnique({
+        where: { id: input.jobId },
+        include: { skills: { include: { skill: true } } },
+      });
+      if (!job) return null;
+      return computeMatchScore(ctx.db, ctx.session.user.id, job);
+    }),
+
+  batchMatchScores: protectedProcedure
+    .input(z.object({ jobIds: z.array(z.string()).max(50) }))
+    .query(async ({ ctx, input }) => {
+      const jobs = await ctx.db.job.findMany({
+        where: { id: { in: input.jobIds } },
+        include: { skills: { include: { skill: true } } },
+      });
+      const scores = await computeBatchMatchScores(ctx.db, ctx.session.user.id, jobs);
+      return Object.fromEntries(scores);
     }),
 });
