@@ -1,181 +1,191 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Badge } from "@/components/base/badges/badges";
-import { Button } from "@/components/base/buttons/button";
 import { ChartTooltipContent } from "@/components/application/charts/charts-base";
+import type { MetricKey } from "./_data/types";
+import { countries, countriesByNumericCode } from "./_data/countries";
+import { metrics, metricKeys, getCentroidZoom, getFlagEmoji, getMetricRange, getColorForValue, NO_DATA_COLOR } from "./_data/utils";
+import { WorldMap } from "./_components/world-map";
+import { MapTooltip } from "./_components/map-tooltip";
+import { CountryDetailPanel } from "./_components/country-detail-panel";
+import { CountryComparison } from "./_components/country-comparison";
 
-interface CityData {
-  id: string;
-  city: string;
-  country: string;
-  costOfLivingIndex: number;
-  avgTechSalary: number;
-  taxRate: number;
-  qualityOfLife: number;
-  techJobCount: number;
-  internetSpeed: number;
-  safety: number;
-}
-
-const CITIES: CityData[] = [
-  { id: "sf", city: "San Francisco", country: "US", costOfLivingIndex: 95, avgTechSalary: 195000, taxRate: 37, qualityOfLife: 72, techJobCount: 45000, internetSpeed: 200, safety: 62 },
-  { id: "nyc", city: "New York", country: "US", costOfLivingIndex: 90, avgTechSalary: 180000, taxRate: 38, qualityOfLife: 75, techJobCount: 38000, internetSpeed: 180, safety: 65 },
-  { id: "austin", city: "Austin", country: "US", costOfLivingIndex: 60, avgTechSalary: 155000, taxRate: 25, qualityOfLife: 80, techJobCount: 15000, internetSpeed: 150, safety: 72 },
-  { id: "london", city: "London", country: "UK", costOfLivingIndex: 78, avgTechSalary: 120000, taxRate: 33, qualityOfLife: 78, techJobCount: 32000, internetSpeed: 170, safety: 70 },
-  { id: "berlin", city: "Berlin", country: "DE", costOfLivingIndex: 55, avgTechSalary: 85000, taxRate: 42, qualityOfLife: 82, techJobCount: 12000, internetSpeed: 140, safety: 78 },
-  { id: "amsterdam", city: "Amsterdam", country: "NL", costOfLivingIndex: 65, avgTechSalary: 90000, taxRate: 40, qualityOfLife: 88, techJobCount: 8000, internetSpeed: 160, safety: 85 },
-  { id: "toronto", city: "Toronto", country: "CA", costOfLivingIndex: 62, avgTechSalary: 110000, taxRate: 30, qualityOfLife: 80, techJobCount: 18000, internetSpeed: 150, safety: 80 },
-  { id: "singapore", city: "Singapore", country: "SG", costOfLivingIndex: 72, avgTechSalary: 95000, taxRate: 18, qualityOfLife: 85, techJobCount: 10000, internetSpeed: 250, safety: 95 },
-  { id: "lisbon", city: "Lisbon", country: "PT", costOfLivingIndex: 40, avgTechSalary: 55000, taxRate: 35, qualityOfLife: 84, techJobCount: 4000, internetSpeed: 120, safety: 88 },
-  { id: "dubai", city: "Dubai", country: "AE", costOfLivingIndex: 60, avgTechSalary: 80000, taxRate: 0, qualityOfLife: 76, techJobCount: 6000, internetSpeed: 200, safety: 92 },
-];
-
-function computeLifeScore(city: CityData): number {
-  const netSalary = city.avgTechSalary * (1 - city.taxRate / 100);
-  const purchasingPower = netSalary / (city.costOfLivingIndex / 50); // normalized
-  const normalized = Math.min(100, (purchasingPower / 3000) * 40 + city.qualityOfLife * 0.3 + city.safety * 0.15 + Math.min(100, city.internetSpeed / 2.5) * 0.15);
-  return Math.round(normalized);
-}
-
-function computeNetSalary(salary: number, taxRate: number): number {
-  return Math.round(salary * (1 - taxRate / 100));
-}
+const DEFAULT_CENTER: [number, number] = [0, 20];
+const DEFAULT_ZOOM = 1;
 
 export default function RelocationPage() {
-  const [selected, setSelected] = useState<string[]>(["sf", "austin", "london"]);
+  const [selectedMetric, setSelectedMetric] = useState<MetricKey>("lifeScore");
+  const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
+  const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
+  const [comparisonList, setComparisonList] = useState<string[]>([]);
+  const [mapCenter, setMapCenter] = useState<[number, number]>(DEFAULT_CENTER);
+  const [mapZoom, setMapZoom] = useState(DEFAULT_ZOOM);
+  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
   const [salary, setSalary] = useState(150000);
 
-  const selectedCities = CITIES.filter((c) => selected.includes(c.id));
+  const hoveredData = hoveredCountry ? countriesByNumericCode[hoveredCountry] : null;
+  const selectedData = selectedCountry ? countriesByNumericCode[selectedCountry] : null;
+  const comparisonCountries = useMemo(
+    () => comparisonList.map((code) => countriesByNumericCode[code]).filter(Boolean),
+    [comparisonList],
+  );
 
-  const comparisonData = selectedCities.map((c) => ({
-    city: c.city,
-    netSalary: computeNetSalary(salary, c.taxRate),
-    costOfLiving: Math.round(salary * c.costOfLivingIndex / 100 * 0.4),
-    lifeScore: computeLifeScore(c),
-  }));
+  const handleHover = useCallback((numericCode: string | null, event?: React.MouseEvent) => {
+    setHoveredCountry(numericCode);
+    if (event) setTooltipPos({ x: event.clientX, y: event.clientY });
+  }, []);
 
-  function toggleCity(id: string) {
-    setSelected((prev) =>
-      prev.includes(id)
-        ? prev.filter((c) => c !== id)
-        : prev.length < 5
-          ? [...prev, id]
-          : prev
-    );
-  }
+  const handleClick = useCallback((numericCode: string) => {
+    const country = countriesByNumericCode[numericCode];
+    if (!country) return;
+    setSelectedCountry(numericCode);
+    const { center, zoom } = getCentroidZoom(numericCode, country);
+    setMapCenter(center);
+    setMapZoom(zoom);
+  }, []);
+
+  const handleBackToWorld = useCallback(() => {
+    setSelectedCountry(null);
+    setMapCenter(DEFAULT_CENTER);
+    setMapZoom(DEFAULT_ZOOM);
+  }, []);
+
+  const handleAddToCompare = useCallback(() => {
+    if (!selectedCountry) return;
+    setComparisonList((prev) => {
+      if (prev.includes(selectedCountry) || prev.length >= 3) return prev;
+      return [...prev, selectedCountry];
+    });
+  }, [selectedCountry]);
+
+  const handleRemoveFromCompare = useCallback((numericCode: string) => {
+    setComparisonList((prev) => prev.filter((c) => c !== numericCode));
+  }, []);
+
+  const handleMoveEnd = useCallback((position: { coordinates: [number, number]; zoom: number }) => {
+    setMapCenter(position.coordinates);
+    setMapZoom(position.zoom);
+  }, []);
+
+  // Legend steps
+  const metricConfig = metrics[selectedMetric];
+  const { min: metricMin, max: metricMax } = getMetricRange(selectedMetric);
+  const legendSteps = metricConfig.invertScale
+    ? ["hsl(120,70%,45%)", "hsl(90,70%,45%)", "hsl(60,70%,45%)", "hsl(30,70%,45%)", "hsl(0,70%,45%)"]
+    : ["hsl(0,70%,45%)", "hsl(30,70%,45%)", "hsl(60,70%,45%)", "hsl(90,70%,45%)", "hsl(120,70%,45%)"];
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8">
+    <div className="mx-auto max-w-7xl px-4 py-8">
+      {/* Header */}
       <div className="flex flex-col gap-1">
         <h1 className="text-display-sm font-semibold text-primary">Relocation Intelligence</h1>
         <p className="text-md text-tertiary">
-          Compare cities by net salary, cost of living, and quality of life
+          Explore 150+ countries. Click any country for detailed metrics and comparison tools.
         </p>
       </div>
 
-      {/* Salary input */}
-      <div className="mt-6 flex items-center gap-3">
-        <span className="text-sm font-medium text-secondary">Your salary:</span>
-        <input
-          type="number"
-          value={salary}
-          onChange={(e) => setSalary(Number(e.target.value))}
-          className="w-40 rounded-lg border border-primary bg-primary px-3 py-2 text-md font-medium text-primary shadow-xs outline-none focus:ring-2 focus:ring-brand-solid"
-        />
-        <span className="text-sm text-tertiary">USD/year</span>
-      </div>
-
-      {/* City selector */}
-      <div className="mt-4 flex flex-wrap gap-2">
-        {CITIES.map((c) => (
-          <button
-            key={c.id}
-            onClick={() => toggleCity(c.id)}
-            className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
-              selected.includes(c.id)
-                ? "bg-brand-solid text-white"
-                : "bg-secondary text-secondary hover:bg-tertiary"
-            }`}
-          >
-            {c.city}
-          </button>
-        ))}
-      </div>
-      <p className="mt-2 text-xs text-quaternary">Select up to 5 cities to compare</p>
-
-      {selectedCities.length > 0 && (
-        <>
-          {/* Net Salary Chart */}
-          <div className="mt-8 rounded-xl bg-primary p-6 shadow-xs ring-1 ring-secondary">
-            <h2 className="text-lg font-semibold text-primary">Net Salary vs Cost of Living</h2>
-            <div className="mt-4 h-72">
-              <ResponsiveContainer>
-                <BarChart data={comparisonData} className="text-tertiary [&_.recharts-text]:text-xs">
-                  <CartesianGrid vertical={false} stroke="currentColor" className="text-utility-gray-100" />
-                  <XAxis dataKey="city" axisLine={false} tickLine={false} />
-                  <YAxis axisLine={false} tickLine={false} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
-                  <Tooltip content={<ChartTooltipContent />} formatter={(v) => `$${Number(v).toLocaleString()}`} />
-                  <Bar dataKey="netSalary" name="Net Salary" fill="currentColor" className="text-utility-brand-600" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="costOfLiving" name="Est. Annual Cost" fill="currentColor" className="text-utility-error-300" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+      {/* Metric selector + salary + legend */}
+      <div className="mt-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-wrap gap-1.5">
+          {metricKeys.map((key) => (
+            <button
+              key={key}
+              onClick={() => setSelectedMetric(key)}
+              className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
+                key === selectedMetric
+                  ? "bg-brand-solid text-white"
+                  : "bg-secondary text-secondary hover:bg-tertiary"
+              }`}
+            >
+              {metrics[key].shortLabel}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-tertiary">{metricConfig.format(metricMin)}</span>
+            <div className="flex h-2.5 w-28 overflow-hidden rounded-full">
+              {legendSteps.map((color, i) => (
+                <div key={i} className="flex-1" style={{ backgroundColor: color }} />
+              ))}
             </div>
+            <span className="text-xs text-tertiary">{metricConfig.format(metricMax)}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Main layout: map + panel */}
+      <div className="mt-6 flex flex-col gap-6 lg:flex-row">
+        {/* Map column */}
+        <div className="min-w-0 flex-1">
+          <div className="relative aspect-[2/1] w-full overflow-hidden rounded-xl bg-secondary shadow-xs ring-1 ring-secondary">
+            <WorldMap
+              selectedMetric={selectedMetric}
+              selectedCountry={selectedCountry}
+              comparisonList={comparisonList}
+              mapCenter={mapCenter}
+              mapZoom={mapZoom}
+              onHover={handleHover}
+              onClick={handleClick}
+              onMoveEnd={handleMoveEnd}
+            />
+            {mapZoom > 1 && (
+              <button
+                onClick={handleBackToWorld}
+                className="absolute bottom-3 left-3 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-secondary shadow-md ring-1 ring-secondary hover:bg-secondary"
+              >
+                Back to World
+              </button>
+            )}
           </div>
 
-          {/* City cards */}
-          <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {selectedCities.map((c) => {
-              const lifeScore = computeLifeScore(c);
-              const net = computeNetSalary(salary, c.taxRate);
-              return (
-                <div key={c.id} className="rounded-xl bg-primary p-5 shadow-xs ring-1 ring-secondary">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-md font-semibold text-primary">{c.city}</h3>
-                      <p className="text-xs text-tertiary">{c.country}</p>
-                    </div>
-                    <div className={`flex size-12 items-center justify-center rounded-full text-lg font-bold ${
-                      lifeScore >= 75 ? "bg-utility-success-50 text-success-primary" :
-                      lifeScore >= 60 ? "bg-utility-brand-50 text-brand-primary" :
-                      "bg-utility-warning-50 text-warning-primary"
-                    }`}>
-                      {lifeScore}
-                    </div>
-                  </div>
+          {/* Comparison chart */}
+          {comparisonCountries.length >= 2 && (
+            <div className="mt-6">
+              <CountryComparison countries={comparisonCountries} onRemove={handleRemoveFromCompare} />
+            </div>
+          )}
 
-                  <div className="mt-4 flex flex-col gap-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-tertiary">Net Salary</span>
-                      <span className="font-medium text-primary">${(net / 1000).toFixed(0)}k</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-tertiary">Tax Rate</span>
-                      <span className="font-medium text-primary">{c.taxRate}%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-tertiary">CoL Index</span>
-                      <span className="font-medium text-primary">{c.costOfLivingIndex}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-tertiary">Quality of Life</span>
-                      <span className="font-medium text-primary">{c.qualityOfLife}/100</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-tertiary">Tech Jobs</span>
-                      <span className="font-medium text-primary">{c.techJobCount.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-tertiary">Safety</span>
-                      <span className="font-medium text-primary">{c.safety}/100</span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </>
+          {/* Mobile detail panel */}
+          {selectedData && (
+            <div className="mt-6 rounded-xl bg-primary p-5 shadow-xs ring-1 ring-secondary lg:hidden">
+              <CountryDetailPanel
+                country={selectedData}
+                comparisonList={comparisonList}
+                onAddToCompare={handleAddToCompare}
+                onBack={handleBackToWorld}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Desktop right panel */}
+        <div className="hidden w-80 shrink-0 lg:block">
+          {selectedData ? (
+            <div className="sticky top-8 rounded-xl bg-primary p-5 shadow-xs ring-1 ring-secondary">
+              <CountryDetailPanel
+                country={selectedData}
+                comparisonList={comparisonList}
+                onAddToCompare={handleAddToCompare}
+                onBack={handleBackToWorld}
+              />
+            </div>
+          ) : (
+            <div className="sticky top-8 flex flex-col items-center justify-center rounded-xl bg-secondary p-8 text-center ring-1 ring-secondary">
+              <div className="text-4xl">🌍</div>
+              <p className="mt-3 text-sm font-medium text-secondary">Select a Country</p>
+              <p className="mt-1 text-xs text-tertiary">
+                Click any country on the map to see detailed metrics, salary calculations, and comparison tools.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Hover tooltip */}
+      {hoveredData && (
+        <MapTooltip country={hoveredData} metric={selectedMetric} x={tooltipPos.x} y={tooltipPos.y} />
       )}
     </div>
   );
