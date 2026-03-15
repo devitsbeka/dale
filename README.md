@@ -1,56 +1,101 @@
-# Untitled UI starter kit for Next.js
+# Planeta.id — Career Operating System for Earth
 
-This is an official Untitled UI starter kit for Next.js. Kickstart your Untitled UI project with Next.js in seconds.
+A unified career intelligence platform built with Next.js 16, React 19, TypeScript, and Tailwind v4.
 
-## Untitled UI React
+## Getting Started
 
-[Untitled UI React](https://www.untitledui.com/react) is the world’s largest collection of open-source React UI components. Everything you need to design and develop modern, beautiful interfaces—fast.
+### Prerequisites
 
-Built with React 19.1, Tailwind CSS v4.1, TypeScript 5.8, and React Aria, Untitled UI React components deliver modern performance, type safety, and maintainability.
+- **Node.js** 18+ and npm
+- **PostgreSQL** database
+- **Redis** (optional — app degrades gracefully without it)
+- **Meilisearch** (optional — for full-text search)
 
-[Learn more](https://www.untitledui.com/react) • [Documentation](https://www.untitledui.com/react/docs/introduction) • [Figma](https://www.untitledui.com/figma) • [FAQs](https://www.untitledui.com/faqs)
+### Environment Setup
 
-## Getting started
-
-First, run the development server:
+Copy the example environment file and fill in your values:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Required environment variables:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Variable | Description |
+|----------|-------------|
+| `DATABASE_URL` | PostgreSQL connection string |
+| `NEXTAUTH_SECRET` | Random secret for NextAuth sessions |
+| `NEXTAUTH_URL` | App URL (default: `http://localhost:3456`) |
+| `ANTHROPIC_API_KEY` | Claude API key for AI features |
+| `UPSTASH_REDIS_REST_URL` | Redis URL (optional) |
+| `UPSTASH_REDIS_REST_TOKEN` | Redis token (optional) |
+| `MEILISEARCH_HOST` | Meilisearch URL (optional) |
+| `MEILISEARCH_API_KEY` | Meilisearch key (optional) |
 
-## Resources
+### Installation
 
-Untitled UI React is built on top of [Untitled UI Figma](https://www.untitledui.com/figma), the world's largest and most popular Figma UI kit and design system. Explore more:
+```bash
+# Install dependencies
+npm install
 
-**[Untitled UI Figma:](https://www.untitledui.com/react/resources/figma-files)** The world's largest Figma UI kit and design system.
-<br/>
-**[Untitled UI Icons:](https://www.untitledui.com/react/resources/icons)** A clean, consistent, and neutral icon library crafted specifically for modern UI design.
-<br/>
-**[Untitled UI file icons:](https://www.untitledui.com/react/resources/file-icons)** Free file format icons, designed specifically for modern web and UI design.
-<br/>
-**[Untitled UI flag icons:](https://www.untitledui.com/react/resources/flag-icons)** Free country flag icons, designed specifically for modern web and UI design.
-<br/>
-**[Untitled UI avatars:](https://www.untitledui.com/react/resources/avatars)** Free placeholder user avatars and profile pictures to use in your projects.
-<br/>
-**[Untitled UI logos:](https://www.untitledui.com/react/resources/logos)** Free fictional company logos to use in your projects.
+# Set up the database schema
+npx prisma db push
+
+# Seed with sample data (90+ skills, 120 jobs, 5000 salary points)
+npx prisma db seed
+
+# Start the development server (runs on port 3456)
+npm run dev
+```
+
+Open [http://localhost:3456](http://localhost:3456) to access the app.
+
+### First-Time Access
+
+1. Navigate to `/register` to create an account
+2. Complete the 5-step onboarding wizard at `/onboarding`
+3. You'll land on the dashboard at `/`
+
+### Useful Commands
+
+```bash
+npm run dev          # Start dev server (Turbopack, port 3456)
+npm run build        # Production build
+npx prisma studio    # Database GUI (browse/edit data)
+npx prisma db push   # Push schema changes to database
+npx prisma db seed   # Seed sample data
+npx playwright test  # Run E2E tests
+```
+
+## Key Pages
+
+| Page | URL | Description |
+|------|-----|-------------|
+| Dashboard | `/` | Overview with career widgets |
+| Jobs | `/jobs` | Job listings with match scores |
+| Skills | `/skills` | Skills genome + transferability |
+| Salary | `/salary` | Compensation explorer |
+| Career Map | `/career-map` | Interactive 2D career visualization |
+| Skill Tree | `/skill-tree` | Interactive skill prerequisites |
+| Path Simulator | `/paths` | Career trajectory charts |
+| Companies | `/companies` | Company explorer + health scores |
+| AI Agents | `/agents` | 8 specialized career AI agents |
+| Settings | `/settings` | Profile + passkey management |
+
+## Tech Stack
+
+- **Frontend:** Next.js 16, React 19, TypeScript, Tailwind v4
+- **Backend:** Next.js API Routes + Server Actions + tRPC v11
+- **Database:** PostgreSQL + Prisma v6 + pgvector
+- **Auth:** NextAuth v5 + WebAuthn (passkeys)
+- **AI:** Claude API via @anthropic-ai/sdk
+- **Real-time:** Server-Sent Events
+- **Cache:** Redis (Upstash)
+- **Search:** Meilisearch
+- **Charts:** Recharts
+- **3D:** Three.js + @react-three/fiber
+- **Testing:** Playwright
 
 ## License
 
-Untitled UI React open-source components are licensed under the MIT license, which means you can use them for free in unlimited commercial projects.
-
-> [!NOTE]
-> This license applies only to the starter kit and to the components included in this open-source repository. [Untitled UI React PRO](https://www.untitledui.com/react) includes hundreds more advanced UI components and page examples and is subject to a separate [license agreement](https://www.untitledui.com/license).
-
-[Untitled UI license agreement →](https://www.untitledui.com/license)
-
-[Frequently asked questions →](https://www.untitledui.com/faqs)
+MIT — see [LICENSE](LICENSE) for details.
